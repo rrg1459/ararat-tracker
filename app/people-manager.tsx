@@ -39,7 +39,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
     // Programamos el llenado de campos en el formulario de forma segura
     if (formRef.current) {
       const inputs = formRef.current.elements as any;
-      inputs.id_number.value = person.id_number;
+      inputs.id_number.value = person.id_number || ""; // Controlamos que no pase undefined si está vacío
       inputs.first_name.value = person.first_name;
       inputs.last_name.value = person.last_name;
       inputs.phone.value = person.phone || "";
@@ -65,14 +65,22 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
         </h2>
 
         <form ref={formRef} action={handleSubmit} className="flex flex-col gap-4">
+          
+          {/* CAMBIO: Campo de Cédula Opcional y destacado visualmente */}
           <div>
-            <label className="block text-sm font-medium mb-1">Cédula / ID Number *</label>
+            <label className="block text-sm font-bold mb-1 text-amber-600 dark:text-amber-400">
+              Cédula de Identidad <span className="font-normal italic text-xs">(Opcional)</span>
+            </label>
             <input
               type="text"
               name="id_number"
-              required
-              className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500"
+              // SE QUITÓ EL ATRIBUTO "required" AQUÍ
+              placeholder="Ej: V-12345678 (No obligatorio)"
+              className="w-full p-2 rounded-md border border-amber-300 dark:border-amber-600/50 bg-transparent focus:outline-amber-500 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
             />
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
+              Puedes dejar este espacio en blanco si el miembro o visitante no posee el documento a la mano.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -82,7 +90,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                 type="text"
                 name="first_name"
                 required
-                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500"
+                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
               />
             </div>
             <div>
@@ -91,7 +99,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                 type="text"
                 name="last_name"
                 required
-                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500"
+                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
               />
             </div>
           </div>
@@ -102,7 +110,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
               <input
                 type="tel"
                 name="phone"
-                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500"
+                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
               />
             </div>
             <div>
@@ -123,7 +131,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
             <input
               type="email"
               name="email"
-              className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500"
+              className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
             />
           </div>
 
@@ -132,7 +140,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
             <input
               type="date"
               name="birth_date"
-              className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500"
+              className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
             />
           </div>
 
@@ -178,7 +186,8 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                     {person.first_name} {person.last_name}
                   </p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    ID: {person.id_number} {person.phone ? `• Tel: ${person.phone}` : ''}
+                    {/* CAMBIO: Muestra un guion o texto aclaratorio si no tiene cédula cargada */}
+                    Cédula: {person.id_number || "No registrada"} {person.phone ? `• Tel: ${person.phone}` : ''}
                   </p>
                   <span className={`inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${person.person_type === 'member'
                       ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
