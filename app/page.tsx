@@ -18,7 +18,7 @@ export default async function Home() {
       {/* Eliminamos el comportamiento justify-between forzado si queremos que todo tienda a la izquierda, 
           pero usamos sm:justify-between para mantener los botones a la derecha si la pantalla es grande */}
       <header className="max-w-5xl mx-auto mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        
+
         {/* Nuevo contenedor flex que une la imagen y los títulos hacia la izquierda */}
         <div className="flex items-center gap-4 justify-start">
           <div className="flex-shrink-0">
