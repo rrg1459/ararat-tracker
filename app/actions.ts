@@ -1,7 +1,8 @@
 'use server'
 
-import { createClient } from "./utils/supabase";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createClient } from "./utils/supabase";
 
 export async function registerPerson(formData: FormData) {
   const supabase = await createClient();
@@ -121,9 +122,6 @@ export async function saveAttendance(date: string, personIds: string[]) {
   return { success: true };
 }
 
-// Añade esto al final de app/actions.ts
-import { redirect } from "next/navigation";
-
 // Acción para iniciar sesión
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -140,7 +138,7 @@ export async function login(formData: FormData) {
     console.error("Login error:", error.message);
     // En lugar de retornar el objeto, simplemente cortamos la ejecución aquí.
     // (Más adelante podremos usar useActionState si queremos pintar el error en pantalla)
-    return; 
+    return;
   }
 
   // Si el login es exitoso, redireccionamos al inicio
