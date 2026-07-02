@@ -1,0 +1,60 @@
+supabase con github rrg1459
+
+Next.js App Structure Explained
+https://gemini.google.com/app/29f1e6535b588343
+
+---
+
+🛠️ Código SQL para crear las tablas en Supabase
+
+Puedes ir al SQL Editor en tu panel de Supabase, pegar este código y ejecutarlo (Run). Creará las tablas y sus relaciones automáticamente:
+-- 1. Crear tabla de perfiles (usuarios de la app)
+create table profiles (
+  id uuid references auth.users on delete cascade primary key,
+  updated_at timestamp with time zone,
+  full_name text,
+  role text default 'operator'
+);
+
+-- 2. Crear tabla de personas
+create table people (
+  id uuid default gen_random_uuid() primary key,
+  created_at timestamp with time zone default now(),
+  id_number text unique not null,
+  first_name text not null,
+  last_name text not null,
+  phone text,
+  email text,
+  birth_date date,
+  person_type text check (person_type in ('member', 'visitor')) not null,
+  invited_by_id uuid references people(id) on delete set null
+);
+
+-- 3. Crear tabla de registros de asistencia
+create table attendance_logs (
+  id uuid default gen_random_uuid() primary key,
+  date date default current_date not null,
+  person_id uuid references people(id) on delete cascade not null,
+  registered_by uuid references profiles(id) on delete set null,
+  notes text
+);
+
+---
+https://yozjlunaolxrdemiflgb.supabase.co
+
+Publishable key
+sb_publishable_M5ufrdu8VSIAt5EMQyshDw_5jk0PI_e
+
+ANON_KEY
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvempsdW5hb2x4cmRlbWlmbGdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5NDM5MTEsImV4cCI6MjA5ODUxOTkxMX0.Rfk04Nin5G53eP-mbKxJCdwSIaTsWet37OrX1rDaBf4
+
+Direct connection string
+postgresql://postgres:[YOUR-PASSWORD]@db.yozjlunaolxrdemiflgb.supabase.co:5432/postgres
+
+CLI setup commands
+supabase login
+supabase init
+supabase link --project-ref yozjlunaolxrdemiflgb
+
+project name: ararat
+password: 7SA34v4tA0oQrlci
