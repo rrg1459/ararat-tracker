@@ -138,7 +138,9 @@ export async function login(formData: FormData) {
 
   if (error) {
     console.error("Login error:", error.message);
-    return { success: false, error: "Invalid email or password" };
+    // En lugar de retornar el objeto, simplemente cortamos la ejecución aquí.
+    // (Más adelante podremos usar useActionState si queremos pintar el error en pantalla)
+    return; 
   }
 
   // Si el login es exitoso, redireccionamos al inicio

@@ -15,12 +15,19 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value, options))
+          // 1. Modificamos la request para que tenga las cookies actualizadas en el servidor
+          cookiesToSet.forEach(({ name, value, options }) =>
+            request.cookies.set({ name, value, ...options }) // <-- Pasamos un solo objeto compacto
+          )
+
+          // 2. Inicializamos la respuesta base de Next.js
           supabaseResponse = NextResponse.next({
             request,
           })
+
+          // 3. Inyectamos las cookies en la respuesta final para el navegador
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set({ name, value, ...options }) // <-- Pasamos un solo objeto compacto
           )
         },
       },
