@@ -20,7 +20,7 @@ export default async function Home() {
             Control de Asistencia
           </h1>
           <p className="text-zinc-600 dark:text-zinc-400">
-            Gestión y registro de miembros y visitantes.
+            Gestión y registro de miembros y visitantes
           </p>
         </div>
         <div className="flex items-center gap-3">
