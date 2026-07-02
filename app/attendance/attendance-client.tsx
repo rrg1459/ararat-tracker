@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { saveAttendance } from "../actions";
-// import Link from "next/link";
 
 interface Person {
   id: string;
@@ -21,6 +20,9 @@ interface AttendanceClientProps {
 export default function AttendanceClient({ people, initialLogs, currentDate }: AttendanceClientProps) {
   // Estado para controlar la fecha seleccionada
   const [selectedDate, setSelectedDate] = useState(currentDate);
+
+  // Estado para el término de búsqueda
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Estado para guardar un conjunto (Set) de los IDs de personas que asistieron
   const [attendedIds, setAttendedIds] = useState<Set<string>>(
@@ -50,11 +52,28 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
 
     setSaving(false);
     if (result.success) {
-      setMessage("¡Attendance saved successfully!  ");
+      setMessage("¡Asistencia guardada con éxito!");
     } else {
-      setMessage(`Error saving attendance: ${result.error}`);
+      setMessage(`Error al guardar asistencia: ${result.error}`);
     }
   }
+
+  // LÓGICA DE FILTRADO: Si tiene menos de 3 caracteres, muestra todos.
+  // Si tiene 3 o más, filtra ignorando mayúsculas/minúsculas y espacios.
+  const filteredPeople = searchTerm.trim().length >= 3
+    ? people.filter((person) => {
+      const term = searchTerm.toLowerCase();
+      const firstName = person.first_name.toLowerCase();
+      const lastName = person.last_name.toLowerCase();
+      const idNumber = (person.id_number || "").toLowerCase();
+
+      return (
+        firstName.includes(term) ||
+        lastName.includes(term) ||
+        idNumber.includes(term)
+      );
+    })
+    : people;
 
   return (
     <div className="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
@@ -67,7 +86,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 font-medium"
+            className="p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 font-medium text-zinc-900 dark:text-zinc-100"
           />
         </div>
 
@@ -83,14 +102,46 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
         </div>
       </div>
 
+      {/* NUEVO SECTOR: Campo de Buscador Dinámico */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
+          Buscar Persona
+        </label>
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Buscar por cédula, nombre o apellido... (mínimo 3 caracteres)"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-2.5 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100 text-sm placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
+          />
+          {searchTerm.trim().length > 0 && searchTerm.trim().length < 3 && (
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+              Escribe al menos 3 caracteres para activar el filtro.
+            </p>
+          )}
+        </div>
+      </div>
+
       {/* Listado de personas con Checkbox */}
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 mb-2">Directorio de Personas</h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">
+            Directorio de Personas
+          </h3>
+          {searchTerm.trim().length >= 3 && (
+            <span className="text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 px-2.5 py-0.5 rounded-full">
+              Resultados: {filteredPeople.length}
+            </span>
+          )}
+        </div>
 
-        {people.length === 0 ? (
-          <p className="text-zinc-500 italic text-sm text-center py-4">No se encontraron personas. Por favor, agréguelas primero en la página principal</p>
+        {filteredPeople.length === 0 ? (
+          <p className="text-zinc-500 italic text-sm text-center py-6">
+            No se encontraron personas que coincidan con la búsqueda.
+          </p>
         ) : (
-          people.map((person) => {
+          filteredPeople.map((person) => {
             const isChecked = attendedIds.has(person.id);
             return (
               <label
@@ -111,7 +162,9 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
                     <p className="font-semibold text-sm text-zinc-800 dark:text-zinc-200">
                       {person.first_name} {person.last_name}
                     </p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">ID: {person.id_number}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      Cédula: {person.id_number || "No registrada"}
+                    </p>
                   </div>
                 </div>
 
