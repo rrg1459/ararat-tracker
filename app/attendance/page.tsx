@@ -1,6 +1,7 @@
 import { createClient } from "../utils/supabase";
 import AttendanceClient from "./attendance-client";
 import Link from "next/link";
+import Image from "next/image"; // 1. Importamos el componente de Next.js
 
 export default async function AttendancePage() {
   const supabase = await createClient();
@@ -22,21 +23,40 @@ export default async function AttendancePage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 p-6 md:p-12 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
-      <header className="max-w-3xl mx-auto mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-            Asistencia Diaria
-          </h1>
-          <p className="text-zinc-600 dark:text-zinc-400">
-            Marcar asistencia para el servicio de hoy
-          </p>
+      {/* 2. Ajustamos el header para que maneje bien pantallas móviles (flex-col) y grandes (sm:flex-row) */}
+      <header className="max-w-3xl mx-auto mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        
+        {/* 3. Contenedor unificado para la imagen y los textos alineados a la izquierda */}
+        <div className="flex items-center gap-4 justify-start">
+          <div className="flex-shrink-0">
+            <Image
+              src="/ararat.png"
+              alt="Logo Iglesia Ararat"
+              width={60}
+              height={60}
+              priority
+              className="object-contain"
+            />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+              Asistencia Diaria
+            </h1>
+            <p className="text-zinc-600 dark:text-zinc-400">
+              Marcar asistencia para el servicio de hoy
+            </p>
+          </div>
         </div>
-        <Link
-          href="/"
-          className="text-sm font-semibold bg-zinc-200 text-zinc-800 px-4 py-2 rounded-md hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600 transition-colors"
-        >
-          Volver a Personas
-        </Link>
+
+        {/* Botón de retorno alineado */}
+        <div className="flex justify-start sm:justify-end">
+          <Link
+            href="/"
+            className="text-sm font-semibold bg-zinc-200 text-zinc-800 px-4 py-2 rounded-md hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600 transition-colors"
+          >
+            Volver a Personas
+          </Link>
+        </div>
       </header>
 
       <AttendanceClient

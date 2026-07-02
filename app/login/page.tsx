@@ -1,4 +1,5 @@
 import { login } from "../actions";
+import Image from "next/image"; // 1. Importamos el componente de optimización de imágenes
 
 export default function LoginPage({
   searchParams,
@@ -8,12 +9,22 @@ export default function LoginPage({
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 p-6">
       <div className="w-full max-w-md bg-white dark:bg-zinc-800 p-8 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700">
+
         <div className="text-center mb-6">
+          {/* 2. Contenedor para centrar y dimensionar el logo */}
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/ararat.png"       // Al estar en /public, Next.js la sirve desde la raíz
+              alt="Logo Iglesia Ararat"
+              width={180}             // Ajusta el ancho según el diseño de tu logo
+              height={180}            // Ajusta el alto manteniendo la relación de aspecto
+              priority                // Al ser el login, ayuda a que cargue de inmediato (LCP)
+              className="object-contain"
+            />
+          </div>
+
           <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
             Control de Asistencia
-          </h1>
-          <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-            Iglesia Ararat
           </h1>
         </div>
 
