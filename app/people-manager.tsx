@@ -61,7 +61,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
       {/* COLUMNA 1: FORMULARIO (REGISTRAR / EDITAR) */}
       <section className="bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
         <h2 className="text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-200">
-          {editingPerson ? `Editing: ${editingPerson.first_name}` : "Register New Person"}
+          {editingPerson ? `Editando: ${editingPerson.first_name}` : "Registro de Nueva Persona"}
         </h2>
 
         <form ref={formRef} action={handleSubmit} className="flex flex-col gap-4">
@@ -77,7 +77,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">First Name *</label>
+              <label className="block text-sm font-medium mb-1">Nombre(s) *</label>
               <input
                 type="text"
                 name="first_name"
@@ -86,7 +86,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Last Name *</label>
+              <label className="block text-sm font-medium mb-1">Apellido(s) *</label>
               <input
                 type="text"
                 name="last_name"
@@ -98,7 +98,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Phone</label>
+              <label className="block text-sm font-medium mb-1">Teléfono</label>
               <input
                 type="tel"
                 name="phone"
@@ -106,20 +106,20 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Person Type *</label>
+              <label className="block text-sm font-medium mb-1">Tipo de Persona *</label>
               <select
                 name="person_type"
                 required
                 className="w-full p-2 rounded-md border border-zinc-300 bg-zinc-50 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100 focus:outline-blue-500"
               >
-                <option value="member">Member</option>
-                <option value="visitor">Visitor</option>
+                <option value="member">Miembro</option>
+                <option value="visitor">Visitante</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1">Correo Electrónico</label>
             <input
               type="email"
               name="email"
@@ -128,7 +128,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Birth Date</label>
+            <label className="block text-sm font-medium mb-1">Fecha de Nacimiento</label>
             <input
               type="date"
               name="birth_date"
@@ -142,7 +142,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
               className={`flex-1 text-white p-2.5 rounded-md font-semibold transition-colors cursor-pointer ${editingPerson ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'
                 }`}
             >
-              {editingPerson ? "Update Changes" : "Save Person"}
+              {editingPerson ? "Actualizar Cambios" : "Guardar Persona"}
             </button>
 
             {editingPerson && (
@@ -151,7 +151,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                 onClick={handleCancelEdit}
                 className="bg-zinc-300 text-zinc-700 px-4 py-2.5 rounded-md font-semibold hover:bg-zinc-400 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600 cursor-pointer"
               >
-                Cancel
+                Cancelar
               </button>
             )}
           </div>
@@ -161,12 +161,12 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
       {/* COLUMNA 2: LISTADO */}
       <section className="bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
         <h2 className="text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-200">
-          Registered People ({initialPeople.length})
+          Personas Registradas ({initialPeople.length})
         </h2>
 
         <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-2">
           {initialPeople.length === 0 ? (
-            <p className="text-zinc-500 text-sm italic">No people registered yet.</p>
+            <p className="text-zinc-500 text-sm italic">No hay personas registradas aún.</p>
           ) : (
             initialPeople.map((person) => (
               <div
@@ -184,7 +184,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                       ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                       : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                     }`}>
-                    {person.person_type === 'member' ? 'Member' : 'Visitor'}
+                    {person.person_type === 'member' ? 'Miembro' : 'Visitante'}
                   </span>
                 </div>
 
@@ -193,7 +193,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                   onClick={() => handleEditClick(person)}
                   className="text-xs bg-white text-zinc-700 border border-zinc-300 px-3 py-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-600 dark:text-zinc-200 dark:border-zinc-500 dark:hover:bg-zinc-500 transition-colors cursor-pointer font-medium"
                 >
-                  Edit
+                  Editar
                 </button>
               </div>
             ))

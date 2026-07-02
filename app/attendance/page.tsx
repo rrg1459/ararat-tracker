@@ -25,17 +25,17 @@ export default async function AttendancePage() {
       <header className="max-w-3xl mx-auto mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-            Daily Attendance
+            Asistencia Diaria
           </h1>
           <p className="text-zinc-600 dark:text-zinc-400">
-            Mark attendance for today&apos;s service.
+            Marcar asistencia para el servicio de hoy
           </p>
         </div>
         <Link
           href="/"
           className="text-sm font-semibold bg-zinc-200 text-zinc-800 px-4 py-2 rounded-md hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600 transition-colors"
         >
-          ← Back to People
+          Volver a Personas
         </Link>
       </header>
 

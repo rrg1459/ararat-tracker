@@ -62,7 +62,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
       {/* Selector de fecha y botón de guardar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-700 pb-6 mb-6">
         <div>
-          <label className="block text-sm font-medium mb-1">Select Date</label>
+          <label className="block text-sm font-medium mb-1">Seleccionar Fecha</label>
           <input
             type="date"
             value={selectedDate}
@@ -78,17 +78,17 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
             disabled={saving}
             className="bg-blue-600 text-white px-6 py-2.5 rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:bg-blue-400 cursor-pointer"
           >
-            {saving ? "Saving..." : "Save Attendance"}
+            {saving ? "Guardando..." : "Guardar Asistencia"}
           </button>
         </div>
       </div>
 
       {/* Listado de personas con Checkbox */}
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 mb-2">People Directory</h3>
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-400 mb-2">Directorio de Personas</h3>
 
         {people.length === 0 ? (
-          <p className="text-zinc-500 italic text-sm text-center py-4">No people found. Please add them in the home page first.</p>
+          <p className="text-zinc-500 italic text-sm text-center py-4">No se encontraron personas. Por favor, agréguelas primero en la página principal</p>
         ) : (
           people.map((person) => {
             const isChecked = attendedIds.has(person.id);
@@ -119,7 +119,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
                   ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                   : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                   }`}>
-                  {person.person_type === 'member' ? 'Member' : 'Visitor'}
+                  {person.person_type === 'member' ? 'Miembro' : 'Visitante'}
                 </span>
               </label>
             );

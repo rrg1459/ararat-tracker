@@ -17,7 +17,7 @@ export default async function Home() {
       <header className="max-w-5xl mx-auto mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-            Control de Asistencia - Iglesia
+            Control de Asistencia
           </h1>
           <p className="text-zinc-600 dark:text-zinc-400">
             Gestión y registro de miembros y visitantes.
@@ -28,7 +28,7 @@ export default async function Home() {
             href="/attendance"
             className="bg-blue-600 text-white px-5 py-2.5 rounded-md font-semibold hover:bg-blue-700 transition-colors text-center"
           >
-            Take Attendance →
+            Tomar Asistencia
           </Link>
 
           {/* Formulario rápido para ejecutar el Server Action de cerrar sesión */}
@@ -37,7 +37,7 @@ export default async function Home() {
               type="submit"
               className="bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-4 py-2.5 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer"
             >
-              Logout
+              Cerrar sesión
             </button>
           </form>
         </div>
