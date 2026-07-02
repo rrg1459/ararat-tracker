@@ -112,8 +112,8 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                 required
                 className="w-full p-2 rounded-md border border-zinc-300 bg-zinc-50 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100 focus:outline-blue-500"
               >
-                <option value="member">Miembro</option>
                 <option value="visitor">Visitante</option>
+                <option value="member">Miembro</option>
               </select>
             </div>
           </div>
