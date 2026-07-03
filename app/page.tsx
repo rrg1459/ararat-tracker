@@ -1,25 +1,41 @@
-import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "./utils/supabase";
 import PeopleManager from "./people-manager";
+import AttendanceClient from "./attendance/attendance-client"; // Tu componente cliente importado aquí
 import { logout } from "./actions";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string; date?: string }>;
+}) {
   const supabase = await createClient();
+  const { view, date } = await searchParams;
 
-  // Obtenemos los datos desde el servidor de manera rápida y segura
+  // Vista por defecto: asistencia
+  const currentView = view === "people" ? "people" : "attendance";
+
+  // Fecha por defecto: la del día de hoy en formato YYYY-MM-DD
+  const currentDate = date || new Date().toISOString().split("T")[0];
+
+  // 1. Traemos la lista completa de personas de manera segura en el servidor
   const { data: people } = await supabase
     .from("people")
     .select("*")
     .order("created_at", { ascending: false });
 
+  // 2. Traemos la asistencia ya guardada para la fecha seleccionada
+  // Así, si cambian de fecha o recargan, se marcarán automáticamente los que ya asistieron
+  const { data: initialLogs } = await supabase
+    .from("attendance_logs") // Ajusta el nombre de tu tabla de logs si es distinto
+    .select("person_id")
+    .eq("date", currentDate);
+
   return (
     <div className="min-h-screen bg-zinc-50 p-6 md:p-12 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
-      {/* Eliminamos el comportamiento justify-between forzado si queremos que todo tienda a la izquierda, 
-          pero usamos sm:justify-between para mantener los botones a la derecha si la pantalla es grande */}
       <header className="max-w-5xl mx-auto mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
-        {/* Nuevo contenedor flex que une la imagen y los títulos hacia la izquierda */}
+        {/* Info de la aplicación */}
         <div className="flex items-center gap-4 justify-start">
           <div className="relative w-[60px] h-[60px] flex-shrink-0">
             <Image
@@ -41,20 +57,33 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* Botones de acción (se mantendrán alineados o pasarán abajo en móviles de forma ordenada) */}
+        {/* Botones de navegación nativa condicionales */}
         <div className="flex items-center gap-3 justify-start sm:justify-end">
-          <Link
-            href="/attendance"
-            className="bg-blue-600 text-white px-5 py-2.5 rounded-md font-semibold hover:bg-blue-700 transition-colors text-center"
-          >
-            Tomar Asistencia
-          </Link>
 
-          {/* Formulario rápido para ejecutar el Server Action de cerrar sesión */}
+          {/* Solo se muestra si NO estamos en la toma de asistencia */}
+          {currentView !== "attendance" && (
+            <a
+              href="?view=attendance"
+              className="px-5 py-2.5 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm"
+            >
+              Tomar Asistencia
+            </a>
+          )}
+
+          {/* Solo se muestra si NO estamos en la gestión de personas */}
+          {currentView !== "people" && (
+            <a
+              href="?view=people"
+              className="px-5 py-2.5 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm"
+            >
+              Gestionar Personas
+            </a>
+          )}
+
           <form action={logout}>
             <button
               type="submit"
-              className="bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-4 py-2.5 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer"
+              className="bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-4 py-2.5 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm"
             >
               Cerrar sesión
             </button>
@@ -62,8 +91,18 @@ export default async function Home() {
         </div>
       </header>
 
-      {/* Renderizamos el manejador dinámico pasándole los datos iniciales */}
-      <PeopleManager initialPeople={people || []} />
+      {/* Renderizado en base a la pestaña activa */}
+      <div className="max-w-5xl mx-auto">
+        {currentView === "attendance" ? (
+          <AttendanceClient
+            people={people || []}
+            initialLogs={initialLogs || []}
+            currentDate={currentDate}
+          />
+        ) : (
+          <PeopleManager initialPeople={people || []} />
+        )}
+      </div>
     </div>
   );
 }
