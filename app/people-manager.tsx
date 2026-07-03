@@ -33,13 +33,27 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
   }
 
   // Activa el modo edición cargando los datos de la persona seleccionada
+  // 1. Define la estructura de tu formulario fuera de la función
+  interface PersonFormElements extends HTMLFormControlsCollection {
+    id_number: HTMLInputElement;
+    first_name: HTMLInputElement;
+    last_name: HTMLInputElement;
+    phone: HTMLInputElement;
+    email: HTMLInputElement;
+    birth_date: HTMLInputElement;
+    person_type: HTMLInputElement; // O HTMLSelectElement si es un <select>
+  }
+
+  // 2. Tu función queda así:
   function handleEditClick(person: Person) {
     setEditingPerson(person);
 
-    // Programamos el llenado de campos en el formulario de forma segura
     if (formRef.current) {
-      const inputs = formRef.current.elements as any;
-      inputs.id_number.value = person.id_number || ""; // Controlamos que no pase undefined si está vacío
+      // Castamos los elementos a nuestra interfaz personalizada
+      const inputs = formRef.current.elements as PersonFormElements;
+
+      // Ahora TS sabe exactamente qué es cada campo y no da errores
+      inputs.id_number.value = person.id_number || "";
       inputs.first_name.value = person.first_name;
       inputs.last_name.value = person.last_name;
       inputs.phone.value = person.phone || "";
@@ -65,7 +79,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
         </h2>
 
         <form ref={formRef} action={handleSubmit} className="flex flex-col gap-4">
-          
+
           {/* CAMBIO: Campo de Cédula Opcional y destacado visualmente */}
           <div>
             <label className="block text-sm font-bold mb-1 text-amber-600 dark:text-amber-400">
@@ -190,8 +204,8 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                     Cédula: {person.id_number || "No registrada"} {person.phone ? `• Tel: ${person.phone}` : ''}
                   </p>
                   <span className={`inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${person.person_type === 'member'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                     }`}>
                     {person.person_type === 'member' ? 'Miembro' : 'Visitante'}
                   </span>
