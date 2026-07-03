@@ -8,13 +8,17 @@ export async function registerPerson(formData: FormData) {
   const supabase = await createClient();
 
   // Extraemos los datos del formulario de manera segura
-  const idNumber = formData.get("id_number") as string;
+  const rawIdNumber = formData.get("id_number") as string;
   const firstName = formData.get("first_name") as string;
   const lastName = formData.get("last_name") as string;
   const phone = formData.get("phone") as string;
   const email = formData.get("email") as string;
   const birthDate = formData.get("birth_date") as string;
   const personType = formData.get("person_type") as string;
+
+  const idNumber = rawIdNumber && rawIdNumber.trim() !== ""
+    ? rawIdNumber.trim().toLowerCase()
+    : null;
 
   // Insertamos en la tabla 'people' usando los nombres en inglés que definimos
   const { error } = await supabase.from("people").insert([
@@ -46,13 +50,17 @@ export async function updatePerson(id: string, formData: FormData) {
   const supabase = await createClient();
 
   // Extraemos los datos actualizados del formulario
-  const idNumber = formData.get("id_number") as string;
+  const rawIdNumber = formData.get("id_number") as string;
   const firstName = formData.get("first_name") as string;
   const lastName = formData.get("last_name") as string;
   const phone = formData.get("phone") as string;
   const email = formData.get("email") as string;
   const birthDate = formData.get("birth_date") as string;
   const personType = formData.get("person_type") as string;
+
+  const idNumber = rawIdNumber && rawIdNumber.trim() !== ""
+    ? rawIdNumber.trim().toLowerCase()
+    : null;
 
   // Actualizamos la fila correspondiente en Supabase usando el ID
   const { error } = await supabase
