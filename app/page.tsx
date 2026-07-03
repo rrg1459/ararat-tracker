@@ -36,7 +36,7 @@ export default async function Home({
       <header className="max-w-5xl mx-auto mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
         {/* Info de la aplicación */}
-        <div className="flex items-center gap-4 justify-start">
+        <div className="flex items-center gap-4 justify-start min-w-0">
           <div className="relative w-[60px] h-[60px] flex-shrink-0">
             <Image
               src="/ararat.png"
@@ -47,16 +47,18 @@ export default async function Home({
               sizes="60px"
             />
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+          <div className="min-w-0">
+            {/* Ajustamos el tamaño en móviles (text-xl) y evitamos que salte de línea */}
+            <h1 className="text-xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
               Control de Asistencia
             </h1>
-            <p className="text-zinc-600 dark:text-zinc-400">
+
+            {/* Oculto por defecto en pantallas pequeñas (hidden) y visible desde 'sm' en adelante (sm:block) */}
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm hidden sm:block">
               Gestión y registro de miembros y visitantes
             </p>
           </div>
         </div>
-
         {/* Botones de navegación nativa condicionales */}
         <div className="flex items-center gap-3 justify-start sm:justify-end">
 
