@@ -48,8 +48,10 @@ export default async function Home({
             />
           </div>
           <div className="min-w-0">
-            {/* Ajustamos el tamaño en móviles (text-xl) y evitamos que salte de línea */}
-            <h1 className="text-xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
+            <h1
+              style={{ fontSize: '22px' }}
+              className="sm:text-3xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap"
+            >
               Control de Asistencia
             </h1>
 
