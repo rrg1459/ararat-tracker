@@ -1,11 +1,7 @@
 import { login } from "../actions";
 import Image from "next/image"; // 1. Importamos el componente de optimización de imágenes
 
-export default function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ message?: string }>;
-}) {
+export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 p-6">
       <div className="w-full max-w-md bg-white dark:bg-zinc-800 p-8 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700">
@@ -23,7 +19,8 @@ export default function LoginPage({
             />
           </div>
 
-          <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+          {/* CAMBIO AQUÍ: Se agregó whitespace-nowrap y tamaños de texto adaptativos */}
+          <h1 className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
             Control de Asistencia
           </h1>
         </div>
