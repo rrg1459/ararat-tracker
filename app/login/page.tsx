@@ -12,14 +12,14 @@ export default function LoginPage({
 
         <div className="text-center mb-6">
           {/* 2. Contenedor para centrar y dimensionar el logo */}
-          <div className="flex justify-center mb-4">
+          <div className="relative w-[180px] h-[180px] mx-auto mb-4">
             <Image
-              src="/ararat.png"       // Al estar en /public, Next.js la sirve desde la raíz
+              src="/ararat.png"
               alt="Logo Iglesia Ararat"
-              width={180}             // Ajusta el ancho según el diseño de tu logo
-              height={180}            // Ajusta el alto manteniendo la relación de aspecto
-              priority                // Al ser el login, ayuda a que cargue de inmediato (LCP)
+              fill
+              priority
               className="object-contain"
+              sizes="180px"
             />
           </div>
 

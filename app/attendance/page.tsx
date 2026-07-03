@@ -28,14 +28,14 @@ export default async function AttendancePage() {
         
         {/* 3. Contenedor unificado para la imagen y los textos alineados a la izquierda */}
         <div className="flex items-center gap-4 justify-start">
-          <div className="flex-shrink-0">
+          <div className="relative w-[60px] h-[60px] flex-shrink-0">
             <Image
               src="/ararat.png"
               alt="Logo Iglesia Ararat"
-              width={60}
-              height={60}
+              fill
               priority
               className="object-contain"
+              sizes="60px"
             />
           </div>
           <div>
