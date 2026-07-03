@@ -19,7 +19,7 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             )
           } catch {
-            // El middleware se encargará de esto si se llama desde un Server Component
+            // El proxy se encargará de esto si se llama desde un Server Component
           }
         },
       },

@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -54,7 +54,7 @@ export async function middleware(request: NextRequest) {
   return supabaseResponse
 }
 
-// Configura qué rutas va a interceptar el middleware (básicamente todo excepto archivos públicos)
+// Configura qué rutas va a interceptar el proxy (básicamente todo excepto archivos públicos)
 export const config = {
   matcher: [
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
