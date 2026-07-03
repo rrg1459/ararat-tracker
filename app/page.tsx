@@ -49,7 +49,7 @@ export default async function Home({
           </div>
           <div className="min-w-0">
             <h1
-              style={{ fontSize: '22px' }}
+              style={{ fontSize: '20px' }}
               className="sm:text-3xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap"
             >
               Control de Asistencia
