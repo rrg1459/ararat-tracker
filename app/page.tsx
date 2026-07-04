@@ -14,9 +14,26 @@ export default async function Home({
 
   // OBTENER USUARIO LOGUEADO: Solicitamos de forma segura la info de la sesión activa
   const { data: { user } } = await supabase.auth.getUser();
-  const userEmail = user?.email || "Usuario";
-  // Buscamos el rol en los metadatos de Supabase, o usamos 'Anotador' por defecto
-  const userRole = user?.user_metadata?.role || "Anotador";
+
+  console.log("Usuario de Auth:", user);
+
+  // NUEVA CONSULTA: Buscamos los datos correspondientes en la tabla 'profiles' usando el ID del usuario
+  let profileData = null;
+  if (user) {
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("email, role")
+      .eq("id", user.id)
+      .single(); // .single() porque esperamos exactamente una fila
+
+    if (!error) {
+      profileData = profile;
+    }
+  }
+
+  // Asignamos las variables priorizando la tabla 'profiles', y usando fallbacks por si acaso
+  const userEmail = profileData?.email || user?.email || "Usuario";
+  const userRole = profileData?.role || "Anotador";
 
   // Vista por defecto: asistencia
   const currentView = view === "people" ? "people" : "attendance";
