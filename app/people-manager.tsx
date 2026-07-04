@@ -164,7 +164,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
               className={`flex-1 text-white p-2.5 rounded-md font-semibold transition-colors cursor-pointer ${editingPerson ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'
                 }`}
             >
-              {editingPerson ? "Actualizar Cambios" : "Guardar Persona"}
+              {editingPerson ? "Actualizar" : "Guardar Persona"}
             </button>
 
             {editingPerson && (
