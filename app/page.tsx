@@ -70,9 +70,10 @@ export default async function Home({
               Sesión: <span className="text-zinc-500 dark:text-zinc-400 font-semibold">{userEmail}</span>
 
               {/* Badge/Etiqueta para el Rol */}
-              <span className="text-[9px] uppercase tracking-wider font-bold bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 px-1.5 py-0.5 rounded flex-shrink-0 ml-2.5">
+              <span className="text-[9px] uppercase tracking-wider font-bold bg-terracota/10 text-terracota dark:bg-terracota/20 dark:text-terracota-light px-1.5 py-0.5 rounded flex-shrink-0 ml-2.5">
                 {userRole}
               </span>
+
             </p>
 
           </div>
