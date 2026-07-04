@@ -35,3 +35,24 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* --- Personalización de React Datepicker (en globals.css) --- */
+
+/* 1. Definir la clase personalizada para el fin de semana */
+.react-datepicker .weekend-day {
+  color: #ef4444 !important; /* Tailwind 'red-500' */
+  /* font-weight: 700; Texto más grueso */
+}
+
+/* 2. Mantener legibilidad si el fin de semana está seleccionado */
+.react-datepicker .react-datepicker__day--selected.weekend-day {
+  color: white !important;
+  background-color: #ef4444 !important; /* Tailwind 'red-500' */
+}
+
+/* 3. Mantener legibilidad al pasar el mouse por encima */
+.react-datepicker .react-datepicker__day--keyboard-selected.weekend-day:hover,
+.react-datepicker .react-datepicker__day:hover.weekend-day {
+  color: white !important;
+  background-color: #fc8585 !important; /* Tailwind 'red-400' para hover */
+}
