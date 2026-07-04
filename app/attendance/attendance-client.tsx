@@ -110,7 +110,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
         <div className="relative">
           <input
             type="text"
-            placeholder="Buscar por cédula, nombre o apellido... (mínimo 3 caracteres)"
+            placeholder="por cédula, nombre o apellido... (mínimo 3 caracteres)"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full p-2.5 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100 text-sm placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
@@ -127,7 +127,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">
-            Directorio de Personas
+            Directorio
           </h3>
           {searchTerm.trim().length >= 3 && (
             <span className="text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 px-2.5 py-0.5 rounded-full">
