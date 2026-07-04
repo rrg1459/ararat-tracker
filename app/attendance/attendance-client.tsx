@@ -1,7 +1,13 @@
-'use client'
+"use client";
 
 import { useState } from "react";
 import { saveAttendance } from "../actions";
+import DatePicker, { registerLocale } from "react-datepicker";
+
+import "react-datepicker/dist/react-datepicker.css";
+import { es } from "date-fns/locale";
+
+registerLocale("es", es);
 
 interface Person {
   id: string;
@@ -14,25 +20,22 @@ interface Person {
 interface AttendanceClientProps {
   people: Person[];
   initialLogs: { person_id: string }[];
-  currentDate: string;
+  currentDate: string; // Recibe "YYYY-MM-DD" desde el Server Component
 }
 
 export default function AttendanceClient({ people, initialLogs, currentDate }: AttendanceClientProps) {
-  // Estado para controlar la fecha seleccionada
-  const [selectedDate, setSelectedDate] = useState(currentDate);
+  // 1. Convertimos el string inicial "YYYY-MM-DD" a un objeto Date real agregando 'T00:00:00' para evitar desfases de zona horaria
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    currentDate ? new Date(`${currentDate}T00:00:00`) : new Date()
+  );
 
-  // Estado para el término de búsqueda
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Estado para guardar un conjunto (Set) de los IDs de personas que asistieron
   const [attendedIds, setAttendedIds] = useState<Set<string>>(
     new Set(initialLogs.map((log) => log.person_id))
   );
-
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Alterna el estado del check (marcado / desmarcado)
   function handleCheckboxChange(personId: string) {
     const newIds = new Set(attendedIds);
     if (newIds.has(personId)) {
@@ -43,12 +46,23 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
     setAttendedIds(newIds);
   }
 
-  // Envía los datos acumulados al servidor
+  // Envia los datos acumulados al servidor
   async function handleSave() {
+    if (!selectedDate) {
+      setMessage("Por favor, selecciona una fecha válida.");
+      return;
+    }
+
     setSaving(true);
     setMessage("");
 
-    const result = await saveAttendance(selectedDate, Array.from(attendedIds));
+    // 2. Convertimos el objeto Date de vuelta a string 'YYYY-MM-DD' para tu Server Action
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(selectedDate.getDate()).padStart(2, "0");
+    const dateString = `${year}-${month}-${day}`;
+
+    const result = await saveAttendance(dateString, Array.from(attendedIds));
 
     setSaving(false);
     if (result.success) {
@@ -58,8 +72,6 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
     }
   }
 
-  // LÓGICA DE FILTRADO: Si tiene menos de 3 caracteres, muestra todos.
-  // Si tiene 3 o más, filtra ignorando mayúsculas/minúsculas y espacios.
   const filteredPeople = searchTerm.trim().length >= 3
     ? people.filter((person) => {
       const term = searchTerm.toLowerCase();
@@ -81,12 +93,24 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
       {/* Selector de fecha y botón de guardar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-700 pb-6 mb-6">
         <div>
-          <label className="block text-sm font-medium mb-1">Seleccionar Fecha</label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 font-medium text-zinc-900 dark:text-zinc-100"
+          <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
+            Seleccionar Fecha
+          </label>
+
+          {/* 3. Reemplazo del input nativo por React Datepicker */}
+          <DatePicker
+            selected={selectedDate}
+            onChange={(date: Date | null) => setSelectedDate(date)}
+            dateFormat="dd/MMM/yyyy" // Formato que verá el usuario final
+            placeholderText="Elige un día"
+            locale="es" // Configuración regional para español
+            maxDate={new Date()} // No permitir fechas futuras
+            dayClassName={(date) => {
+              const day = date.getDay(); // 0 es domingo, 6 es sábado
+              // Si es domingo (0) o sábado (6), añadimos la clase 'weekend-day'
+              return day === 0 || day === 6 ? "weekend-day" : "";
+            }}
+            className="p-2 w-full sm:w-[140px] rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 font-medium text-zinc-900 dark:text-zinc-100 text-center"
           />
         </div>
 
@@ -102,7 +126,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
         </div>
       </div>
 
-      {/* NUEVO SECTOR: Campo de Buscador Dinámico */}
+      {/* Campo de Buscador Dinámico */}
       <div className="mb-6">
         <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
           Buscar Persona
