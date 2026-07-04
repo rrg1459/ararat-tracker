@@ -74,7 +74,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
 
       {/* COLUMNA 1: FORMULARIO (REGISTRAR / EDITAR) */}
       <section className="bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
-        <h2 className="text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-200">
+        <h2 className="text-md sm:text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-200">
           {editingPerson ? `Editando: ${editingPerson.first_name}` : "Registro de Nueva Persona"}
         </h2>
 
@@ -182,7 +182,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
 
       {/* COLUMNA 2: LISTADO */}
       <section className="bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
-        <h2 className="text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-200">
+        <h2 className="text-md sm:text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-200">
           Personas Registradas ({initialPeople.length})
         </h2>
 
