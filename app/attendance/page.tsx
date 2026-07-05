@@ -1,19 +1,11 @@
 // page.tsx
 import { createClient } from "../utils/supabase";
-import AttendanceClient from "./attendance-client";
+import AttendanceClient, { Person } from "./attendance-client";
 import Link from "next/link";
 import Image from "next/image";
 
 interface PageProps {
   searchParams: Promise<{ date?: string }>;
-}
-
-interface Person {
-  id: string;
-  id_number: string | null; // Puede ser null si no está registrada
-  first_name: string;
-  last_name: string;
-  person_type: string;
 }
 
 export default async function AttendancePage({ searchParams }: PageProps) {
