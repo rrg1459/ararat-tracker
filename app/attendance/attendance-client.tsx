@@ -11,9 +11,9 @@ import { es } from "date-fns/locale";
 
 registerLocale("es", es);
 
-interface Person {
+export interface Person {
   id: string;
-  id_number: string;
+  id_number: string | null; // Puede ser null si no está registrada
   first_name: string;
   last_name: string;
   person_type: string;
