@@ -1,32 +1,75 @@
+// page.tsx
 import { createClient } from "../utils/supabase";
 import AttendanceClient from "./attendance-client";
 import Link from "next/link";
-import Image from "next/image"; // 1. Importamos el componente de Next.js
+import Image from "next/image";
 
-export default async function AttendancePage() {
+interface PageProps {
+  searchParams: Promise<{ date?: string }>;
+}
+
+interface Person {
+  id: string;
+  id_number: string | null; // Puede ser null si no está registrada
+  first_name: string;
+  last_name: string;
+  person_type: string;
+}
+
+export default async function AttendancePage({ searchParams }: PageProps) {
   const supabase = await createClient();
 
-  // 1. Obtenemos la fecha de hoy en formato YYYY-MM-DD
+  const resolvedParams = await searchParams;
   const today = new Date().toISOString().split('T')[0];
+  const targetDate = resolvedParams.date || today;
 
-  // 2. Traemos a todas las personas registradas
-  const { data: people } = await supabase
-    .from("people")
-    .select("id, id_number, first_name, last_name, person_type")
-    .order("first_name", { ascending: true });
+  const isToday = targetDate === today;
 
-  // 3. Traemos las asistencias que ya hayan sido marcadas para el día de hoy
-  const { data: initialLogs } = await supabase
-    .from("attendance_logs")
-    .select("person_id")
-    .eq("date", today);
+  let people: Person[] = [];
+  let initialLogs: { person_id: string }[] = [];
+
+  if (isToday) {
+    // HOY: Traemos logs de hoy y el directorio completo
+    const { data: logs } = await supabase
+      .from("attendance_logs")
+      .select("person_id")
+      .eq("date", targetDate);
+
+    initialLogs = logs || [];
+
+    const { data: allPeople } = await supabase
+      .from("people")
+      .select("id, id_number, first_name, last_name, person_type")
+      .order("first_name", { ascending: true });
+
+    people = allPeople || [];
+  } else {
+    // PASADO: Traemos los logs de ese día específico
+    const { data: logs } = await supabase
+      .from("attendance_logs")
+      .select("person_id")
+      .eq("date", targetDate);
+
+    initialLogs = logs || [];
+
+    if (initialLogs.length > 0) {
+      // Traemos solo a las personas que asistieron ese día
+      const personIds = initialLogs.map(log => log.person_id);
+      const { data: attendedPeople } = await supabase
+        .from("people")
+        .select("id, id_number, first_name, last_name, person_type")
+        .in("id", personIds)
+        .order("first_name", { ascending: true });
+
+      people = attendedPeople || [];
+    } else {
+      people = [];
+    }
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50 p-6 md:p-12 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
-      {/* 2. Ajustamos el header para que maneje bien pantallas móviles (flex-col) y grandes (sm:flex-row) */}
       <header className="max-w-3xl mx-auto mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        
-        {/* 3. Contenedor unificado para la imagen y los textos alineados a la izquierda */}
         <div className="flex items-center gap-4 justify-start">
           <div className="relative w-[60px] h-[60px] flex-shrink-0">
             <Image
@@ -43,12 +86,11 @@ export default async function AttendancePage() {
               Asistencia Diaria
             </h1>
             <p className="text-zinc-600 dark:text-zinc-400">
-              Marcar asistencia para el servicio de hoy
+              {isToday ? "Marcar asistencia para el servicio de hoy" : `Consulta de fecha: ${targetDate}`}
             </p>
           </div>
         </div>
 
-        {/* Botón de retorno alineado */}
         <div className="flex justify-start sm:justify-end">
           <Link
             href="/"
@@ -60,9 +102,9 @@ export default async function AttendancePage() {
       </header>
 
       <AttendanceClient
-        people={people || []}
-        initialLogs={initialLogs || []}
-        currentDate={today}
+        people={people}
+        initialLogs={initialLogs}
+        currentDate={targetDate}
       />
     </div>
   );
