@@ -29,8 +29,6 @@ export default async function Home({
     }
   }
 
-  console.log('page profileData-->: ', profileData);
-
   // Asignamos las variables priorizando la tabla 'profiles', y usando fallbacks por si acaso
   const userName = profileData?.full_name?.split(" ")[0] || "Usuario";
   const userRole = profileData?.role || "Anotador";
