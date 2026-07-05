@@ -250,13 +250,14 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
             </div>
             <div>
               <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
-                Fecha de Nacimiento
+                Fecha de Nacimiento (*)
               </label>
               <DatePicker
                 selected={selectedDate}
                 onChange={(date: Date | null) => setSelectedDate(date)}
                 dateFormat="dd/MMM/yyyy"
                 placeholderText="Elige un día"
+                required
                 locale="es"
                 maxDate={new Date()}
                 className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-zinc-900 dark:text-zinc-100 dark:border-zinc-600 text-center"
@@ -332,6 +333,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
         </form>
       </section>
 
+
       {/* COLUMNA 2: LISTADO */}
       <section className="lg:col-span-5 bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
         <h2 className="text-md sm:text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-200">
@@ -342,51 +344,89 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
           {initialPeople.length === 0 ? (
             <p className="text-zinc-500 text-sm italic">No hay personas registradas aún.</p>
           ) : (
-            initialPeople.map((person) => (
-              <div
-                key={person.id}
-                className="p-3 bg-zinc-50 rounded-lg border border-zinc-100 dark:bg-zinc-700 dark:border-zinc-600 flex justify-between items-center gap-2"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-sm truncate">
-                    {person.first_name} {person.last_name}
-                  </p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
-                    Cédula: {person.id_number || "No registrada"}
-                  </p>
-                  {person.cell_phone && (
-                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                      📱 Cel: {person.cell_phone}
-                    </p>
-                  )}
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${person.person_type === 'member'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
-                      }`}>
-                      {person.person_type === 'member' ? 'Miembro' : 'Visitante'}
-                    </span>
-                    {person.is_first_time_visitor && (
-                      <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-medium">
-                        1ra Vez
-                      </span>
-                    )}
-                    {person.needs_prayer && (
-                      <span className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 text-[10px] px-2 py-0.5 rounded-full font-medium">
-                        Oración 🙏
-                      </span>
-                    )}
-                  </div>
-                </div>
+            initialPeople.map((person) => {
+              // --- LÓGICA PARA CALCULAR LA EDAD ---
+              let age: number | null = null;
+              if (person.birth_date) {
+                const birthDate = new Date(person.birth_date.replace(/-/g, '/'));
+                const today = new Date();
+                let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+                const monthDifference = today.getMonth() - birthDate.getMonth();
 
-                <button
-                  onClick={() => handleEditClick(person)}
-                  className="text-xs bg-white text-zinc-700 border border-zinc-300 px-3 py-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-600 dark:text-zinc-200 dark:border-zinc-500 dark:hover:bg-zinc-500 transition-colors cursor-pointer font-medium whitespace-nowrap"
+                if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                  calculatedAge--;
+                }
+                age = calculatedAge;
+              }
+
+              return (
+                <div
+                  key={person.id}
+                  className="p-3 bg-zinc-50 rounded-lg border border-zinc-100 dark:bg-zinc-700 dark:border-zinc-600 flex justify-between items-center gap-2"
                 >
-                  Editar
-                </button>
-              </div>
-            ))
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm truncate">
+                      {person.first_name} {person.last_name}
+                    </p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+                      Cédula: {person.id_number || "No registrada"}
+                    </p>
+                    {person.cell_phone && (
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                        📱 Cel: {person.cell_phone}
+                      </p>
+                    )}
+
+                    {/* CONTENEDOR DE ETIQUETAS */}
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${person.person_type === 'member'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                        }`}>
+                        {person.person_type === 'member' ? 'Miembro' : 'Visitante'}
+                      </span>
+
+                      {/* ETIQUETA DE EDAD: BEBÉ O NIÑO */}
+                      {age !== null && age >= 0 && age <= 3 && (
+                        <span className="bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400 text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-0.5">
+                          Bebé 👶
+                        </span>
+                      )}
+                      {age !== null && age >= 4 && age <= 11 && (
+                        <span className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-0.5">
+                          Niño 👦
+                        </span>
+                      )}
+
+                      {/* ETIQUETA: CRISTIANO (Aceptó a Jesús) */}
+                      {person.accepted_jesus && (
+                        <span className="bg-emerald-500 text-white dark:bg-emerald-600 text-[10px] px-2 py-0.5 rounded-full font-semibold flex items-center gap-0.5 shadow-xs">
+                          Cristiano 🙏
+                        </span>
+                      )}
+
+                      {person.is_first_time_visitor && (
+                        <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                          1ra Vez
+                        </span>
+                      )}
+                      {person.needs_prayer && (
+                        <span className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                          Oración 🙏
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleEditClick(person)}
+                    className="text-xs bg-white text-zinc-700 border border-zinc-300 px-3 py-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-600 dark:text-zinc-200 dark:border-zinc-500 dark:hover:bg-zinc-500 transition-colors cursor-pointer font-medium whitespace-nowrap"
+                  >
+                    Editar
+                  </button>
+                </div>
+              );
+            })
           )}
         </div>
       </section>
