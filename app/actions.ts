@@ -169,23 +169,38 @@ export async function saveAttendance(date: string, personIds: string[]) {
   return { success: true };
 }
 
-export async function login(formData: FormData) {
+export type ActionState = {
+  error?: string;
+  success?: boolean;
+  email?: string;     // Agregamos esto para preservar los datos
+  password?: string;  // Agregamos esto para preservar los datos
+} | null;
+
+export async function login(prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
   const supabase = await createClient();
 
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-
+  // 1. Intentar iniciar sesión en Supabase
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
+  // 2. Si las credenciales están MAL, devolvemos el error y los campos intactos
   if (error) {
-    console.error("Login error:", error.message);
-    return;
+    return {
+      error: "El correo electrónico o la contraseña son incorrectos.",
+      email,
+      password,
+    };
   }
 
-  redirect('/');
+  // 3. Si las credenciales están BIEN, forzamos la redirección al panel principal
+  // ¡OJO! 'redirect' debe ejecutarse fuera del bloque try/catch si usas uno, 
+  // ya que Next.js lanza una excepción interna para manejar los redireccionamientos.
+  redirect("/"); // Ajusta aquí la ruta de inicio de tu app (ej: "/attendance", "/", etc.)
 }
 
 export async function logout() {
