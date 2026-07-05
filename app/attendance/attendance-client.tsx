@@ -199,7 +199,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
             {visiblePeople.length > 0 && (
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">
-                  {isSelectedToday ? "Directorio Completo" : "Asistentes del Día"}
+                  {isSelectedToday ? "Directorio" : "Asistentes"}
                 </h3>
                 {searchTerm.trim().length >= 3 && (
                   <span className="text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 px-2.5 py-0.5 rounded-full">
