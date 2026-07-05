@@ -15,9 +15,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Asistencia de Ararat",
   description: "Aplicacion para el control de asistencia de la iglesia Ararat",
-  icons: {
-    icon: "/icon.png?v=1",
-  },
 };
 
 export default function RootLayout({
