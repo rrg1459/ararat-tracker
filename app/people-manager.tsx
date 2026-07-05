@@ -37,7 +37,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const [checkboxes, setCheckboxes] = useState({
+  const [checkboxes, setCheckboxes] = useState<Record<string, boolean>>({
     is_first_time_visitor: false,
     comes_from_another_church: false,
     needs_prayer: false,
@@ -151,7 +151,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
   }
 
   return (
-    <main className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 p-4">
+    <main className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
 
       {/* COLUMNA 1: FORMULARIO */}
       <section className="lg:col-span-7 bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
@@ -292,7 +292,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                   <input
                     type="checkbox"
                     name={item.name}
-                    checked={(checkboxes as any)[item.name]}
+                    checked={checkboxes[item.name]}
                     onChange={handleCheckboxChange}
                     className="mt-0.5 w-4 h-4 text-blue-600 rounded-sm border-zinc-300 focus:ring-blue-500"
                   />
