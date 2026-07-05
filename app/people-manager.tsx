@@ -14,38 +14,75 @@ interface Person {
   id_number: string;
   first_name: string;
   last_name: string;
-  phone: string | null;
+  home_phone: string | null;
+  cell_phone: string | null;
   email: string | null;
-  birth_date: string | null; // Viene en formato "YYYY-MM-DD" o null
+  birth_date: string | null;
   person_type: string;
+  address: string | null;
+  city: string | null;
+  is_first_time_visitor: boolean;
+  comes_from_another_church: boolean;
+  needs_prayer: boolean;
+  wants_to_be_visited: boolean;
+  wants_bible_studies: boolean;
+  is_new_in_area: boolean;
+  accepted_jesus: boolean;
+  received_holy_spirit: boolean;
+  notes: string | null;
 }
 
 export default function PeopleManager({ initialPeople }: { initialPeople: Person[] }) {
-  // Al crear una nueva persona, iniciamos en null para que se vea el placeholder limpio
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Interfaz para manipular directamente el formulario al editar
+  const [checkboxes, setCheckboxes] = useState({
+    is_first_time_visitor: false,
+    comes_from_another_church: false,
+    needs_prayer: false,
+    wants_to_be_visited: false,
+    wants_bible_studies: false,
+    is_new_in_area: false,
+    accepted_jesus: false,
+    received_holy_spirit: false,
+  });
+
   interface PersonFormElements extends HTMLFormControlsCollection {
     id_number: HTMLInputElement;
     first_name: HTMLInputElement;
     last_name: HTMLInputElement;
-    phone: HTMLInputElement;
+    home_phone: HTMLInputElement;
+    cell_phone: HTMLInputElement;
     email: HTMLInputElement;
     person_type: HTMLSelectElement;
+    address: HTMLInputElement;
+    city: HTMLInputElement;
+    notes: HTMLTextAreaElement;
   }
 
-  // Maneja el envío del formulario de manera dinámica
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCheckboxes({
+      ...checkboxes,
+      [e.target.name]: e.target.checked,
+    });
+  };
+
   async function handleSubmit(formData: FormData) {
-    // Injectamos manualmente la fecha del DatePicker en el FormData antes de enviarlo
     if (selectedDate) {
       const dateString = selectedDate.toISOString().split("T")[0];
       formData.set("birth_date", dateString);
     } else {
       formData.set("birth_date", "");
     }
+
+    Object.entries(checkboxes).forEach(([key, value]) => {
+      if (value) {
+        formData.set(key, "on");
+      } else {
+        formData.delete(key);
+      }
+    });
 
     if (editingPerson) {
       await updatePerson(editingPerson.id, formData);
@@ -54,12 +91,9 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
       await registerPerson(formData);
     }
 
-    // Resetear formulario y el estado del DatePicker (vuelve a mostrar el placeholder)
-    formRef.current?.reset();
-    setSelectedDate(null);
+    resetForm();
   }
 
-  // Activa el modo edición cargando los datos de la persona seleccionada
   function handleEditClick(person: Person) {
     setEditingPerson(person);
 
@@ -69,11 +103,25 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
       inputs.id_number.value = person.id_number || "";
       inputs.first_name.value = person.first_name;
       inputs.last_name.value = person.last_name;
-      inputs.phone.value = person.phone || "";
+      inputs.home_phone.value = person.home_phone || "";
+      inputs.cell_phone.value = person.cell_phone || "";
       inputs.email.value = person.email || "";
       inputs.person_type.value = person.person_type;
+      inputs.address.value = person.address || "";
+      inputs.city.value = person.city || "";
+      inputs.notes.value = person.notes || "";
 
-      // Cargamos la fecha en el DatePicker evitando desfases horarios de strings nativos
+      setCheckboxes({
+        is_first_time_visitor: person.is_first_time_visitor || false,
+        comes_from_another_church: person.comes_from_another_church || false,
+        needs_prayer: person.needs_prayer || false,
+        wants_to_be_visited: person.wants_to_be_visited || false,
+        wants_bible_studies: person.wants_bible_studies || false,
+        is_new_in_area: person.is_new_in_area || false,
+        accepted_jesus: person.accepted_jesus || false,
+        received_holy_spirit: person.received_holy_spirit || false,
+      });
+
       if (person.birth_date) {
         setSelectedDate(new Date(person.birth_date.replace(/-/g, '\/')));
       } else {
@@ -82,18 +130,31 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
     }
   }
 
-  // Cancela la edición y limpia todo
-  function handleCancelEdit() {
-    setEditingPerson(null);
+  function resetForm() {
     formRef.current?.reset();
     setSelectedDate(null);
+    setCheckboxes({
+      is_first_time_visitor: false,
+      comes_from_another_church: false,
+      needs_prayer: false,
+      wants_to_be_visited: false,
+      wants_bible_studies: false,
+      is_new_in_area: false,
+      accepted_jesus: false,
+      received_holy_spirit: false,
+    });
+  }
+
+  function handleCancelEdit() {
+    setEditingPerson(null);
+    resetForm();
   }
 
   return (
-    <main className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+    <main className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 p-4">
 
       {/* COLUMNA 1: FORMULARIO */}
-      <section className="bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
+      <section className="lg:col-span-7 bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
         <h2 className="text-md sm:text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-200">
           {editingPerson ? `Editando: ${editingPerson.first_name}` : "Registro de Nueva Persona"}
         </h2>
@@ -107,12 +168,13 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
             <input
               type="text"
               name="id_number"
-              placeholder="Ej: V-12345678 (No obligatorio)"
+              placeholder="Ej: V-12345678"
               className="w-full p-2 rounded-md border border-amber-300 dark:border-amber-600/50 bg-transparent focus:outline-amber-500 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* Cambiado a grid-cols-1 por defecto, md:grid-cols-2 en pantallas medianas/grandes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Nombre(s) *</label>
               <input
@@ -133,15 +195,28 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* Cambiado a grid-cols-1 por defecto */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Teléfono</label>
+              <label className="block text-sm font-medium mb-1">Teléfono Fijo</label>
               <input
                 type="tel"
-                name="phone"
+                name="home_phone"
                 className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Celular</label>
+              <input
+                type="tel"
+                name="cell_phone"
+                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
+              />
+            </div>
+          </div>
+
+          {/* Cambiado a grid-cols-1 por defecto */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Tipo de Persona *</label>
               <select
@@ -153,42 +228,93 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                 <option value="member">Miembro</option>
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Correo Electrónico</label>
+              <input
+                type="email"
+                name="email"
+                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
+              />
+            </div>
+          </div>
+
+          {/* Cambiado a grid-cols-1 por defecto */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Ciudad</label>
+              <input
+                type="text"
+                name="city"
+                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
+                Fecha de Nacimiento
+              </label>
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date: Date | null) => setSelectedDate(date)}
+                dateFormat="dd/MMM/yyyy"
+                placeholderText="Elige un día"
+                locale="es"
+                maxDate={new Date()}
+                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-zinc-900 dark:text-zinc-100 dark:border-zinc-600 text-center"
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Correo Electrónico</label>
+            <label className="block text-sm font-medium mb-1">Dirección Completa</label>
             <input
-              type="email"
-              name="email"
+              type="text"
+              name="address"
               className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
             />
           </div>
 
+          {/* SECCIÓN: CHECKBOXES (En móvil van uno debajo del otro, en tablets/PC van en 2 columnas) */}
+          <div className="bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700/60 mt-2">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3">Información y Necesidades Eclesiásticas</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { name: "is_first_time_visitor", label: "Visitante por primera vez" },
+                { name: "comes_from_another_church", label: "Viene de otra iglesia" },
+                { name: "needs_prayer", label: "Necesita oración" },
+                { name: "wants_to_be_visited", label: "Desea que lo visiten" },
+                { name: "wants_bible_studies", label: "Desea estudios bíblicos" },
+                { name: "is_new_in_area", label: "Nuevo en la zona" },
+                { name: "accepted_jesus", label: "Aceptó a Jesús" },
+                { name: "received_holy_spirit", label: "Recibió el Espíritu Santo" },
+              ].map((item) => (
+                <label key={item.name} className="flex items-start gap-2 text-sm text-zinc-700 dark:text-zinc-300 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    name={item.name}
+                    checked={(checkboxes as any)[item.name]}
+                    onChange={handleCheckboxChange}
+                    className="mt-0.5 w-4 h-4 text-blue-600 rounded-sm border-zinc-300 focus:ring-blue-500"
+                  />
+                  <span>{item.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           <div>
-            <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
-              Fecha de Nacimiento
-            </label>
-            <DatePicker
-              selected={selectedDate}
-              onChange={(date: Date | null) => setSelectedDate(date)}
-              dateFormat="dd/MMM/yyyy"
-              placeholderText="Elige un día"
-              locale="es"
-              maxDate={new Date()}
-              dayClassName={(date) => {
-                const day = date.getDay();
-                return day === 0 || day === 6 ? "weekend-day" : "";
-              }}
-              // Se cambia a w-full para que coincida visualmente con el resto de inputs del formulario
-              className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-zinc-900 dark:text-zinc-100 dark:border-zinc-600 text-center"
+            <label className="block text-sm font-medium mb-1">Observaciones / Notas</label>
+            <textarea
+              name="notes"
+              rows={3}
+              placeholder="Detalles o peticiones específicas..."
+              className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100 resize-none"
             />
           </div>
 
-          <div className="flex gap-2 mt-2">
+          <div className="flex flex-col sm:flex-row gap-2 mt-2">
             <button
               type="submit"
-              className={`flex-1 text-white p-2.5 rounded-md font-semibold transition-colors cursor-pointer ${editingPerson ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'
-                }`}
+              className={`flex-1 text-white p-2.5 rounded-md font-semibold transition-colors cursor-pointer ${editingPerson ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
               {editingPerson ? "Actualizar" : "Guardar Persona"}
             </button>
@@ -207,38 +333,55 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
       </section>
 
       {/* COLUMNA 2: LISTADO */}
-      <section className="bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
+      <section className="lg:col-span-5 bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
         <h2 className="text-md sm:text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-200">
           Personas Registradas ({initialPeople.length})
         </h2>
 
-        <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-2">
+        <div className="flex flex-col gap-3 max-h-[700px] overflow-y-auto pr-2">
           {initialPeople.length === 0 ? (
             <p className="text-zinc-500 text-sm italic">No hay personas registradas aún.</p>
           ) : (
             initialPeople.map((person) => (
               <div
                 key={person.id}
-                className="p-3 bg-zinc-50 rounded-lg border border-zinc-100 dark:bg-zinc-700 dark:border-zinc-600 flex justify-between items-center"
+                className="p-3 bg-zinc-50 rounded-lg border border-zinc-100 dark:bg-zinc-700 dark:border-zinc-600 flex justify-between items-center gap-2"
               >
-                <div>
-                  <p className="font-semibold text-sm">
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-sm truncate">
                     {person.first_name} {person.last_name}
                   </p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    Cédula: {person.id_number || "No registrada"} {person.phone ? `• Tel: ${person.phone}` : ''}
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+                    Cédula: {person.id_number || "No registrada"}
                   </p>
-                  <span className={`inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${person.person_type === 'member'
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                    : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
-                    }`}>
-                    {person.person_type === 'member' ? 'Miembro' : 'Visitante'}
-                  </span>
+                  {person.cell_phone && (
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                      📱 Cel: {person.cell_phone}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${person.person_type === 'member'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                      : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                      }`}>
+                      {person.person_type === 'member' ? 'Miembro' : 'Visitante'}
+                    </span>
+                    {person.is_first_time_visitor && (
+                      <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                        1ra Vez
+                      </span>
+                    )}
+                    {person.needs_prayer && (
+                      <span className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                        Oración 🙏
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <button
                   onClick={() => handleEditClick(person)}
-                  className="text-xs bg-white text-zinc-700 border border-zinc-300 px-3 py-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-600 dark:text-zinc-200 dark:border-zinc-500 dark:hover:bg-zinc-500 transition-colors cursor-pointer font-medium"
+                  className="text-xs bg-white text-zinc-700 border border-zinc-300 px-3 py-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-600 dark:text-zinc-200 dark:border-zinc-500 dark:hover:bg-zinc-500 transition-colors cursor-pointer font-medium whitespace-nowrap"
                 >
                   Editar
                 </button>
