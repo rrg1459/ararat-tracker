@@ -169,7 +169,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
         </div>
       ) : !hasRecords && !isSelectedToday ? (
         <p className="text-zinc-500 italic text-sm text-center py-8 dark:text-zinc-400">
-          No se registraron asistencias en este día
+          No se registraron asistencias <br />en este día
         </p>
       ) : (
         <>
