@@ -11,25 +11,51 @@ export async function registerPerson(formData: FormData) {
   const rawIdNumber = formData.get("id_number") as string;
   const firstName = formData.get("first_name") as string;
   const lastName = formData.get("last_name") as string;
-  const phone = formData.get("phone") as string;
+  const homePhone = formData.get("home_phone") as string; // Cambiado de 'phone'
+  const cellPhone = formData.get("cell_phone") as string;  // Nuevo campo
   const email = formData.get("email") as string;
   const birthDate = formData.get("birth_date") as string;
   const personType = formData.get("person_type") as string;
+  const address = formData.get("address") as string;       // Nuevo campo
+  const city = formData.get("city") as string;             // Nuevo campo
+  const notes = formData.get("notes") as string;           // Nuevo campo
+
+  // Convertimos las casillas de verificación (Checkboxes) a Booleanos seguros
+  const isFirstTimeVisitor = formData.get("is_first_time_visitor") === "on";
+  const comesFromAnotherChurch = formData.get("comes_from_another_church") === "on";
+  const needsPrayer = formData.get("needs_prayer") === "on";
+  const wantsToBeVisited = formData.get("wants_to_be_visited") === "on";
+  const wantsBibleStudies = formData.get("wants_bible_studies") === "on";
+  const isNewInArea = formData.get("is_new_in_area") === "on";
+  const acceptedJesus = formData.get("accepted_jesus") === "on";
+  const receivedHolySpirit = formData.get("received_holy_spirit") === "on";
 
   const idNumber = rawIdNumber && rawIdNumber.trim() !== ""
     ? rawIdNumber.trim().toLowerCase()
     : null;
 
-  // Insertamos en la tabla 'people' usando los nombres en inglés que definimos
+  // Insertamos en la tabla 'people' usando la nueva estructura de la base de datos
   const { error } = await supabase.from("people").insert([
     {
       id_number: idNumber,
       first_name: firstName,
       last_name: lastName,
-      phone: phone || null, // Si está vacío, guardamos NULL
+      home_phone: homePhone || null, // Guardamos en la nueva columna 'home_phone'
+      cell_phone: cellPhone || null,
       email: email || null,
       birth_date: birthDate || null,
       person_type: personType,
+      address: address || null,
+      city: city || null,
+      is_first_time_visitor: isFirstTimeVisitor,
+      comes_from_another_church: comesFromAnotherChurch,
+      needs_prayer: needsPrayer,
+      wants_to_be_visited: wantsToBeVisited,
+      wants_bible_studies: wantsBibleStudies,
+      is_new_in_area: isNewInArea,
+      accepted_jesus: acceptedJesus,
+      received_holy_spirit: receivedHolySpirit,
+      notes: notes || null,
     },
   ]);
 
@@ -38,13 +64,9 @@ export async function registerPerson(formData: FormData) {
     return { success: false, error: error.message };
   }
 
-  // Esto le dice a Next.js que limpie la caché de la página de inicio
-  // para que muestre inmediatamente a la persona recién registrada
   revalidatePath("/");
   return { success: true };
 }
-
-// Añade esta función al final de app/actions.ts
 
 export async function updatePerson(id: string, formData: FormData) {
   const supabase = await createClient();
@@ -53,10 +75,24 @@ export async function updatePerson(id: string, formData: FormData) {
   const rawIdNumber = formData.get("id_number") as string;
   const firstName = formData.get("first_name") as string;
   const lastName = formData.get("last_name") as string;
-  const phone = formData.get("phone") as string;
+  const homePhone = formData.get("home_phone") as string;
+  const cellPhone = formData.get("cell_phone") as string;
   const email = formData.get("email") as string;
   const birthDate = formData.get("birth_date") as string;
   const personType = formData.get("person_type") as string;
+  const address = formData.get("address") as string;
+  const city = formData.get("city") as string;
+  const notes = formData.get("notes") as string;
+
+  // Convertimos las casillas de verificación (Checkboxes) a Booleanos seguros
+  const isFirstTimeVisitor = formData.get("is_first_time_visitor") === "on";
+  const comesFromAnotherChurch = formData.get("comes_from_another_church") === "on";
+  const needsPrayer = formData.get("needs_prayer") === "on";
+  const wantsToBeVisited = formData.get("wants_to_be_visited") === "on";
+  const wantsBibleStudies = formData.get("wants_bible_studies") === "on";
+  const isNewInArea = formData.get("is_new_in_area") === "on";
+  const acceptedJesus = formData.get("accepted_jesus") === "on";
+  const receivedHolySpirit = formData.get("received_holy_spirit") === "on";
 
   const idNumber = rawIdNumber && rawIdNumber.trim() !== ""
     ? rawIdNumber.trim().toLowerCase()
@@ -69,30 +105,37 @@ export async function updatePerson(id: string, formData: FormData) {
       id_number: idNumber,
       first_name: firstName,
       last_name: lastName,
-      phone: phone || null,
+      home_phone: homePhone || null,
+      cell_phone: cellPhone || null,
       email: email || null,
       birth_date: birthDate || null,
       person_type: personType,
+      address: address || null,
+      city: city || null,
+      is_first_time_visitor: isFirstTimeVisitor,
+      comes_from_another_church: comesFromAnotherChurch,
+      needs_prayer: needsPrayer,
+      wants_to_be_visited: wantsToBeVisited,
+      wants_bible_studies: wantsBibleStudies,
+      is_new_in_area: isNewInArea,
+      accepted_jesus: acceptedJesus,
+      received_holy_spirit: receivedHolySpirit,
+      notes: notes || null,
     })
-    .eq("id", id); // Filtramos para actualizar solo a esta persona
+    .eq("id", id);
 
   if (error) {
     console.error("Error updating person:", error.message);
     return { success: false, error: error.message };
   }
 
-  // Refrescamos la página de inicio para ver los cambios
   revalidatePath("/");
   return { success: true };
 }
 
-// Añade esto al final de app/actions.ts
-
 export async function saveAttendance(date: string, personIds: string[]) {
   const supabase = await createClient();
 
-  // 1. Para evitar duplicados si registran el mismo día dos veces,
-  // limpiamos los registros existentes de esa fecha en particular
   const { error: deleteError } = await supabase
     .from("attendance_logs")
     .delete()
@@ -103,20 +146,16 @@ export async function saveAttendance(date: string, personIds: string[]) {
     return { success: false, error: deleteError.message };
   }
 
-  // Si no vino nadie (lista vacía), terminamos aquí tras limpiar
   if (personIds.length === 0) {
     revalidatePath("/attendance");
     return { success: true };
   }
 
-  // 2. Preparamos el arreglo de filas a insertar en 'attendance_logs'
   const logsToInsert = personIds.map((id) => ({
     date: date,
     person_id: id,
-    //registered_by: null // De momento null hasta que hagamos el login
   }));
 
-  // 3. Insertamos en bloque (Bulk Insert)
   const { error: insertError } = await supabase
     .from("attendance_logs")
     .insert(logsToInsert);
@@ -130,7 +169,6 @@ export async function saveAttendance(date: string, personIds: string[]) {
   return { success: true };
 }
 
-// Acción para iniciar sesión
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
@@ -144,16 +182,12 @@ export async function login(formData: FormData) {
 
   if (error) {
     console.error("Login error:", error.message);
-    // En lugar de retornar el objeto, simplemente cortamos la ejecución aquí.
-    // (Más adelante podremos usar useActionState si queremos pintar el error en pantalla)
     return;
   }
 
-  // Si el login es exitoso, redireccionamos al inicio
   redirect('/');
 }
 
-// Acción para cerrar sesión
 export async function logout() {
   const supabase = await createClient();
   await supabase.auth.signOut();
