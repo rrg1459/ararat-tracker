@@ -146,7 +146,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
             <button
               onClick={handleSave}
               disabled={saving || isPending}
-              className="bg-blue-600 text-white px-6 py-2.5 rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:bg-blue-400 cursor-pointer"
+              className="bg-blue-600 text-white px-3 py-2 rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:bg-blue-400 cursor-pointer"
             >
               {saving ? "Guardando..." : "Guardar Asistencia"}
             </button>
