@@ -3,6 +3,7 @@ import Image from "next/image";
 import { createClient } from "./utils/supabase";
 import PeopleManager from "./people-manager";
 import AttendanceClient from "./attendance/attendance-client";
+import FaSignOutAlt from "./svg/FaSignOutAlt";
 import { logout } from "./actions";
 import Link from "next/link"; // Usamos Link de Next.js para navegación limpia
 
@@ -86,27 +87,27 @@ export default async function Home({
           {isAdminOrSuperAdmin && (
             <Link
               href="/admin"
-              className="px-5 py-2.5 rounded-md font-bold bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 transition-all shadow-md shadow-indigo-500/20 text-center text-sm uppercase tracking-wider"
+              className="px-3 py-2 rounded-md font-bold bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 transition-all shadow-md shadow-indigo-500/20 text-center text-sm uppercase tracking-wider"
             >
               ADMIN
             </Link>
           )}
 
           {currentView !== "attendance" && (
-            <a href="?view=attendance" className="px-5 py-2.5 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
+            <a href="?view=attendance" className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
               Tomar Asistencia
             </a>
           )}
 
           {currentView !== "people" && (
-            <a href="?view=people" className="px-5 py-2.5 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
+            <a href="?view=people" className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
               Gestionar Personas
             </a>
           )}
 
           <form action={logout}>
-            <button type="submit" className="bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-4 py-2.5 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
-              Cerrar sesión
+            <button type="submit" className="bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-3 py-2 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
+              <FaSignOutAlt size={20} />
             </button>
           </form>
         </div>
