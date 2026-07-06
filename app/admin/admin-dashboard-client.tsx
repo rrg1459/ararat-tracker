@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { logout } from "../actions";
 import Link from "next/link";
 
 // Subcomponentes Mock/Esqueleto para las pestañas solicitadas
@@ -113,16 +112,11 @@ export default function AdminDashboardClient({ userName, userRole }: { userName:
 
             <Link
               href="/"
-              className="px-5 py-2.5 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm"
+              className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm"
             >
               Home
             </Link>
 
-            <form action={logout}>
-              <button type="submit" className="bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-4 py-2.5 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
-                Cerrar sesión
-              </button>
-            </form>
           </div>
         </header>
 
