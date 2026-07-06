@@ -315,7 +315,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
           <div className="flex flex-col sm:flex-row gap-2 mt-2">
             <button
               type="submit"
-              className={`flex-1 text-white p-2.5 rounded-md font-semibold transition-colors cursor-pointer ${editingPerson ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'}`}
+              className={`flex-1 text-white p-2 rounded-md font-semibold transition-colors cursor-pointer ${editingPerson ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
               {editingPerson ? "Actualizar" : "Guardar Persona"}
             </button>
@@ -324,7 +324,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
               <button
                 type="button"
                 onClick={handleCancelEdit}
-                className="bg-zinc-300 text-zinc-700 px-4 py-2.5 rounded-md font-semibold hover:bg-zinc-400 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600 cursor-pointer"
+                className="bg-zinc-300 text-zinc-700 px-3 py-2 rounded-md font-semibold hover:bg-zinc-400 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600 cursor-pointer"
               >
                 Cancelar
               </button>
