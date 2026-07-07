@@ -1,7 +1,9 @@
 // app/actions/admin-actions.ts
 'use server'
 
-import { supabaseAdmin } from '../utils/supabase-admin' // Tu cliente de servidor normal para chequear la sesión actual
+import { createAdminClient } from '../utils/supabase-admin' // Tu cliente de servidor normal para chequear la sesión actual
+
+const supabaseAdmin = createAdminClient();
 
 // 1. IMPORTA TU CLIENTE DE SERVIDOR NORMAL (El que maneja las cookies)
 // Dependiendo de tu estructura, suele exportarse desde un archivo utilitario. Por ejemplo:
@@ -34,7 +36,7 @@ export async function adminCreateUser(email: string, password: string, fullName:
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
-      email_confirm: true, // Confirmar email automáticamente
+      email_confirm: true, // ⚠️ ESTO ES CRUCIAL para que el trigger lo reciba y lo guarde en 'profiles':
       user_metadata: { full_name: fullName }
     })
 
