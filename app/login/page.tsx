@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { login, type ActionState } from "../actions";
+import { login, type ActionState } from "../actions/actions";
 import Image from "next/image";
 
 export default function LoginPage() {

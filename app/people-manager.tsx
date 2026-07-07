@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from "react";
-import { registerPerson, updatePerson } from "./actions";
+import { registerPerson, updatePerson } from "./actions/actions";
 import DatePicker, { registerLocale } from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";

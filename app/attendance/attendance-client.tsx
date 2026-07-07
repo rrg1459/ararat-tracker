@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useTransition } from "react"; // 1. Importamos useTransition
-import { saveAttendance } from "../actions";
+import { saveAttendance } from "../actions/actions";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { useRouter } from "next/navigation";
 
