@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "./utils/supabase";
+import { createClient } from "../utils/supabase";
 
 export async function registerPerson(formData: FormData) {
   const supabase = await createClient();
