@@ -125,7 +125,7 @@ export default function AdminDashboardClient({ userName, userRole }: { userName:
         <main className="mt-4">
           {activeTab === "metrics" && <MetricsSummary />}
           {activeTab === "charts" && <AttendanceCharts />}
-          {activeTab === "users" && <UserManagement role={userRole} />}
+          {activeTab === "users" && <UserManagement />}
         </main>
       </div>
     </div>
