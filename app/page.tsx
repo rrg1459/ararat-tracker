@@ -4,7 +4,7 @@ import { createClient } from "./utils/supabase";
 import PeopleManager from "./people-manager";
 import AttendanceClient from "./attendance/attendance-client";
 import FaSignOutAlt from "./svg/FaSignOutAlt";
-import { logout } from "./actions";
+import { logout } from "./actions/actions";
 import Link from "next/link"; // Usamos Link de Next.js para navegación limpia
 
 export default async function Home({
