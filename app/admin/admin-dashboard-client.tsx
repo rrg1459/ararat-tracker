@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import UserManagement from "./UserManagement";
 
 // Subcomponentes Mock/Esqueleto para las pestañas solicitadas
 function MetricsSummary() {
@@ -30,27 +31,6 @@ function AttendanceCharts() {
       <div className="w-12 h-12 rounded-full border-4 border-t-indigo-600 border-zinc-200 animate-spin mb-4"></div>
       <p className="font-medium">Loading Attendance Analytics Charts...</p>
       <span className="text-xs mt-1 text-zinc-400">(Integrate Chart.js or Recharts here)</span>
-    </div>
-  );
-}
-
-function UserManagement({ role }: { role: string }) {
-  return (
-    <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden animate-fadeIn">
-      <div className="p-6 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center">
-        <div>
-          <h3 className="font-bold text-lg text-zinc-900 dark:text-zinc-100">System Users</h3>
-          <p className="text-sm text-zinc-500">Manage roles and application access privileges.</p>
-        </div>
-        {role === "superadmin" && (
-          <button className="px-4 py-2 bg-indigo-600 text-white rounded-md font-semibold text-sm hover:bg-indigo-700 transition-colors">
-            Invite New User
-          </button>
-        )}
-      </div>
-      <div className="p-6 text-zinc-600 dark:text-zinc-300 text-sm">
-        <p>List of platform administrative accounts and system-wide roles will be populated here.</p>
-      </div>
     </div>
   );
 }
