@@ -10,8 +10,8 @@ function MetricsSummary() {
   return (
     <>
       <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-3xl mb-20">
-          Datos de Métricas ... en desarrollo
+        <h2 className="text-2xl font-bold tracking-tight text-orange-800 dark:text-orange-100 sm:text-3xl mb-20">
+          Métricas ... en desarrollo
         </h2>
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
           Resumen general del estado y rendimiento actual
@@ -40,8 +40,8 @@ function AttendanceCharts() {
   return (
     <>
       <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-3xl mb-20">
-          Datos de Gráficos ... en desarrollo
+        <h2 className="text-2xl font-bold tracking-tight text-orange-800 dark:text-orange-100 sm:text-3xl mb-20">
+          Gráficos ... en desarrollo
         </h2>
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
           Resumen general del estado y rendimiento actual

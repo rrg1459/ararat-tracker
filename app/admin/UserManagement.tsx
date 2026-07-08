@@ -103,7 +103,7 @@ export default function UserManagement({ initialUsers = [] }: { initialUsers?: A
   return (
     <>
       <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-3xl">
+        <h2 className="text-2xl font-bold tracking-tight text-orange-800 dark:text-orange-100 sm:text-3xl">
           Gestión de Usuarios ... en desarrollo
         </h2>
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
