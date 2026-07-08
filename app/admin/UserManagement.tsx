@@ -36,7 +36,7 @@ export default function UserManagement({ initialUsers = [] }: { initialUsers?: A
     const res = await adminCreateUser(email, password, name, createRole)
 
     if (res.success) {
-      setMessage(`Usuario creado con éxito: ${res.user?.id}`)
+      setMessage(`Usuario ${name} creado con éxito`)
       setEmail('');
       setPassword('');
       setName('');
@@ -47,12 +47,17 @@ export default function UserManagement({ initialUsers = [] }: { initialUsers?: A
     }
   }
 
-  const handleDelete = async (userId: string) => {
-    if (!confirm('¿Seguro que quieres eliminar este usuario de la autenticación?')) return
+  // Añadimos el "?" en userName para indicar que puede ser opcional
+  const handleDelete = async (userId: string, userName?: string) => {
+    // Si userName no existe, usamos 'este usuario' por defecto
+    const nameToDisplay = userName || 'este usuario'
+
+    if (!confirm(`¿Seguro que quieres eliminar el usuario ${nameToDisplay}?`)) return
+
     setMessage('Eliminando...')
     const res = await adminDeleteUser(userId)
     if (res.success) {
-      setMessage('Usuario eliminado correctamente.')
+      setMessage(`Usuario ${nameToDisplay} eliminado correctamente`)
       router.refresh();
     } else {
       setMessage(`Error: ${res.error}`)
@@ -281,7 +286,7 @@ export default function UserManagement({ initialUsers = [] }: { initialUsers?: A
                           Editar
                         </button>
                         <button
-                          onClick={() => handleDelete(user.id)}
+                          onClick={() => handleDelete(user.id, fullName || user.email)}
                           className="text-xs bg-red-50 text-red-600 border border-red-200 px-2.5 py-1.5 rounded-md hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-900/40 transition-colors cursor-pointer font-medium"
                         >
                           Eliminar
