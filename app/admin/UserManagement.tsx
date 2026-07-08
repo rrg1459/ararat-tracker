@@ -17,6 +17,7 @@ export default function UserManagement({ initialUsers = [] }: { initialUsers?: A
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [createRole, setCreateRole] = useState('operator') // 👈 Nuevo estado (puedes poner 'operator' o tu rol por defecto inicial)
   const [message, setMessage] = useState('')
   const router = useRouter()
 
@@ -30,10 +31,16 @@ export default function UserManagement({ initialUsers = [] }: { initialUsers?: A
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     setMessage('Creando usuario...')
-    const res = await adminCreateUser(email, password, name)
+
+    // 🔑 AQUÍ: Ahora sí le enviamos el 'createRole' al backend
+    const res = await adminCreateUser(email, password, name, createRole)
+
     if (res.success) {
       setMessage(`Usuario creado con éxito: ${res.user?.id}`)
-      setEmail(''); setPassword(''); setName('')
+      setEmail('');
+      setPassword('');
+      setName('');
+      setCreateRole('operator'); // Reseteamos al valor por defecto
       router.refresh();
     } else {
       setMessage(`Error: ${res.error}`)
@@ -128,11 +135,11 @@ export default function UserManagement({ initialUsers = [] }: { initialUsers?: A
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-zinc-500">Rol del Usuario</label>
+            <label className="block text-sm font-medium mb-1">Rol del Usuario *</label>
             <select
-              value={editRole}
-              onChange={e => setEditRole(e.target.value)}
-              className="w-full p-1.5 text-sm rounded border border-zinc-300 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-blue-500"
+              value={createRole} // 👈 Cambiado de editRole a createRole
+              onChange={e => setCreateRole(e.target.value)} // 👈 Cambiado de setEditRole a setCreateRole
+              className="w-full p-2 text-sm rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
             >
               <option value="operator">Operator</option>
               <option value="admin">Admin</option>
