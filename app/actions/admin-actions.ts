@@ -49,29 +49,49 @@ export async function adminCreateUser(email: string, password: string, fullName:
   }
 }
 
-// 2. MODIFICAR USUARIO (Ej. cambiar email o bloquear)
 import { AdminUserAttributes } from '@supabase/supabase-js'
 
-// 2. MODIFICAR USUARIO
-export async function adminUpdateUser(userId: string, updates: { email?: string; ban?: boolean }) {
+export async function adminUpdateUser(
+  userId: string,
+  updates: { email?: string; password?: string; fullName?: string; role?: string; ban?: boolean }
+) {
   try {
     await checkSuperAdmin()
 
-    // 💡 Tipamos el objeto correctamente en lugar de usar 'any'
     const payload: AdminUserAttributes = {}
 
     if (updates.email) payload.email = updates.email
+    if (updates.password) payload.password = updates.password
+
+    // Construimos las actualizaciones de metadatos de forma segura
+    if (updates.fullName || updates.role) {
+      payload.user_metadata = {
+        ...(updates.fullName ? { full_name: updates.fullName } : {}),
+        ...(updates.role ? { role: updates.role } : {})
+      }
+    }
 
     if (updates.ban) {
       payload.ban_duration = 'none'
     }
 
+    // 1. Actualizar en Supabase Auth
     const { data, error } = await supabaseAdmin.auth.admin.updateUserById(userId, payload)
 
     if (error) return { success: false, error: error.message }
+
+    // 2. Actualizar en la tabla 'profiles' (ya que allí se valida el acceso del ecosistema)
+    if (updates.role) {
+      const { error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .update({ role: updates.role })
+        .eq('id', userId)
+
+      if (profileError) return { success: false, error: profileError.message }
+    }
+
     return { success: true, user: data.user }
   } catch (err) {
-    // Aprovechamos de corregir también el catch como hicimos antes
     const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
     return { success: false, error: errorMessage }
   }
