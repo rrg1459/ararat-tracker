@@ -8,30 +8,52 @@ import UserManagement from "./UserManagement";
 // Subcomponentes Mock/Esqueleto para las pestañas solicitadas
 function MetricsSummary() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
-      <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-        <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Total Members</h3>
-        <p className="text-3xl font-bold mt-2 text-zinc-900 dark:text-zinc-100">142</p>
+    <>
+      <div className="mb-8 text-center">
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-3xl mb-20">
+          Datos de Métricas ... en desarrollo
+        </h2>
+        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+          Resumen general del estado y rendimiento actual
+        </p>
       </div>
-      <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-        <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Avg. Attendance Rate</h3>
-        <p className="text-3xl font-bold mt-2 text-green-600 dark:text-green-400">84.5%</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
+        <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+          <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Total Members</h3>
+          <p className="text-3xl font-bold mt-2 text-zinc-900 dark:text-zinc-100">142</p>
+        </div>
+        <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+          <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Avg. Attendance Rate</h3>
+          <p className="text-3xl font-bold mt-2 text-green-600 dark:text-green-400">84.5%</p>
+        </div>
+        <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
+          <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">New Visitors (Month)</h3>
+          <p className="text-3xl font-bold mt-2 text-blue-600 dark:text-blue-400">+18</p>
+        </div>
       </div>
-      <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-        <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">New Visitors (Month)</h3>
-        <p className="text-3xl font-bold mt-2 text-blue-600 dark:text-blue-400">+18</p>
-      </div>
-    </div>
+    </>
   );
 }
 
 function AttendanceCharts() {
   return (
-    <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm min-h-[300px] flex flex-col justify-center items-center text-zinc-500 dark:text-zinc-400 animate-fadeIn">
-      <div className="w-12 h-12 rounded-full border-4 border-t-indigo-600 border-zinc-200 animate-spin mb-4"></div>
-      <p className="font-medium">Loading Attendance Analytics Charts...</p>
-      <span className="text-xs mt-1 text-zinc-400">(Integrate Chart.js or Recharts here)</span>
-    </div>
+    <>
+      <div className="mb-8 text-center">
+        <h2 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-3xl mb-20">
+          Datos de Gráficos ... en desarrollo
+        </h2>
+        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+          Resumen general del estado y rendimiento actual
+        </p>
+      </div>
+
+      <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm min-h-[300px] flex flex-col justify-center items-center text-zinc-500 dark:text-zinc-400 animate-fadeIn">
+        <div className="w-12 h-12 rounded-full border-4 border-t-indigo-600 border-zinc-200 animate-spin mb-4"></div>
+        <p className="font-medium">Loading Attendance Analytics Charts...</p>
+        <span className="text-xs mt-1 text-zinc-400">(Integrate Chart.js or Recharts here)</span>
+      </div>
+    </>
   );
 }
 
@@ -57,9 +79,9 @@ export default function AdminDashboardClient({
 
   // 2. Aplicamos el tipo al Array
   const TABS: TabItem[] = [
-    { id: "metrics", shortLabel: "Metrics", longLabel: "Metrics Summary" },
-    { id: "charts", shortLabel: "Charts", longLabel: "Attendance Charts" },
-    { id: "users", shortLabel: "Users", longLabel: "User Management" },
+    { id: "metrics", shortLabel: "Metrics", longLabel: "Resumen de Métricas" },
+    { id: "charts", shortLabel: "Charts", longLabel: "Gráficos de Asistencia" },
+    { id: "users", shortLabel: "Users", longLabel: "Gestión de Usuarios" },
   ];
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 p-6 md:p-12">
