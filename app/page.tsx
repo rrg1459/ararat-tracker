@@ -4,6 +4,7 @@ import { createClient } from "./utils/supabase";
 import PeopleManager from "./people-manager";
 import AttendanceClient from "./attendance/attendance-client";
 import FaSignOutAlt from "./svg/FaSignOutAlt";
+import FcSettings from "./svg/FcSettings";
 import { logout } from "./actions/actions";
 import Link from "next/link"; // Usamos Link de Next.js para navegación limpia
 
@@ -69,8 +70,14 @@ export default async function Home({
             <h1 style={{ fontSize: '20px' }} className="sm:text-3xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
               Control de Asistencia
             </h1>
+            {/* Texto largo: se muestra solo en pantallas 'sm' (640px) o más grandes */}
             <p className="text-zinc-600 dark:text-zinc-400 text-sm hidden sm:block">
               Gestión y registro de miembros y visitantes
+            </p>
+
+            {/* Texto corto: se muestra en móviles y se oculta en 'sm' en adelante */}
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm block sm:hidden">
+              Gestión y registro
             </p>
             <p className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium mt-0.5 truncate">
               Sesión: <span className="text-zinc-500 dark:text-zinc-400 font-semibold">{userName}</span>
@@ -106,10 +113,17 @@ export default async function Home({
           )}
 
           <form action={logout}>
+            <button type="submit" className="bg-blue-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-3 py-2 rounded-md font-semibold hover:bg-blue-300 dark:hover:bg-blue-600 transition-colors cursor-pointer text-sm">
+              <FcSettings size={20} />
+            </button>
+          </form>
+
+          <form action={logout}>
             <button type="submit" className="bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-3 py-2 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
               <FaSignOutAlt size={20} />
             </button>
           </form>
+
         </div>
       </header>
 
