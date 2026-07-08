@@ -30,7 +30,7 @@ export default async function Home({
     }
   }
 
-  const userName = profileData?.full_name?.split(" ")[0] || "Usuario";
+  const userName = profileData?.full_name?.trim().split(/\s+/).slice(0, 2).join(" ") || "Usuario";
   const userRole = profileData?.role || "Anotador";
 
   // Validamos si tiene permisos de administración
