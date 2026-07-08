@@ -20,7 +20,7 @@ export default async function AdminPage() {
     .eq("id", user.id)
     .single();
 
-  const userName = profile?.full_name?.split(" ")[0] || "Usuario";
+  const userName = profile?.full_name?.trim().split(/\s+/).slice(0, 2).join(" ") || "Usuario";
   const userRole = profile?.role || "Anotador";
   const hasAccess = userRole === "admin" || userRole === "superadmin";
 
