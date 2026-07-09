@@ -91,15 +91,6 @@ export default async function Home({
         {/* Botones de navegación nativa condicionales */}
         <div className="flex items-center gap-3 justify-start sm:justify-end flex-wrap">
 
-          {isAdminOrSuperAdmin && (
-            <Link
-              href="/admin"
-              className="px-3 py-2 rounded-md font-bold bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 transition-all shadow-md shadow-indigo-500/20 text-center text-sm uppercase tracking-wider"
-            >
-              ADMIN
-            </Link>
-          )}
-
           {currentView !== "attendance" && (
             <a href="?view=attendance" className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
               Tomar Asistencia
@@ -108,8 +99,22 @@ export default async function Home({
 
           {currentView !== "people" && (
             <a href="?view=people" className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
-              Gestionar Personas
+              Gestión Personas
             </a>
+          )}
+
+          {isAdminOrSuperAdmin && (
+            <Link
+              href="/admin"
+            >
+              <Image
+                src="/dashboard1.png"
+                alt="Admin Icon"
+                width={40}
+                height={40}
+                className="inline-block"
+              />
+            </Link>
           )}
 
           <form action={logout}>
