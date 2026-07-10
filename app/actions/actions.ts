@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "../utils/supabase";
+import type { UserAttributes } from "@supabase/supabase-js";
 
 export async function registerPerson(formData: FormData) {
   const supabase = await createClient();
@@ -207,4 +208,90 @@ export async function logout() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect('/login');
+}
+
+type UpdateOwnUserPayload = {
+  fullName?: string;
+  email?: string;
+  password?: string;
+};
+
+export async function updateOwnUserSettings(updates: UpdateOwnUserPayload) {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: getUserError,
+    } = await supabase.auth.getUser();
+
+    if (getUserError) {
+      return { success: false, error: getUserError.message };
+    }
+
+    if (!user) {
+      return { success: false, error: 'No autenticado.' };
+    }
+
+    // const cleanEmail = updates.email?.trim();
+    const cleanPassword = updates.password?.trim();
+    const cleanFullName = updates.fullName?.trim();
+    // const normalizedEmail = cleanEmail?.toLowerCase();
+    // const currentEmail = user.email?.toLowerCase();
+
+    const authPayload: UserAttributes = {};
+
+    // if (normalizedEmail && normalizedEmail !== currentEmail) {
+    //   authPayload.email = normalizedEmail;
+    // }
+
+    if (cleanPassword) {
+      authPayload.password = cleanPassword;
+    }
+
+    if (Object.keys(authPayload).length > 0) {
+      const { error: updateAuthError } = await supabase.auth.updateUser(authPayload);
+      if (updateAuthError) {
+        const errorMessage = updateAuthError.message.toLowerCase().includes('email rate limit exceeded')
+          ? 'Has intentado cambiar el correo demasiadas veces. Espera unos minutos antes de intentarlo de nuevo.'
+          : updateAuthError.message;
+
+        return { success: false, error: errorMessage };
+      }
+    }
+
+    const profileUpdates: { full_name?: string; email?: string } = {};
+
+    const currentFullName = typeof user.user_metadata?.full_name === 'string'
+      ? user.user_metadata.full_name.trim()
+      : '';
+
+    if (typeof cleanFullName === 'string' && cleanFullName !== currentFullName) {
+      profileUpdates.full_name = cleanFullName;
+    }
+
+    // if (normalizedEmail && normalizedEmail !== currentEmail) {
+    //   profileUpdates.email = normalizedEmail;
+    // }
+
+    if (Object.keys(profileUpdates).length > 0) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update(profileUpdates)
+        .eq('id', user.id);
+
+      if (profileError) {
+        return { success: false, error: profileError.message };
+      }
+    }
+
+    revalidatePath('/');
+    return { success: true };
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return { success: false, error: err.message };
+    }
+
+    return { success: false, error: 'Error desconocido al actualizar el usuario.' };
+  }
 }
