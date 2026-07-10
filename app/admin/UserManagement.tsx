@@ -13,7 +13,7 @@ interface AuthUser {
   }
 }
 
-export default function UserManagement({ initialUsers = [] }: { initialUsers?: AuthUser[] }) {
+export default function UserManagement({ userRole, initialUsers = [] }: { userRole: string; initialUsers?: AuthUser[] }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
@@ -157,8 +157,8 @@ export default function UserManagement({ initialUsers = [] }: { initialUsers?: A
                 className="w-full p-2 text-sm rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
               >
                 <option value="operator">Operator</option>
-                <option value="admin">Admin</option>
-                <option value="superadmin">Superadmin</option>
+                {userRole === "superadmin" && <option value="admin">Admin</option>}
+
               </select>
             </div>
 
@@ -194,7 +194,7 @@ export default function UserManagement({ initialUsers = [] }: { initialUsers?: A
               initialUsers.map((user) => {
                 const isEditing = editingUserId === user.id
                 const fullName = user.user_metadata?.full_name || "Sin Nombre"
-                const userRole = user.user_metadata?.role || "user"
+                const userMetadaRole = user.user_metadata?.role || "user"
 
                 return (
                   <div
@@ -236,8 +236,7 @@ export default function UserManagement({ initialUsers = [] }: { initialUsers?: A
                             className="w-full p-1.5 text-sm rounded border border-zinc-300 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-blue-500"
                           >
                             <option value="operator">Operator</option>
-                            <option value="admin">Admin</option>
-                            {/* <option value="superadmin">Superadmin</option> */}
+                            {userRole === "superadmin" && <option value="admin">Admin</option>}
                           </select>
                         </div>
 
@@ -276,14 +275,14 @@ export default function UserManagement({ initialUsers = [] }: { initialUsers?: A
                           <p className="text-[10px] text-zinc-400 dark:text-zinc-500 truncate mt-0.5">ID: {user.id}</p>
 
                           <div className="flex flex-wrap gap-1 mt-1.5">
-                            <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${userRole === 'superadmin'
+                            <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${userMetadaRole === 'superadmin'
                               ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
                               : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
                               }`}>
-                              {userRole === 'superadmin' && 'Superadmin 👑'}
-                              {userRole === 'admin' && 'Admin 🛡️'}
-                              {userRole === 'operator' && 'Operator ⚙️'}
-                              {userRole === 'user' && 'Usuario'}
+                              {userMetadaRole === 'superadmin' && 'Superadmin 👑'}
+                              {userMetadaRole === 'admin' && 'Admin 🛡️'}
+                              {userMetadaRole === 'operator' && 'Operator ⚙️'}
+                              {userMetadaRole === 'user' && 'Usuario'}
                             </span>
                           </div>
                         </div>
