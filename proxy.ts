@@ -6,6 +6,10 @@ export async function proxy(request: NextRequest) {
     request,
   })
 
+  // Server Actions usan un protocolo de respuesta interno; si aquí devolvemos redirects,
+  // el cliente recibe un formato inesperado y falla con "An unexpected response...".
+  const isServerActionRequest = request.method === 'POST' && request.headers.has('next-action')
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -36,6 +40,11 @@ export async function proxy(request: NextRequest) {
 
   // Obtenemos al usuario actual autenticado
   const { data: { user } } = await supabase.auth.getUser()
+
+  // No aplicar redirects de autenticación a llamadas internas de Server Actions.
+  if (isServerActionRequest) {
+    return supabaseResponse
+  }
 
   // Proteger rutas: Si no hay usuario y no está intentando ir a /login, lo mandamos a /login
   if (!user && !request.nextUrl.pathname.startsWith('/login')) {
