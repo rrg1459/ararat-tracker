@@ -7,28 +7,6 @@ export default async function AdminPage() {
   const supabase = await createClient();
   const supabaseAdmin = createAdminClient();
 
-  // 1. Verificar sesión de usuario
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    redirect("/");
-  }
-
-  // 2. Verificar rol en la base de datos (Middleware o Server Guard)
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, full_name")
-    .eq("id", user.id)
-    .single();
-
-  const userName = profile?.full_name?.trim().split(/\s+/).slice(0, 2).join(" ") || "Usuario";
-  const userRole = profile?.role || "Anotador";
-  const hasAccess = userRole === "admin" || userRole === "superadmin";
-
-  // Si no pertenece a los roles autorizados, denegar acceso y redirigir
-  if (!hasAccess) {
-    redirect("/");
-  }
-
   // // Prueba de diagnóstico directo en tu page.tsx
   // try {
   //   const testRes = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users`, {
@@ -43,17 +21,65 @@ export default async function AdminPage() {
   //   console.log("Error en diagnóstico:", e);
   // }
 
+  // 1. Verificar sesión de usuario
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/");
+  }
+
+  // 2. Verificar rol en la base de datos
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, full_name")
+    .eq("id", user.id)
+    .single();
+
+  const userName = profile?.full_name?.trim().split(/\s+/).slice(0, 2).join(" ") || "Usuario";
+  const userRole = profile?.role || "Anotador";
+  const hasAccess = userRole === "admin" || userRole === "superadmin";
+
+  if (!hasAccess) {
+    redirect("/");
+  }
+
   // 3. OBTENER LOS USUARIOS DE AUTENTICACIÓN
-  // Usamos el listUsers() desde el cliente administrativo
   const { data: authData, error } = await supabaseAdmin.auth.admin.listUsers();
 
   if (error) {
     console.error("Error al listar usuarios de autenticación:", error.message);
   }
 
-  const authUsers = authData?.users || [];
+  let authUsers = authData?.users || [];
 
-  // 4. Le pasamos 'authUsers' a tu dashboard cliente
+  // 4. FILTRAR SI EL USUARIO ES SOLO 'admin'
+  if (userRole === "admin") {
+    // Traemos los IDs de los perfiles que son 'admin' o 'superadmin'
+    const { data: excludedProfiles } = await supabase
+      .from("profiles")
+      .select("id")
+      .in("role", ["admin", "superadmin"]);
+
+    // Creamos un Set con los IDs a excluir para que la búsqueda sea ultra rápida
+    const excludedIds = new Set(excludedProfiles?.map((p) => p.id) || []);
+
+    // Filtramos la lista de authUsers eliminando los que coincidan con esos IDs
+    authUsers = authUsers.filter((authUser) => !excludedIds.has(authUser.id));
+  } else if (userRole === "superadmin") {
+    // Traemos los IDs de los perfiles que son 'superadmin'
+    const { data: excludedProfiles } = await supabase
+      .from("profiles")
+      .select("id")
+      .in("role", ["superadmin"]);
+
+    // Creamos un Set con los IDs a excluir para que la búsqueda sea ultra rápida
+    const excludedIds = new Set(excludedProfiles?.map((p) => p.id) || []);
+
+    // Filtramos la lista de authUsers eliminando los que coincidan con esos IDs
+    authUsers = authUsers.filter((authUser) => !excludedIds.has(authUser.id));
+
+  }
+
+  // 5. Pasar los usuarios ya filtrados al cliente
   return (
     <AdminDashboardClient
       userName={userName}
