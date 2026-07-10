@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import UserManagement from "./UserManagement";
+import PersonManagement from "./PersonManagement";
 import { User } from "@supabase/supabase-js";
 
 // Subcomponentes Mock/Esqueleto para las pestañas solicitadas
@@ -70,10 +71,10 @@ export default function AdminDashboardClient({
   initialUsers
 }: AdminDashboardClientProps) {
 
-  const [activeTab, setActiveTab] = useState<"metrics" | "charts" | "users">("metrics");
+  const [activeTab, setActiveTab] = useState<"metrics" | "charts" | "users" | "persons">("metrics");
 
   // 1. Definimos el tipo de las pestañas permitidas
-  type TabId = "metrics" | "charts" | "users";
+  type TabId = "metrics" | "charts" | "users" | "persons";
 
   interface TabItem {
     id: TabId;
@@ -81,12 +82,22 @@ export default function AdminDashboardClient({
     longLabel: string;
   }
 
-  // 2. Aplicamos el tipo al Array
-  const TABS: TabItem[] = [
+  // 2. Aplicamos el tipo al Array base
+  const allTabs: TabItem[] = [
     { id: "metrics", shortLabel: "Métricas", longLabel: "Resumen de Métricas" },
     { id: "charts", shortLabel: "Gráficos", longLabel: "Gráficos de Asistencia" },
     { id: "users", shortLabel: "Usuarios", longLabel: "Gestión de Usuarios" },
+    { id: "persons", shortLabel: "Personas", longLabel: "Gestión de Personas" },
   ];
+
+  // 3. Filtramos las pestañas basándonos en el rol del usuario
+  const visibleTabs = allTabs.filter(tab => {
+    if (tab.id === "persons" && userRole !== "superadmin") {
+      return false;
+    }
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 p-6 md:p-12">
       <div className="max-w-5xl mx-auto">
@@ -125,27 +136,25 @@ export default function AdminDashboardClient({
 
           {/* Botones de navegación nativa condicionales */}
           <div className="flex items-center gap-3 justify-start sm:justify-end flex-wrap">
-
             <Link
               href="/"
               className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm"
             >
               Home
             </Link>
-
           </div>
         </header>
 
-        {/* Sistema de Pestañas (Tabs en Inglés) */}
-        <div className="flex border-b border-zinc-200 dark:border-zinc-700 mb-8 overflow-x-auto gap-1 sm:gap-2">
-          {TABS.map((tab) => {
+        {/* Sistema de Pestañas (Tabs) */}
+        <div className="flex border-b border-zinc-200 dark:border-zinc-700 mb-8 overflow-x-auto scrollbar-none gap-1 sm:gap-2 -mb-[1px]">
+          {visibleTabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`pb-3 px-3 sm:px-4 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${isActive
-                  ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400"
+                className={`pb-3 px-2 sm:px-4 text-xs sm:text-sm font-bold border-b-2 transition-all whitespace-nowrap focus:outline-none ${isActive
+                  ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 z-10"
                   : "border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
                   }`}
               >
@@ -157,11 +166,12 @@ export default function AdminDashboardClient({
           })}
         </div>
 
-        {/* Contenido Dinámico de las Pestañas */}
+        {/* Contenido Dinámico de las Pestañas (Se protege también por seguridad del render) */}
         <main className="mt-4">
           {activeTab === "metrics" && <MetricsSummary />}
           {activeTab === "charts" && <AttendanceCharts />}
           {activeTab === "users" && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
+          {activeTab === "persons" && userRole === "superadmin" && <PersonManagement />}
         </main>
       </div>
     </div>
