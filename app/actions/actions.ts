@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "../utils/supabase";
 import type { UserAttributes } from "@supabase/supabase-js";
+import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
 
 export async function registerPerson(formData: FormData) {
   const supabase = await createClient();
@@ -220,6 +221,7 @@ export async function updateOwnUserSettings(updates: UpdateOwnUserPayload) {
   try {
     const supabase = await createClient();
 
+    // 1. Obtener el usuario autenticado actual
     const {
       data: { user },
       error: getUserError,
@@ -233,33 +235,47 @@ export async function updateOwnUserSettings(updates: UpdateOwnUserPayload) {
       return { success: false, error: 'No autenticado.' };
     }
 
-    // const cleanEmail = updates.email?.trim();
+    const cleanEmail = updates.email?.trim();
     const cleanPassword = updates.password?.trim();
     const cleanFullName = updates.fullName?.trim();
-    // const normalizedEmail = cleanEmail?.toLowerCase();
-    // const currentEmail = user.email?.toLowerCase();
+    const normalizedEmail = cleanEmail?.toLowerCase();
+    const currentEmail = user.email?.toLowerCase();
 
-    const authPayload: UserAttributes = {};
+    // 2. SI EL CORREO CAMBIÓ: Usamos el cliente Admin para forzar la actualización inmediata
+    if (normalizedEmail && normalizedEmail !== currentEmail) {
+      // Creamos el cliente Admin usando variables de entorno del servidor.
+      // Recuerda que SUPABASE_SERVICE_ROLE_KEY nunca debe exponerse en el cliente.
+      const supabaseAdmin = createSupabaseAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
 
-    // if (normalizedEmail && normalizedEmail !== currentEmail) {
-    //   authPayload.email = normalizedEmail;
-    // }
+      const { error: adminAuthError } = await supabaseAdmin.auth.admin.updateUserById(
+        user.id,
+        {
+          email: normalizedEmail,
+          email_confirm: true // <-- ESTO fuerza el cambio en auth.users de inmediato sin enviar correos
+        }
+      );
 
-    if (cleanPassword) {
-      authPayload.password = cleanPassword;
+      if (adminAuthError) {
+        return { success: false, error: `Error actualizando identificador: ${adminAuthError.message}` };
+      }
     }
 
-    if (Object.keys(authPayload).length > 0) {
-      const { error: updateAuthError } = await supabase.auth.updateUser(authPayload);
+    // 3. SI LA CONTRASEÑA CAMBIÓ: La actualizamos con el cliente normal del usuario
+    if (cleanPassword) {
+      const { error: updateAuthError } = await supabase.auth.updateUser({ password: cleanPassword });
       if (updateAuthError) {
         const errorMessage = updateAuthError.message.toLowerCase().includes('email rate limit exceeded')
-          ? 'Has intentado cambiar el correo demasiadas veces. Espera unos minutos antes de intentarlo de nuevo.'
+          ? 'Has intentado cambiar las credenciales demasiadas veces. Espera unos minutos.'
           : updateAuthError.message;
 
         return { success: false, error: errorMessage };
       }
     }
 
+    // 4. Actualizamos la tabla 'profiles'
     const profileUpdates: { full_name?: string; email?: string } = {};
 
     const currentFullName = typeof user.user_metadata?.full_name === 'string'
@@ -270,9 +286,9 @@ export async function updateOwnUserSettings(updates: UpdateOwnUserPayload) {
       profileUpdates.full_name = cleanFullName;
     }
 
-    // if (normalizedEmail && normalizedEmail !== currentEmail) {
-    //   profileUpdates.email = normalizedEmail;
-    // }
+    if (normalizedEmail && normalizedEmail !== currentEmail) {
+      profileUpdates.email = normalizedEmail;
+    }
 
     if (Object.keys(profileUpdates).length > 0) {
       const { error: profileError } = await supabase
