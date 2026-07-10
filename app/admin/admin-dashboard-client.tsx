@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import UserManagement from "./UserManagement";
+import { User } from "@supabase/supabase-js";
 
 // Subcomponentes Mock/Esqueleto para las pestañas solicitadas
 function MetricsSummary() {
@@ -57,15 +58,18 @@ function AttendanceCharts() {
   );
 }
 
+interface AdminDashboardClientProps {
+  userName: string;
+  userRole: string;
+  initialUsers: User[];
+}
+
 export default function AdminDashboardClient({
   userName,
   userRole,
   initialUsers
-}: {
-  userName: string;
-  userRole: string;
-  initialUsers: any[] // O 'User[]' importándolo de @supabase/supabase-js
-}) {
+}: AdminDashboardClientProps) {
+
   const [activeTab, setActiveTab] = useState<"metrics" | "charts" | "users">("metrics");
 
   // 1. Definimos el tipo de las pestañas permitidas
@@ -157,7 +161,7 @@ export default function AdminDashboardClient({
         <main className="mt-4">
           {activeTab === "metrics" && <MetricsSummary />}
           {activeTab === "charts" && <AttendanceCharts />}
-          {activeTab === "users" && <UserManagement initialUsers={initialUsers} />}
+          {activeTab === "users" && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
         </main>
       </div>
     </div>
