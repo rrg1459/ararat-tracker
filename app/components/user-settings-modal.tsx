@@ -131,7 +131,7 @@ export default function UserSettingsModal({
             />
           </div>
 
-          {/* <div>
+          <div>
             <label className="block text-[11px] font-medium text-zinc-500">
               Correo Electrónico
             </label>
@@ -141,7 +141,7 @@ export default function UserSettingsModal({
               onChange={(e) => setEditEmail(e.target.value)}
               className="w-full p-1.5 text-sm rounded border border-zinc-300 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
             />
-          </div> */}
+          </div>
 
           <div>
             <label className="block text-[11px] font-medium text-zinc-500">
