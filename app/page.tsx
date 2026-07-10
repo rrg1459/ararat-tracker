@@ -4,9 +4,11 @@ import { createClient } from "./utils/supabase";
 import PeopleManager from "./people-manager";
 import AttendanceClient from "./attendance/attendance-client";
 import FaSignOutAlt from "./svg/FaSignOutAlt";
-import FcSettings from "./svg/FcSettings";
+// import FcSettings from "./svg/FcSettings";
 import { logout } from "./actions/actions";
 import Link from "next/link"; // Usamos Link de Next.js para navegación limpia
+// 1. IMPORTA EL NUEVO COMPONENTE DEL CLIENTE (Ya no necesitas importar FcSettings aquí)
+import UserSettingsModal from "./components/user-settings-modal";
 
 export default async function Home({
   searchParams,
@@ -117,11 +119,14 @@ export default async function Home({
             </Link>
           )}
 
-          <form action={logout}>
-            <button type="submit" className="bg-blue-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-3 py-2 rounded-md font-semibold hover:bg-blue-300 dark:hover:bg-blue-600 transition-colors cursor-pointer text-sm">
-              <FcSettings size={20} />
-            </button>
-          </form>
+          {/* 2. AQUÍ INSERTAMOS EL COMPONENTE CLIENTE DEL MODAL DE CONFIGURACIÓN */}
+          {user && (
+            <UserSettingsModal
+              userId={user.id}
+              initialName={profileData?.full_name || ""}
+              initialEmail={profileData?.email || user.email || ""}
+            />
+          )}
 
           <form action={logout}>
             <button type="submit" className="bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-3 py-2 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
