@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import UserManagement from "./UserManagement";
-import PersonManagement from "./PersonManagement";
+import PersonManagement, { People } from "./PersonManagement";
 import { User } from "@supabase/supabase-js";
 
 // Subcomponentes Mock/Esqueleto para las pestañas solicitadas
@@ -63,12 +63,14 @@ interface AdminDashboardClientProps {
   userName: string;
   userRole: string;
   initialUsers: User[];
+  initialPeople: People[];
 }
 
 export default function AdminDashboardClient({
   userName,
   userRole,
-  initialUsers
+  initialUsers,
+  initialPeople
 }: AdminDashboardClientProps) {
 
   const [activeTab, setActiveTab] = useState<"metrics" | "charts" | "users" | "persons">("metrics");
@@ -171,7 +173,7 @@ export default function AdminDashboardClient({
           {activeTab === "metrics" && <MetricsSummary />}
           {activeTab === "charts" && <AttendanceCharts />}
           {activeTab === "users" && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
-          {activeTab === "persons" && userRole === "superadmin" && <PersonManagement />}
+          {activeTab === "persons" && userRole === "superadmin" && <PersonManagement initialPeople={initialPeople} />}
         </main>
       </div>
     </div>
