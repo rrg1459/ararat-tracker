@@ -49,6 +49,19 @@ export default async function AdminPage() {
     console.error("Error al listar usuarios de autenticación:", error.message);
   }
 
+  const { data: people } = await supabase
+    .from("people")
+    .select(`
+    *,
+    attendance_logs:attendance_logs(count)
+  `)
+    .order("created_at", { ascending: false });
+
+  const formattedPeople = people?.map(person => ({
+    ...person,
+    attendance_count: person.attendance_logs?.[0]?.count ?? 0
+  }));
+
   let authUsers = authData?.users || [];
 
   // 4. FILTRAR SI EL USUARIO ES SOLO 'admin'
@@ -85,6 +98,7 @@ export default async function AdminPage() {
       userName={userName}
       userRole={userRole}
       initialUsers={authUsers}
+      initialPeople={formattedPeople ?? []}
     />
   );
 }
