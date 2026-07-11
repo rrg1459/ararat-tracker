@@ -103,10 +103,10 @@ export default function UserSettingsModal({
       <button
         type="button"
         onClick={openModal}
-        className="bg-blue-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-3 py-2 rounded-md font-semibold hover:bg-blue-300 dark:hover:bg-blue-600 transition-colors cursor-pointer text-sm"
+        className="text-zinc-700 dark:text-zinc-200 rounded-md font-semibold hover:bg-blue-300 dark:hover:bg-blue-600 transition-colors cursor-pointer text-sm"
         title="Configuración de Usuario"
       >
-        <FcSettings size={20} />
+        <FcSettings size={30} />
       </button>
 
       {/* Modal nativo con el formato que pediste */}

@@ -129,8 +129,8 @@ export default async function Home({
           )}
 
           <form action={logout}>
-            <button type="submit" className="bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-3 py-2 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
-              <FaSignOutAlt size={20} />
+            <button type="submit" className="text-zinc-700 dark:text-zinc-200 my-2 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
+              <FaSignOutAlt size={30} />
             </button>
           </form>
 
