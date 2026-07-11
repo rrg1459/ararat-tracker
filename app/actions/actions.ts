@@ -135,6 +135,20 @@ export async function updatePerson(id: string, formData: FormData) {
   return { success: true };
 }
 
+export async function deletePerson(id: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("people").delete().eq("id", id);
+
+  if (error) {
+    console.error("Error deleting person:", error.message);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/");
+  return { success: true };
+}
+
 export async function saveAttendance(date: string, personIds: string[]) {
   const supabase = await createClient();
 
