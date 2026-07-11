@@ -32,9 +32,16 @@ export default function PersonManagement({ initialPeople = [] }: { initialPeople
   const [peopleList, setPeopleList] = useState<People[]>(initialPeople);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
 
-  // Handler para eliminar la persona de manera optimista en UI y ejecutar el Server Action
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Está seguro de que desea eliminar a esta persona?")) return;
+  // Handler adaptado para recibir las asistencias y personalizar el texto de confirmación
+  const handleDelete = async (id: string, attendanceCount: number) => {
+    const hasAttendance = attendanceCount > 0;
+
+    // Texto condicional según el historial de asistencia
+    const message = hasAttendance
+      ? `Esta persona tiene ${attendanceCount} asistencias registradas. ¿Está seguro de que desea eliminarla? Se borrará todo su historial.`
+      : "¿Está seguro de que desea eliminar a esta persona?";
+
+    if (!confirm(message)) return;
 
     try {
       setIsDeletingId(id);
@@ -173,7 +180,7 @@ export default function PersonManagement({ initialPeople = [] }: { initialPeople
                         <button
                           type="button"
                           disabled={isDeletingId === person.id}
-                          onClick={() => handleDelete(person.id)}
+                          onClick={() => handleDelete(person.id, person.attendance_count ?? 0)}
                           className={`text-xs border px-3 py-1.5 rounded-md transition-colors cursor-pointer font-semibold whitespace-nowrap flex-1 sm:flex-none text-center disabled:opacity-50 disabled:cursor-not-allowed ${hasAttendance ? colorsWithAttendance : colorsNoAttendance
                             }`}
                           title={hasAttendance ? `Esta persona tiene ${person.attendance_count} asistencias registradas` : "Sin asistencias"}
