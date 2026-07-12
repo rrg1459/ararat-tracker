@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import UserManagement from "./UserManagement";
 import PersonManagement, { People } from "./PersonManagement";
+import { attendanceLogs } from "./MetricsSummary";
 import MetricsSummary from "./MetricsSummary";
 import AttendanceCharts from "./AttendanceCharts";
 import { User } from "@supabase/supabase-js";
@@ -14,13 +15,15 @@ interface AdminDashboardClientProps {
   userRole: string;
   initialUsers: User[];
   initialPeople: People[];
+  attendanceLogs: attendanceLogs[];
 }
 
 export default function AdminDashboardClient({
   userName,
   userRole,
   initialUsers,
-  initialPeople
+  initialPeople,
+  attendanceLogs
 }: AdminDashboardClientProps) {
 
   const [activeTab, setActiveTab] = useState<"metrics" | "charts" | "users" | "persons">("metrics");
@@ -52,6 +55,12 @@ export default function AdminDashboardClient({
 
   // ✨ Sumar dinámicamente cuántos registros tienen person_type === 'member'
   const totalMembersCount = initialPeople.filter(person => person.person_type === "member").length;
+  const averageAttendanceRate = 84.5
+  const newVisitorsThisMonth = 72
+  const newVisitorsThisWeek = 18
+  const returningVisitors = 12
+
+  console.log("control de asistencia:", attendanceLogs);
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 p-6 md:p-12">
@@ -123,7 +132,14 @@ export default function AdminDashboardClient({
 
         {/* Contenido Dinámico de las Pestañas (Se protege también por seguridad del render) */}
         <main className="mt-4">
-          {activeTab === "metrics" && <MetricsSummary totalMembers={totalMembersCount} />}
+          {activeTab === "metrics" &&
+          <MetricsSummary
+            totalMembers={totalMembersCount}
+            averageAttendanceRate={averageAttendanceRate}
+            newVisitorsThisMonth={newVisitorsThisMonth}
+            newVisitorsThisWeek={newVisitorsThisWeek}
+            returningVisitors={returningVisitors}
+          />}
           {activeTab === "charts" && <AttendanceCharts />}
           {activeTab === "users" && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
           {activeTab === "persons" && userRole === "superadmin" && <PersonManagement initialPeople={initialPeople} />}
