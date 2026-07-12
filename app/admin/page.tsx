@@ -57,6 +57,11 @@ export default async function AdminPage() {
   `)
     .order("created_at", { ascending: false });
 
+  const { data: attendanceLogs } = await supabase
+    .from("attendance_logs")
+    .select("*")
+    .order("created_at", { ascending: false });
+
   const formattedPeople = people?.map(person => ({
     ...person,
     attendance_count: person.attendance_logs?.[0]?.count ?? 0
@@ -99,6 +104,7 @@ export default async function AdminPage() {
       userRole={userRole}
       initialUsers={authUsers}
       initialPeople={formattedPeople ?? []}
+      attendanceLogs={attendanceLogs ?? []}
     />
   );
 }
