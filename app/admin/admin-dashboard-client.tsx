@@ -50,6 +50,9 @@ export default function AdminDashboardClient({
     return true;
   });
 
+  // ✨ Sumar dinámicamente cuántos registros tienen person_type === 'member'
+  const totalMembersCount = initialPeople.filter(person => person.person_type === "member").length;
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 p-6 md:p-12">
       <div className="max-w-5xl mx-auto">
@@ -120,7 +123,7 @@ export default function AdminDashboardClient({
 
         {/* Contenido Dinámico de las Pestañas (Se protege también por seguridad del render) */}
         <main className="mt-4">
-          {activeTab === "metrics" && <MetricsSummary />}
+          {activeTab === "metrics" && <MetricsSummary totalMembers={totalMembersCount} />}
           {activeTab === "charts" && <AttendanceCharts />}
           {activeTab === "users" && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
           {activeTab === "persons" && userRole === "superadmin" && <PersonManagement initialPeople={initialPeople} />}
