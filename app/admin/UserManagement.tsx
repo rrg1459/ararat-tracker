@@ -17,7 +17,7 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
-  const [createRole, setCreateRole] = useState('operator') // 👈 Nuevo estado (puedes poner 'operator' o tu rol por defecto inicial)
+  const [createRole, setCreateRole] = useState('operator')
   const [message, setMessage] = useState('')
   const router = useRouter()
 
@@ -28,11 +28,17 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
   const [editPassword, setEditPassword] = useState('')
   const [editRole, setEditRole] = useState('')
 
+  // Estados locales para el feedback de edición
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [editError, setEditError] = useState<string | null>(null)
+
+  // ✨ Rastrear qué usuario se actualizó con éxito recientemente
+  const [successUserId, setSuccessUserId] = useState<string | null>(null)
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     setMessage('Creando usuario...')
 
-    // 🔑 AQUÍ: Ahora sí le enviamos el 'createRole' al backend
     const res = await adminCreateUser(email, password, name, createRole)
 
     if (res.success) {
@@ -40,16 +46,14 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
       setEmail('');
       setPassword('');
       setName('');
-      setCreateRole('operator'); // Reseteamos al valor por defecto
+      setCreateRole('operator');
       router.refresh();
     } else {
       setMessage(`Error: ${res.error}`)
     }
   }
 
-  // Añadimos el "?" en userName para indicar que puede ser opcional
   const handleDelete = async (userId: string, userName?: string) => {
-    // Si userName no existe, usamos 'este usuario' por defecto
     const nameToDisplay = userName || 'este usuario'
 
     if (!confirm(`¿Seguro que quieres eliminar el usuario ${nameToDisplay}?`)) return
@@ -64,54 +68,57 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
     }
   }
 
-  // Activa el modo edición cargando los valores actuales
   const startEditing = (user: AuthUser) => {
+    setEditError(null)
     setEditingUserId(user.id)
     setEditName(user.user_metadata?.full_name || '')
     setEditEmail(user.email || '')
-    setEditPassword('') // Se deja vacío para que solo cambie si escriben algo
+    setEditPassword('')
     setEditRole(user.user_metadata?.role || 'user')
   }
 
   const handleUpdate = async (userId: string) => {
-    setMessage('Actualizando usuario...')
+    setEditError(null)
+
+    if (editPassword.trim().length > 0 && editPassword.trim().length < 6) {
+      setEditError('La nueva contraseña debe tener al menos 6 caracteres.')
+      return
+    }
 
     const updates: { email?: string; fullName?: string; password?: string; role?: string } = {
       email: editEmail,
       fullName: editName,
-      role: editRole // 👈 Enviar el rol seleccionado
+      role: editRole
     }
 
     if (editPassword.trim().length >= 6) {
       updates.password = editPassword
-    } else if (editPassword.trim().length > 0) {
-      setMessage('Error: La nueva contraseña debe tener al menos 6 caracteres.')
-      return
     }
 
+    setIsUpdating(true)
     const res = await adminUpdateUser(userId, updates)
+    setIsUpdating(false)
 
     if (res.success) {
-      setMessage('Usuario actualizado con éxito.')
       setEditingUserId(null)
       router.refresh()
+
+      // 🎉 Guardamos el id para gatillar el mensaje local
+      setSuccessUserId(userId)
+
+      // ⏱️ Desaparece tras 1.5 segundos
+      setTimeout(() => {
+        setSuccessUserId(null)
+      }, 1500)
+
     } else {
-      setMessage(`Error al actualizar: ${res.error}`)
+      setEditError(`Error al actualizar: ${res.error}`)
     }
   }
 
   return (
     <>
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold tracking-tight text-orange-800 dark:text-orange-100 sm:text-3xl">
-          Usuarios ... en desarrollo
-        </h2>
-        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          Resumen general del estado y rendimiento actual
-        </p>
-      </div>
-
-      <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 p-4">
+      <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
 
         {/* COLUMNA 1: FORMULARIO DE CREACIÓN */}
         <section className="lg:col-span-5 bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100">
@@ -152,8 +159,8 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
             <div>
               <label className="block text-sm font-medium mb-1">Rol del Usuario *</label>
               <select
-                value={createRole} // 👈 Cambiado de editRole a createRole
-                onChange={e => setCreateRole(e.target.value)} // 👈 Cambiado de setEditRole a setCreateRole
+                value={createRole}
+                onChange={e => setCreateRole(e.target.value)}
                 className="w-full p-2 text-sm rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
               >
                 <option value="operator">Operator</option>
@@ -193,13 +200,19 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
             ) : (
               initialUsers.map((user) => {
                 const isEditing = editingUserId === user.id
+                const isRecentlyUpdated = successUserId === user.id
                 const fullName = user.user_metadata?.full_name || "Sin Nombre"
                 const userMetadaRole = user.user_metadata?.role || "user"
 
                 return (
                   <div
                     key={user.id}
-                    className="p-4 bg-zinc-50 rounded-lg border border-zinc-100 dark:bg-zinc-700/50 dark:border-zinc-600 flex flex-col gap-3"
+                    className={`p-4 rounded-lg border flex flex-col gap-3 transition-colors duration-300 ${isEditing
+                      ? 'bg-blue-50/50 border-blue-200 dark:bg-blue-950/10 dark:border-blue-900/50'
+                      : isRecentlyUpdated
+                        ? 'bg-green-50/50 border-green-200 dark:bg-green-950/10 dark:border-green-900/40'
+                        : 'bg-zinc-50 border-zinc-100 dark:bg-zinc-700/50 dark:border-zinc-600'
+                      }`}
                   >
                     {isEditing ? (
                       /* --- VISTA MODO EDICIÓN --- */
@@ -208,13 +221,20 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
                           Editando Usuario
                         </p>
 
+                        {editError && (
+                          <p className="p-2 text-xs bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400 rounded border border-red-200 dark:border-red-900/50">
+                            {editError}
+                          </p>
+                        )}
+
                         <div>
                           <label className="block text-[11px] font-medium text-zinc-500">Nombre Completo</label>
                           <input
                             type="text"
                             value={editName}
                             onChange={e => setEditName(e.target.value)}
-                            className="w-full p-1.5 text-sm rounded border border-zinc-300 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                            disabled={isUpdating}
+                            className="w-full p-1.5 text-sm rounded border border-zinc-300 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 disabled:opacity-50"
                           />
                         </div>
 
@@ -224,7 +244,8 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
                             type="email"
                             value={editEmail}
                             onChange={e => setEditEmail(e.target.value)}
-                            className="w-full p-1.5 text-sm rounded border border-zinc-300 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                            disabled={isUpdating}
+                            className="w-full p-1.5 text-sm rounded border border-zinc-300 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 disabled:opacity-50"
                           />
                         </div>
 
@@ -233,7 +254,8 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
                           <select
                             value={editRole}
                             onChange={e => setEditRole(e.target.value)}
-                            className="w-full p-1.5 text-sm rounded border border-zinc-300 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-blue-500"
+                            disabled={isUpdating}
+                            className="w-full p-1.5 text-sm rounded border border-zinc-300 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-blue-500 disabled:opacity-50"
                           >
                             <option value="operator">Operator</option>
                             {userRole === "superadmin" && <option value="admin">Admin</option>}
@@ -247,61 +269,73 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
                             placeholder="Nueva contraseña"
                             value={editPassword}
                             onChange={e => setEditPassword(e.target.value)}
-                            className="w-full p-1.5 text-sm rounded border border-zinc-300 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                            disabled={isUpdating}
+                            className="w-full p-1.5 text-sm rounded border border-zinc-300 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 disabled:opacity-50"
                           />
                         </div>
 
-                        <div className="flex justify-center gap-2 mt-2">
+                        <div className="flex justify-end gap-2 mt-2 border-t border-zinc-200/60 dark:border-zinc-700/60 pt-2">
                           <button
                             onClick={() => setEditingUserId(null)}
-                            className="text-xs bg-zinc-200 text-zinc-700 px-3 py-1.5 rounded-md hover:bg-zinc-300 dark:bg-zinc-600 dark:text-zinc-200"
+                            disabled={isUpdating}
+                            className="text-xs bg-zinc-200 text-zinc-700 px-3 py-1.5 rounded-md hover:bg-zinc-300 dark:bg-zinc-600 dark:text-zinc-200 disabled:opacity-50 cursor-pointer"
                           >
                             Cancelar
                           </button>
                           <button
                             onClick={() => handleUpdate(user.id)}
-                            className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 font-semibold"
+                            disabled={isUpdating}
+                            className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 font-semibold disabled:opacity-50 cursor-pointer flex items-center gap-1"
                           >
-                            Guardar
+                            {isUpdating ? 'Guardando...' : 'Guardar Cambios'}
                           </button>
                         </div>
                       </div>
                     ) : (
                       /* --- VISTA MODO LECTURA --- */
-                      <div className="flex justify-between items-center gap-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-sm truncate">{fullName}</p>
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">📧 {user.email}</p>
-                          <p className="text-[10px] text-zinc-400 dark:text-zinc-500 truncate mt-0.5">ID: {user.id}</p>
+                      <>
+                        {/* 🔽 TEXTO SITUADO JUSTO ARRIBA DEL NOMBRE */}
+                        {isRecentlyUpdated && (
+                          <p className="text-[11px] font-bold text-green-600 dark:text-green-400 mb-1 transition-all animate-fade-in">
+                            Usuario actualizado con éxito
+                          </p>
+                        )}
+                        <div className="flex justify-between items-center gap-2">
+                          <div className="min-w-0 flex-1">
 
-                          <div className="flex flex-wrap gap-1 mt-1.5">
-                            <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${userMetadaRole === 'superadmin'
-                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
-                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                              }`}>
-                              {userMetadaRole === 'superadmin' && 'Superadmin 👑'}
-                              {userMetadaRole === 'admin' && 'Admin 🛡️'}
-                              {userMetadaRole === 'operator' && 'Operator ⚙️'}
-                              {userMetadaRole === 'user' && 'Usuario'}
-                            </span>
+                            <p className="font-semibold text-sm truncate">{fullName}</p>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">📧 {user.email}</p>
+                            <p className="text-[10px] text-zinc-400 dark:text-zinc-500 truncate mt-0.5">ID: {user.id}</p>
+
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-medium ${userMetadaRole === 'superadmin'
+                                ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+                                : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                                }`}>
+                                {userMetadaRole === 'superadmin' && 'Superadmin 👑'}
+                                {userMetadaRole === 'admin' && 'Admin 🛡️'}
+                                {userMetadaRole === 'operator' && 'Operator ⚙️'}
+                                {userMetadaRole === 'user' && 'Usuario'}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row gap-1.5">
+                            <button
+                              onClick={() => startEditing(user)}
+                              className="text-xs bg-white text-zinc-700 border border-zinc-300 px-2.5 py-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-600 dark:text-zinc-200 dark:border-zinc-500 dark:hover:bg-zinc-500 transition-colors cursor-pointer font-medium"
+                            >
+                              Editar
+                            </button>
+                            <button
+                              onClick={() => handleDelete(user.id, fullName || user.email)}
+                              className="text-xs bg-red-50 text-red-600 border border-red-200 px-2.5 py-1.5 rounded-md hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-900/40 transition-colors cursor-pointer font-medium"
+                            >
+                              Eliminar
+                            </button>
                           </div>
                         </div>
-
-                        <div className="flex flex-col sm:flex-row gap-1.5">
-                          <button
-                            onClick={() => startEditing(user)}
-                            className="text-xs bg-white text-zinc-700 border border-zinc-300 px-2.5 py-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-600 dark:text-zinc-200 dark:border-zinc-500 dark:hover:bg-zinc-500 transition-colors cursor-pointer font-medium"
-                          >
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => handleDelete(user.id, fullName || user.email)}
-                            className="text-xs bg-red-50 text-red-600 border border-red-200 px-2.5 py-1.5 rounded-md hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-900/40 transition-colors cursor-pointer font-medium"
-                          >
-                            Eliminar
-                          </button>
-                        </div>
-                      </div>
+                      </>
                     )}
                   </div>
                 )
