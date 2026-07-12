@@ -1,5 +1,8 @@
-// Subcomponentes Mock/Esqueleto para las pestañas solicitadas
-export default function MetricsSummary() {
+interface MetricsSummaryProps {
+  totalMembers?: number; // Prop opcional por si acaso
+}
+
+export default function MetricsSummary({ totalMembers = 0 }: MetricsSummaryProps) {
   return (
     <>
       <div className="mb-8 text-center">
@@ -10,8 +13,8 @@ export default function MetricsSummary() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
         <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-          <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Total de Miembros (mock)</h3>
-          <p className="text-3xl font-bold mt-2 text-zinc-900 dark:text-zinc-100">142</p>
+          <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Total de Miembros</h3>
+          <p className="text-3xl font-bold mt-2 text-zinc-900 dark:text-zinc-100">{totalMembers}</p>
         </div>
         <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
           <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Promedio de Tasa de Asistencia (mock)</h3>
