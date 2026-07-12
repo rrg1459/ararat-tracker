@@ -155,7 +155,7 @@ export async function saveAttendance(date: string, personIds: string[]) {
   const { error: deleteError } = await supabase
     .from("attendance_logs")
     .delete()
-    .eq("date", date);
+    .eq("created_at", date);
 
   if (deleteError) {
     console.error("Error clearing old logs:", deleteError.message);
@@ -168,7 +168,7 @@ export async function saveAttendance(date: string, personIds: string[]) {
   }
 
   const logsToInsert = personIds.map((id) => ({
-    date: date,
+    created_at: date,
     person_id: id,
   }));
 

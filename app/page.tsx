@@ -50,7 +50,7 @@ export default async function Home({
   const { data: initialLogs } = await supabase
     .from("attendance_logs")
     .select("person_id")
-    .eq("date", currentDate);
+    .eq("created_at", currentDate);
 
   return (
     <div className="min-h-screen bg-zinc-50 p-6 md:p-12 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">

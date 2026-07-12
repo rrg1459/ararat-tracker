@@ -25,7 +25,7 @@ export default async function AttendancePage({ searchParams }: PageProps) {
     const { data: logs } = await supabase
       .from("attendance_logs")
       .select("person_id")
-      .eq("date", targetDate);
+      .eq("created_at", targetDate);
 
     initialLogs = logs || [];
 
@@ -40,7 +40,7 @@ export default async function AttendancePage({ searchParams }: PageProps) {
     const { data: logs } = await supabase
       .from("attendance_logs")
       .select("person_id")
-      .eq("date", targetDate);
+      .eq("created_at", targetDate);
 
     initialLogs = logs || [];
 
