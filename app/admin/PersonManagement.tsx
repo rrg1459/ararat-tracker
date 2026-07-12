@@ -58,15 +58,7 @@ export default function PersonManagement({ initialPeople = [] }: { initialPeople
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold tracking-tight text-orange-800 dark:text-orange-100 sm:text-3xl mb-4">
-          Gestión de Personas
-        </h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Administración y listado de personas registradas en el sistema.
-        </p>
-      </div>
+    <div className="max-w-5xl mx-auto">
 
       {/* SECCIÓN DEL LISTADO */}
       <section className="bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
