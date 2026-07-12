@@ -5,59 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import UserManagement from "./UserManagement";
 import PersonManagement, { People } from "./PersonManagement";
+import MetricsSummary from "./MetricsSummary";
+import AttendanceCharts from "./AttendanceCharts";
 import { User } from "@supabase/supabase-js";
-
-// Subcomponentes Mock/Esqueleto para las pestañas solicitadas
-function MetricsSummary() {
-  return (
-    <>
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold tracking-tight text-orange-800 dark:text-orange-100 sm:text-3xl mb-20">
-          Métricas ... en desarrollo
-        </h2>
-        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          Resumen general del estado y rendimiento actual
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
-        <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-          <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Total de Miembros</h3>
-          <p className="text-3xl font-bold mt-2 text-zinc-900 dark:text-zinc-100">142</p>
-        </div>
-        <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-          <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Promedio de Tasa de Asistencia</h3>
-          <p className="text-3xl font-bold mt-2 text-green-600 dark:text-green-400">84.5%</p>
-        </div>
-        <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-          <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Nuevos Visitantes (este mes)</h3>
-          <p className="text-3xl font-bold mt-2 text-blue-600 dark:text-blue-400">+18</p>
-        </div>
-      </div>
-    </>
-  );
-}
-
-function AttendanceCharts() {
-  return (
-    <>
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold tracking-tight text-orange-800 dark:text-orange-100 sm:text-3xl mb-20">
-          Gráficos ... en desarrollo
-        </h2>
-        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          Resumen general del estado y rendimiento actual
-        </p>
-      </div>
-
-      <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm min-h-[300px] flex flex-col justify-center items-center text-zinc-500 dark:text-zinc-400 animate-fadeIn">
-        <div className="w-12 h-12 rounded-full border-4 border-t-indigo-600 border-zinc-200 animate-spin mb-4"></div>
-        <p className="font-medium">Cargando gráficos de análisis de asistencia...</p>
-        <span className="text-xs mt-1 text-zinc-400">(Integrar Chart.js o Recharts aquí)</span>
-      </div>
-    </>
-  );
-}
 
 interface AdminDashboardClientProps {
   userName: string;
