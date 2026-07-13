@@ -59,7 +59,12 @@ export default async function AdminPage() {
 
   const { data: attendanceLogs } = await supabase
     .from("attendance_logs")
-    .select("*")
+    .select(`
+    *,
+    people!inner (
+      person_type
+    )
+  `)
     .order("created_at", { ascending: false });
 
   const formattedPeople = people?.map(person => ({
