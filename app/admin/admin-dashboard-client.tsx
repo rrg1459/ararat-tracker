@@ -55,10 +55,83 @@ export default function AdminDashboardClient({
 
   // ✨ Sumar dinámicamente cuántos registros tienen person_type === 'member'
   const totalMembersCount = initialPeople.filter(person => person.person_type === "member").length;
-  const averageAttendanceRate = 84.5
-  const newVisitorsThisMonth = 72
-  const newVisitorsThisWeek = 18
-  const returningVisitors = 12
+
+  // 🕒 Obtener fechas de referencia actuales
+  const now = new Date();
+
+  // Inicio de la semana actual (hace 7 días o calculando el último lunes)
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(now.getDate() - 7);
+
+  // Inicio del mes actual (Día 1 del mes en curso a las 00:00:00)
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  // 📊 Filtrar registros buscando en el objeto relacional 'people'
+  const visitorsLogs = attendanceLogs.filter(log => log.people?.person_type === "visitor");
+
+  // Calcular totales dinámicos
+  const visitorsThisWeek = visitorsLogs.filter(log => {
+    const logDate = new Date(log.created_at);
+    return logDate >= oneWeekAgo;
+  }).length;
+
+  const visitorsThisMonth = visitorsLogs.filter(log => {
+    const logDate = new Date(log.created_at);
+    return logDate >= startOfMonth;
+  }).length;
+
+  // ==========================================
+  // 🔄 2. VISITANTES RECURRENTES (Returning Visitors)
+  // ==========================================
+
+  // Paso A: Filtramos todos los logs que pertenecen a alguien de tipo "visitor"
+  const generalVisitorLogs = attendanceLogs.filter(log => log.people?.person_type === "visitor");
+
+  // Paso B: Creamos un mapa/diccionario para contar cuántas veces aparece cada 'person_id'
+  const visitorAttendanceCounts: { [key: number]: number } = {};
+
+  generalVisitorLogs.forEach(log => {
+    const id = log.person_id;
+    visitorAttendanceCounts[id] = (visitorAttendanceCounts[id] || 0) + 1;
+  });
+
+  // Paso C: Contamos cuántas PERSONAS ÚNICAS tienen 2 o más asistencias
+  const returningVisitors = Object.values(visitorAttendanceCounts).filter(
+    count => count >= 2
+  ).length;
+
+  // ==========================================
+  // 📈 3. TASA PROMEDIO DE ASISTENCIA (averageAttendanceRate)
+  // ==========================================
+
+  // 1. Obtener el total de personas activas en la iglesia (Miembros + Visitantes Regulares)
+  // Excluimos 'new_visitor' si solo queremos medir la fidelidad de la base fija.
+  const totalActivePeople = initialPeople.filter(
+    person => person.person_type === "member" || person.person_type === "visitor"
+  ).length;
+
+  // 2. Agrupar los logs por fecha única (YYYY-MM-DD) para saber cuántos asistieron por día
+  const attendancePerDay: { [dateStr: string]: number } = {};
+
+  attendanceLogs.forEach(log => {
+    // Extraemos solo la parte de la fecha '2026-03-15' del timestamp '2026-03-15T10:00:00Z'
+    const dateStr = log.created_at.split("T")[0];
+
+    // Contamos esta asistencia para ese día específico
+    attendancePerDay[dateStr] = (attendancePerDay[dateStr] || 0) + 1;
+  });
+
+  // 3. Calcular el porcentaje de asistencia de cada día y promediarlos
+  const dailyPercentages = Object.values(attendancePerDay).map(count => {
+    if (totalActivePeople === 0) return 0;
+    // Porcentaje de este día específico: (Asistentes / Total Iglesia) * 100
+    return (count / totalActivePeople) * 100;
+  });
+
+  // 4. Sacar el promedio final de todos los días registrados
+  const averageAttendanceRate = dailyPercentages.length > 0
+    ? parseFloat((dailyPercentages.reduce((sum, pct) => sum + pct, 0) / dailyPercentages.length).toFixed(1))
+    : 0; // Retorna 0 si no hay logs aún
 
   console.log("control de asistencia:", attendanceLogs);
 
@@ -133,13 +206,14 @@ export default function AdminDashboardClient({
         {/* Contenido Dinámico de las Pestañas (Se protege también por seguridad del render) */}
         <main className="mt-4">
           {activeTab === "metrics" &&
-          <MetricsSummary
-            totalMembers={totalMembersCount}
-            averageAttendanceRate={averageAttendanceRate}
-            newVisitorsThisMonth={newVisitorsThisMonth}
-            newVisitorsThisWeek={newVisitorsThisWeek}
-            returningVisitors={returningVisitors}
-          />}
+            <MetricsSummary
+              totalMembers={totalMembersCount}
+              totalVisitors={visitorsLogs.length}
+              averageAttendanceRate={averageAttendanceRate}
+              visitorsThisMonth={visitorsThisMonth}
+              visitorsThisWeek={visitorsThisWeek}
+              returningVisitors={returningVisitors}
+            />}
           {activeTab === "charts" && <AttendanceCharts />}
           {activeTab === "users" && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
           {activeTab === "persons" && userRole === "superadmin" && <PersonManagement initialPeople={initialPeople} />}
