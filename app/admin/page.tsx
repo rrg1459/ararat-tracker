@@ -62,7 +62,8 @@ export default async function AdminPage() {
     .select(`
     *,
     people!inner (
-      person_type
+      person_type,
+      is_first_time_visitor
     )
   `)
     .order("created_at", { ascending: false });
