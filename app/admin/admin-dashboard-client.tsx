@@ -53,8 +53,9 @@ export default function AdminDashboardClient({
     return true;
   });
 
-  // ✨ Sumar dinámicamente cuántos registros tienen person_type === 'member'
+  // ✨ Sumar dinámicamente cuántos registros son miembros y visitantes
   const totalMembersCount = initialPeople.filter(person => person.person_type === "member").length;
+  const totalVisitorsCount = initialPeople.filter(person => person.person_type === "visitor").length;
 
   // 🕒 Obtener fechas de referencia actuales
   const now = new Date();
@@ -134,6 +135,8 @@ export default function AdminDashboardClient({
     : 0; // Retorna 0 si no hay logs aún
 
   // ==========================================
+  // Gráficos de Asistencia (AttendanceCharts)
+  // ==========================================
 
   // 📊 1. Tendencia de Asistencia Semanal (Gráfico de Líneas / Área)
   // ¿Para qué sirve? Para ver si la asistencia general está subiendo o bajando a lo largo del tiempo, separando a los miembros de los visitantes.
@@ -181,7 +184,7 @@ export default function AdminDashboardClient({
     { name: "Quiere Visita", cantidad: initialPeople.filter(p => p.wants_to_be_visited).length },
     { name: "Estudios Bíblicos", cantidad: initialPeople.filter(p => p.wants_bible_studies).length },
     { name: "Aceptó a Jesús", cantidad: initialPeople.filter(p => p.accepted_jesus).length },
-    { name: "Recibió Esp. Santo", cantidad: initialPeople.filter(p => p.received_holy_spirit).length },
+    { name: "Recibió Espíritu Santo", cantidad: initialPeople.filter(p => p.received_holy_spirit).length },
   ];
 
   // 4. Visitantes Nuevos por Mes (Gráfico de Barras)
@@ -279,7 +282,7 @@ export default function AdminDashboardClient({
           {activeTab === "metrics" &&
             <MetricsSummary
               totalMembers={totalMembersCount}
-              totalVisitors={visitorsLogs.length}
+              totalVisitors={totalVisitorsCount}
               averageAttendanceRate={averageAttendanceRate}
               newVisitorsThisMonth={newVisitorsThisMonth}
               newVisitorsThisWeek={newVisitorsThisWeek}
