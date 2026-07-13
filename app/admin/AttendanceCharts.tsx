@@ -1,4 +1,22 @@
-export default function AttendanceCharts() {
+interface AttendanceChartsProps {
+  trendData?: string[];
+  compositionData?: string[];
+  needsData?: string[];
+  monthlyVisitorsData?: string[];
+}
+
+export default function AttendanceCharts({
+  trendData,
+  compositionData,
+  needsData,
+  monthlyVisitorsData
+}: AttendanceChartsProps) {
+
+  console.log("trendData:", trendData);
+  console.log("compositionData:", compositionData);
+  console.log("needsData:", needsData);
+  console.log("monthlyVisitorsData:", monthlyVisitorsData);
+
   return (
     <>
       <div className="mb-8 text-center">
