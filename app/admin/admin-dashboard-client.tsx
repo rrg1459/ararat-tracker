@@ -134,10 +134,77 @@ export default function AdminDashboardClient({
     : 0; // Retorna 0 si no hay logs aún
 
   // ==========================================
-  const attendanceTrendData = ["123"];
-  const churchCompositionData = ["456"];
-  const needsData = ["789"];
-  const visitorsByMonthData = ["101112"];
+
+  // 📊 1. Tendencia de Asistencia Semanal (Gráfico de Líneas / Área)
+  // ¿Para qué sirve? Para ver si la asistencia general está subiendo o bajando a lo largo del tiempo, separando a los miembros de los visitantes.
+  const attendanceTrendMap: { [date: string]: { date: string; miembros: number; visitantes: number; total: number } } = {};
+
+  attendanceLogs.forEach(log => {
+    const dateStr = log.created_at.split("T")[0]; // Ej: "2026-03-15"
+    const isMember = log.people?.person_type === "member";
+
+    if (!attendanceTrendMap[dateStr]) {
+      attendanceTrendMap[dateStr] = { date: dateStr, miembros: 0, visitantes: 0, total: 0 };
+    }
+
+    if (isMember) {
+      attendanceTrendMap[dateStr].miembros += 1;
+    } else {
+      attendanceTrendMap[dateStr].visitantes += 1;
+    }
+    attendanceTrendMap[dateStr].total += 1;
+  });
+
+  // Convertir a Array y ordenar por fecha (antiguo a reciente)
+  const attendanceTrendData = Object.values(attendanceTrendMap).sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  // 2. Composición de la Iglesia (Gráfico de Tarta / Donut)
+  // ¿Para qué sirve? Para entender visualmente de qué se compone la base total de datos de tu iglesia actual (la salud del crecimiento).
+
+  const totalMembers = initialPeople.filter(p => p.person_type === "member").length;
+  const totalVisitors = initialPeople.filter(p => p.person_type === "visitor" || p.person_type === "new_visitor").length;
+  const totalLeaders = initialPeople.filter(p => p.person_type === "leader" || p.person_type === "staff").length; // Si tienes estos tipos
+
+  const churchCompositionData = [
+    { name: "Miembros", value: totalMembers },
+    { name: "Visitantes", value: totalVisitors },
+    { name: "Líderes", value: totalLeaders },
+  ];
+
+  // 3. Retención y Necesidades de Nuevos Visitantes (Gráfico de Barras)
+  // ¿Para qué sirve? Este es el más valioso para el equipo de consolidación o bienvenida. Utiliza los flags booleanos de la tabla People para ver qué necesitan las personas que están llegando.
+  // Contar cuántos de tu lista de personas marcaron un "Sí" en sus necesidades
+  const needsData = [
+    { name: "Necesita Oración", cantidad: initialPeople.filter(p => p.needs_prayer).length },
+    { name: "Quiere Visita", cantidad: initialPeople.filter(p => p.wants_to_be_visited).length },
+    { name: "Estudios Bíblicos", cantidad: initialPeople.filter(p => p.wants_bible_studies).length },
+    { name: "Aceptó a Jesús", cantidad: initialPeople.filter(p => p.accepted_jesus).length },
+    { name: "Recibió Esp. Santo", cantidad: initialPeople.filter(p => p.received_holy_spirit).length },
+  ];
+
+  // 4. Visitantes Nuevos por Mes (Gráfico de Barras)
+  // ¿Para qué sirve? Monitorear el flujo de personas que pisan la iglesia por primera vez en el año para evaluar campañas o temporadas de evangelismo.
+
+  const visitorsByMonthMap: { [month: string]: number } = {};
+
+  attendanceLogs.forEach(log => {
+    // Filtramos solo los registros que explícitamente fueron marcados como primera vez
+    if (log.people?.is_first_time_visitor) {
+      const date = new Date(log.created_at);
+      // Creamos una etiqueta tipo "Ene 2026", "Feb 2026"
+      const monthLabel = date.toLocaleString("es-ES", { month: "short", year: "numeric" });
+
+      visitorsByMonthMap[monthLabel] = (visitorsByMonthMap[monthLabel] || 0) + 1;
+    }
+  });
+
+  // Convertir a estructura de gráfico
+  const visitorsByMonthData = Object.entries(visitorsByMonthMap).map(([month, cantidad]) => ({
+    month,
+    cantidad,
+  }));
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 p-6 md:p-12">
