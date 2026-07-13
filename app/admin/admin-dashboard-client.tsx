@@ -133,6 +133,12 @@ export default function AdminDashboardClient({
     ? parseFloat((dailyPercentages.reduce((sum, pct) => sum + pct, 0) / dailyPercentages.length).toFixed(1))
     : 0; // Retorna 0 si no hay logs aún
 
+  // ==========================================
+  const attendanceTrendData = ["123"];
+  const churchCompositionData = ["456"];
+  const needsData = ["789"];
+  const visitorsByMonthData = ["101112"];
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 p-6 md:p-12">
       <div className="max-w-5xl mx-auto">
@@ -212,7 +218,14 @@ export default function AdminDashboardClient({
               newVisitorsThisWeek={newVisitorsThisWeek}
               returningVisitors={returningVisitors}
             />}
-          {activeTab === "charts" && <AttendanceCharts />}
+          {activeTab === "charts" && (
+            <AttendanceCharts
+              trendData={attendanceTrendData}
+              compositionData={churchCompositionData}
+              needsData={needsData}
+              monthlyVisitorsData={visitorsByMonthData}
+            />
+          )}
           {activeTab === "users" && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
           {activeTab === "persons" && userRole === "superadmin" && <PersonManagement initialPeople={initialPeople} />}
         </main>
