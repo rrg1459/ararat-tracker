@@ -67,15 +67,15 @@ export default function AdminDashboardClient({
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
   // 📊 Filtrar registros buscando en el objeto relacional 'people'
-  const visitorsLogs = attendanceLogs.filter(log => log.people?.person_type === "visitor");
+  const visitorsLogs = attendanceLogs.filter(log => log.people?.is_first_time_visitor === true);
 
   // Calcular totales dinámicos
-  const visitorsThisWeek = visitorsLogs.filter(log => {
+  const newVisitorsThisWeek = visitorsLogs.filter(log => {
     const logDate = new Date(log.created_at);
     return logDate >= oneWeekAgo;
   }).length;
 
-  const visitorsThisMonth = visitorsLogs.filter(log => {
+  const newVisitorsThisMonth = visitorsLogs.filter(log => {
     const logDate = new Date(log.created_at);
     return logDate >= startOfMonth;
   }).length;
@@ -132,8 +132,6 @@ export default function AdminDashboardClient({
   const averageAttendanceRate = dailyPercentages.length > 0
     ? parseFloat((dailyPercentages.reduce((sum, pct) => sum + pct, 0) / dailyPercentages.length).toFixed(1))
     : 0; // Retorna 0 si no hay logs aún
-
-  console.log("control de asistencia:", attendanceLogs);
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 p-6 md:p-12">
@@ -210,8 +208,8 @@ export default function AdminDashboardClient({
               totalMembers={totalMembersCount}
               totalVisitors={visitorsLogs.length}
               averageAttendanceRate={averageAttendanceRate}
-              visitorsThisMonth={visitorsThisMonth}
-              visitorsThisWeek={visitorsThisWeek}
+              newVisitorsThisMonth={newVisitorsThisMonth}
+              newVisitorsThisWeek={newVisitorsThisWeek}
               returningVisitors={returningVisitors}
             />}
           {activeTab === "charts" && <AttendanceCharts />}
