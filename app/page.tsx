@@ -10,6 +10,7 @@ import Link from "next/link"; // Usamos Link de Next.js para navegación limpia
 // 1. IMPORTA EL NUEVO COMPONENTE DEL CLIENTE (Ya no necesitas importar FcSettings aquí)
 import UserSettingsModal from "./components/user-settings-modal";
 import AraratLogo from "./components/ararat-logo";
+import dashboardIcon from "../public/dashboard1.png";
 
 export default async function Home({
   searchParams,
@@ -100,13 +101,15 @@ export default async function Home({
           {isAdminOrSuperAdmin && (
             <Link
               href="/admin"
+              className="inline-flex h-10 w-10 items-center justify-center flex-shrink-0"
             >
               <Image
-                src="/dashboard1.png"
+                src={dashboardIcon}
                 alt="Admin Icon"
                 width={40}
                 height={40}
-                className="inline-block"
+                className="block h-10 w-10 object-contain"
+                sizes="40px"
               />
             </Link>
           )}
