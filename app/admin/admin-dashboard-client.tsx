@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import UserManagement from "./UserManagement";
 import PersonManagement, { People } from "./PersonManagement";
@@ -9,6 +8,7 @@ import { attendanceLogs } from "./MetricsSummary";
 import MetricsSummary from "./MetricsSummary";
 import AttendanceCharts from "./AttendanceCharts";
 import { User } from "@supabase/supabase-js";
+import AraratLogo from "../components/ararat-logo";
 
 interface AdminDashboardClientProps {
   userName: string;
@@ -219,16 +219,7 @@ export default function AdminDashboardClient({
 
           {/* Info de la aplicación */}
           <div className="flex items-center gap-4 justify-start min-w-0">
-            <div className="relative w-[60px] h-[60px] flex-shrink-0">
-              <Image
-                src="/ararat.png"
-                alt="Logo Iglesia Ararat"
-                fill
-                priority
-                className="object-contain"
-                sizes="60px"
-              />
-            </div>
+            <AraratLogo size={60} priority />
             <div className="min-w-0 flex flex-col justify-center">
               <h1 style={{ fontSize: '20px' }} className="sm:text-3xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
                 Control de Asistencia

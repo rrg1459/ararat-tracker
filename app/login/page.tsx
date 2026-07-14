@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { login, type ActionState } from "../actions/actions";
-import Image from "next/image";
+import AraratLogo from "../components/ararat-logo";
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(login, null);
@@ -12,16 +12,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-white dark:bg-zinc-800 p-8 rounded-xl shadow-md border border-zinc-200 dark:border-zinc-700">
 
         <div className="text-center mb-6">
-          <div className="relative w-[180px] h-[180px] mx-auto mb-4">
-            <Image
-              src="/ararat.png"
-              alt="Logo Iglesia Ararat"
-              fill
-              priority
-              className="object-contain"
-              sizes="180px"
-            />
-          </div>
+          <AraratLogo size={180} priority className="mx-auto mb-4" />
 
           <h1 className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
             Control de Asistencia

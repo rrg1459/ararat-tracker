@@ -9,6 +9,7 @@ import { logout } from "./actions/actions";
 import Link from "next/link"; // Usamos Link de Next.js para navegación limpia
 // 1. IMPORTA EL NUEVO COMPONENTE DEL CLIENTE (Ya no necesitas importar FcSettings aquí)
 import UserSettingsModal from "./components/user-settings-modal";
+import AraratLogo from "./components/ararat-logo";
 
 export default async function Home({
   searchParams,
@@ -58,16 +59,7 @@ export default async function Home({
 
         {/* Info de la aplicación */}
         <div className="flex items-center gap-4 justify-start min-w-0">
-          <div className="relative w-[60px] h-[60px] flex-shrink-0">
-            <Image
-              src="/ararat.png"
-              alt="Logo Iglesia Ararat"
-              fill
-              priority
-              className="object-contain"
-              sizes="60px"
-            />
-          </div>
+          <AraratLogo size={60} priority />
           <div className="min-w-0 flex flex-col justify-center">
             <h1 style={{ fontSize: '20px' }} className="sm:text-3xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
               Control de Asistencia
