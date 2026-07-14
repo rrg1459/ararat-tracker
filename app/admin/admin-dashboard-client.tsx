@@ -145,6 +145,7 @@ export default function AdminDashboardClient({
   attendanceLogs.forEach(log => {
     const dateStr = log.created_at.split("T")[0]; // Ej: "2026-03-15"
     const isMember = log.people?.person_type === "member";
+    const isVisitor = log.people?.person_type === "visitor";
 
     if (!attendanceTrendMap[dateStr]) {
       attendanceTrendMap[dateStr] = { date: dateStr, miembros: 0, visitantes: 0, total: 0 };
@@ -152,7 +153,8 @@ export default function AdminDashboardClient({
 
     if (isMember) {
       attendanceTrendMap[dateStr].miembros += 1;
-    } else {
+    }
+    if (isVisitor) {
       attendanceTrendMap[dateStr].visitantes += 1;
     }
     attendanceTrendMap[dateStr].total += 1;
@@ -168,7 +170,7 @@ export default function AdminDashboardClient({
 
   const totalMembers = initialPeople.filter(p => p.person_type === "member").length;
   const totalVisitors = initialPeople.filter(p => p.person_type === "visitor" || p.person_type === "new_visitor").length;
-  const totalLeaders = initialPeople.filter(p => p.person_type === "leader" || p.person_type === "staff").length; // Si tienes estos tipos
+  const totalLeaders = initialPeople.filter(p => p.person_type === "leader" || p.person_type === "staff").length;
 
   const churchCompositionData = [
     { name: "Miembros", value: totalMembers },
