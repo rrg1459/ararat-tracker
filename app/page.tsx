@@ -87,15 +87,15 @@ export default async function Home({
         <div className="flex items-center gap-3 justify-start sm:justify-end flex-wrap">
 
           {currentView !== "attendance" && (
-            <a href="?view=attendance" className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
+            <Link href="/?view=attendance" scroll={false} className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
               Tomar Asistencia
-            </a>
+            </Link>
           )}
 
           {currentView !== "people" && (
-            <a href="?view=people" className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
+            <Link href="/?view=people" scroll={false} className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
               Gestión Personas
-            </a>
+            </Link>
           )}
 
           {isAdminOrSuperAdmin && (
@@ -108,6 +108,7 @@ export default async function Home({
                 alt="Admin Icon"
                 width={40}
                 height={40}
+                priority
                 className="block h-10 w-10 object-contain"
                 sizes="40px"
               />
