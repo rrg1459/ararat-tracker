@@ -63,7 +63,7 @@ export default async function AttendancePage({ searchParams }: PageProps) {
     <div className="min-h-screen bg-zinc-50 p-6 md:p-12 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
       <header className="max-w-3xl mx-auto mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4 justify-start">
-          <AraratLogo size={60} priority />
+          <AraratLogo size={60} />
           <div>
             <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">
               Asistencia Diaria

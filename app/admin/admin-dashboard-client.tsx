@@ -219,7 +219,7 @@ export default function AdminDashboardClient({
 
           {/* Info de la aplicación */}
           <div className="flex items-center gap-4 justify-start min-w-0">
-            <AraratLogo size={60} priority />
+            <AraratLogo size={60} />
             <div className="min-w-0 flex flex-col justify-center">
               <h1 style={{ fontSize: '20px' }} className="sm:text-3xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
                 Control de Asistencia
