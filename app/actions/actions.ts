@@ -151,64 +151,14 @@ export async function deletePerson(id: string) {
 export async function saveAttendance(date: string, personIds: string[]) {
   const supabase = await createClient();
 
-  // Guardamos el estado actual para poder restaurarlo si el insert falla.
-  const { data: previousLogs, error: previousLogsError } = await supabase
-    .from("attendance_logs")
-    .select("person_id")
-    .eq("created_at", date);
+  const { error } = await supabase.rpc("save_attendance_atomic", {
+    p_date: date,
+    p_person_ids: personIds,
+  });
 
-  if (previousLogsError) {
-    console.error("Error reading previous logs:", previousLogsError.message);
-    return { success: false, error: previousLogsError.message };
-  }
-
-  const { error: deleteError } = await supabase
-    .from("attendance_logs")
-    .delete()
-    .eq("created_at", date);
-
-  if (deleteError) {
-    console.error("Error clearing old logs:", deleteError.message);
-    return { success: false, error: deleteError.message };
-  }
-
-  if (personIds.length === 0) {
-    revalidatePath("/attendance");
-    return { success: true };
-  }
-
-  const logsToInsert = personIds.map((id) => ({
-    created_at: date,
-    person_id: id,
-  }));
-
-  const { error: insertError } = await supabase
-    .from("attendance_logs")
-    .insert(logsToInsert);
-
-  if (insertError) {
-    console.error("Error saving attendance logs:", insertError.message);
-
-    const logsToRestore = (previousLogs || []).map((log) => ({
-      created_at: date,
-      person_id: log.person_id,
-    }));
-
-    if (logsToRestore.length > 0) {
-      const { error: restoreError } = await supabase
-        .from("attendance_logs")
-        .insert(logsToRestore);
-
-      if (restoreError) {
-        console.error("Error restoring previous attendance logs:", restoreError.message);
-        return {
-          success: false,
-          error: `Error al guardar asistencia: ${insertError.message}. También falló la restauración: ${restoreError.message}`,
-        };
-      }
-    }
-
-    return { success: false, error: `Error al guardar asistencia: ${insertError.message}` };
+  if (error) {
+    console.error("Error saving attendance logs atomically:", error.message);
+    return { success: false, error: error.message };
   }
 
   revalidatePath("/attendance");
