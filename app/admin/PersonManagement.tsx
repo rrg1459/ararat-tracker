@@ -3,6 +3,7 @@
 import { useState } from "react";
 // Importa tu acción del servidor para eliminar
 import { deletePerson } from "../actions/actions";
+import { getRoleBadge } from "../utils/person-role-badge";
 
 export interface People {
   id: string;
@@ -85,24 +86,7 @@ export default function PersonManagement({ initialPeople = [] }: { initialPeople
                 age = calculatedAge;
               }
 
-              // 1. Defines la configuración de los roles
-              const badgeConfig: Record<string, { label: string; classes: string }> = {
-                leader: {
-                  label: 'Líder',
-                  classes: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 ring-1 ring-indigo-500/50 font-bold'
-                },
-                member: {
-                  label: 'Miembrox',
-                  classes: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                },
-                visitor: { // Cambia 'visitor' por el string exacto que uses para visitantes
-                  label: 'Visitante',
-                  classes: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
-                }
-              };
-
-              // 2. En tu JSX lo renderizas de forma ultra limpia:
-              const currentRole = badgeConfig[person.person_type] || badgeConfig.visitor;
+              const currentRole = getRoleBadge(person.person_type, "personManagement");
 
               return (
                 <div

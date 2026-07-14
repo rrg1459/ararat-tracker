@@ -3,6 +3,7 @@
 
 import { useState, useTransition } from "react"; // 1. Importamos useTransition
 import { saveAttendance } from "../actions/actions";
+import { getRoleBadge } from "../utils/person-role-badge";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { useRouter } from "next/navigation";
 
@@ -217,24 +218,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
               visiblePeople.map((person) => {
                 const isChecked = attendedIds.has(person.id);
 
-                // 1. Definimos la configuración con soporte para string index (evita el error de TypeScript)
-                const badgeConfig: Record<string, { label: string; classes: string }> = {
-                  leader: {
-                    label: 'Líder',
-                    classes: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 ring-1 ring-indigo-500/50 font-bold'
-                  },
-                  member: {
-                    label: 'Miembro',
-                    classes: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                  },
-                  visitor: { // El valor por defecto para visitantes u otros roles
-                    label: 'Visitante',
-                    classes: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
-                  }
-                };
-
-                // 2. Obtenemos el rol actual (y si no existe, cae en "visitor" por defecto)
-                const currentRole = badgeConfig[person.person_type] || badgeConfig.visitor;
+                const currentRole = getRoleBadge(person.person_type);
 
                 return (
                   <label
