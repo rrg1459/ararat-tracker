@@ -216,6 +216,26 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
             ) : (
               visiblePeople.map((person) => {
                 const isChecked = attendedIds.has(person.id);
+
+                // 1. Definimos la configuración con soporte para string index (evita el error de TypeScript)
+                const badgeConfig: Record<string, { label: string; classes: string }> = {
+                  leader: {
+                    label: 'Líder',
+                    classes: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 ring-1 ring-indigo-500/50 font-bold'
+                  },
+                  member: {
+                    label: 'Miembro',
+                    classes: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                  },
+                  visitor: { // El valor por defecto para visitantes u otros roles
+                    label: 'Visitante',
+                    classes: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                  }
+                };
+
+                // 2. Obtenemos el rol actual (y si no existe, cae en "visitor" por defecto)
+                const currentRole = badgeConfig[person.person_type] || badgeConfig.visitor;
+
                 return (
                   <label
                     key={person.id}
@@ -245,11 +265,8 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
                       </div>
                     </div>
 
-                    <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-medium ${person.person_type === 'member'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
-                      }`}>
-                      {person.person_type === 'member' ? 'Miembro' : 'Visitante'}
+                    <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-medium ${currentRole.classes}`}>
+                      {currentRole.label}
                     </span>
                   </label>
                 );
