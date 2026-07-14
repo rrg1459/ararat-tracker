@@ -39,8 +39,7 @@ export default function LoginPage() {
               type="password"
               name="password"
               required
-              // MANTIENE LA CONTRASEÑA (Opcional, usualmente por seguridad se borra, pero aquí la preservamos como pediste)
-              defaultValue={state?.password || ""}
+              autoComplete="current-password"
               placeholder="••••••••"
               className="w-full p-2.5 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
             />

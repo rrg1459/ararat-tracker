@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "../utils/supabase";
-import type { UserAttributes } from "@supabase/supabase-js";
 import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
 
 export async function registerPerson(formData: FormData) {
@@ -152,6 +151,17 @@ export async function deletePerson(id: string) {
 export async function saveAttendance(date: string, personIds: string[]) {
   const supabase = await createClient();
 
+  // Guardamos el estado actual para poder restaurarlo si el insert falla.
+  const { data: previousLogs, error: previousLogsError } = await supabase
+    .from("attendance_logs")
+    .select("person_id")
+    .eq("created_at", date);
+
+  if (previousLogsError) {
+    console.error("Error reading previous logs:", previousLogsError.message);
+    return { success: false, error: previousLogsError.message };
+  }
+
   const { error: deleteError } = await supabase
     .from("attendance_logs")
     .delete()
@@ -178,7 +188,27 @@ export async function saveAttendance(date: string, personIds: string[]) {
 
   if (insertError) {
     console.error("Error saving attendance logs:", insertError.message);
-    return { success: false, error: insertError.message };
+
+    const logsToRestore = (previousLogs || []).map((log) => ({
+      created_at: date,
+      person_id: log.person_id,
+    }));
+
+    if (logsToRestore.length > 0) {
+      const { error: restoreError } = await supabase
+        .from("attendance_logs")
+        .insert(logsToRestore);
+
+      if (restoreError) {
+        console.error("Error restoring previous attendance logs:", restoreError.message);
+        return {
+          success: false,
+          error: `Error al guardar asistencia: ${insertError.message}. También falló la restauración: ${restoreError.message}`,
+        };
+      }
+    }
+
+    return { success: false, error: `Error al guardar asistencia: ${insertError.message}` };
   }
 
   revalidatePath("/attendance");
@@ -188,8 +218,7 @@ export async function saveAttendance(date: string, personIds: string[]) {
 export type ActionState = {
   error?: string;
   success?: boolean;
-  email?: string;     // Agregamos esto para preservar los datos
-  password?: string;  // Agregamos esto para preservar los datos
+  email?: string;
 } | null;
 
 export async function login(prevState: ActionState, formData: FormData): Promise<ActionState> {
@@ -209,7 +238,6 @@ export async function login(prevState: ActionState, formData: FormData): Promise
     return {
       error: "El correo electrónico o la contraseña son incorrectos.",
       email,
-      password,
     };
   }
 

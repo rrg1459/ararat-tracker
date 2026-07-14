@@ -47,9 +47,14 @@ export default function AdminDashboardClient({
 
   // 3. Filtramos las pestañas basándonos en el rol del usuario
   const visibleTabs = allTabs.filter(tab => {
+    if (tab.id === "users" && userRole !== "superadmin") {
+      return false;
+    }
+
     if (tab.id === "persons" && userRole !== "superadmin") {
       return false;
     }
+
     return true;
   });
 
@@ -289,7 +294,7 @@ export default function AdminDashboardClient({
               monthlyVisitorsData={visitorsByMonthData}
             />
           )}
-          {activeTab === "users" && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
+          {activeTab === "users" && userRole === "superadmin" && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
           {activeTab === "persons" && userRole === "superadmin" && <PersonManagement initialPeople={initialPeople} />}
         </main>
       </div>
