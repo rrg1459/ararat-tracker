@@ -36,6 +36,7 @@ interface Person {
 export default function PeopleManager({ initialPeople }: { initialPeople: Person[] }) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
+  const [personType, setPersonType] = useState<string>("visitor");
   const formRef = useRef<HTMLFormElement>(null);
 
   const [checkboxes, setCheckboxes] = useState<Record<string, boolean>>({
@@ -69,7 +70,91 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
     });
   };
 
+  const calculateAge = (birthDate: Date | null): number | null => {
+    if (!birthDate) {
+      return null;
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    return age;
+  };
+
+  const getRoleValidationMessage = (): string | null => {
+    const age = calculateAge(selectedDate);
+
+    if (personType === "member") {
+      const issues: string[] = [];
+
+      if (age === null || age < 18) {
+        issues.push("debe ser mayor de 18 años");
+      }
+      if (!checkboxes.accepted_jesus) {
+        issues.push("debe haber aceptado a Jesús");
+      }
+      if (checkboxes.is_first_time_visitor) {
+        issues.push("no debe ser visitante por primera vez");
+      }
+      if (checkboxes.comes_from_another_church) {
+        issues.push("no debe venir de otra iglesia");
+      }
+      if (checkboxes.is_new_in_area) {
+        issues.push("no debe ser nuevo en la zona");
+      }
+
+      if (issues.length > 0) {
+        return `No cumple con los requisitos para ser Miembro: ${issues.join(", ")}.`;
+      }
+    }
+
+    if (personType === "leader") {
+      const issues: string[] = [];
+
+      if (age === null || age < 21) {
+        issues.push("debe ser mayor de 21 años");
+      }
+      if (!checkboxes.accepted_jesus) {
+        issues.push("debe haber aceptado a Jesús");
+      }
+      if (!checkboxes.received_holy_spirit) {
+        issues.push("debe haber recibido el Espíritu Santo");
+      }
+      const shouldBeFalseFields = [
+        { key: "is_first_time_visitor", label: "Visitante por primera vez" },
+        { key: "comes_from_another_church", label: "Viene de otra iglesia" },
+        { key: "needs_prayer", label: "Necesita oración" },
+        { key: "wants_to_be_visited", label: "Desea que lo visiten" },
+        { key: "wants_bible_studies", label: "Desea estudios bíblicos" },
+        { key: "is_new_in_area", label: "Nuevo en la zona" },
+      ] as const;
+
+      shouldBeFalseFields.forEach((field) => {
+        if (checkboxes[field.key]) {
+          issues.push(`no debe ser ${field.label.toLowerCase()}`);
+        }
+      });
+
+      if (issues.length > 0) {
+        return `No cumple con los requisitos para ser Líder: ${issues.join(", ")}.`;
+      }
+    }
+
+    return null;
+  };
+
+  const roleValidationMessage = getRoleValidationMessage();
+
   async function handleSubmit(formData: FormData) {
+    if (roleValidationMessage) {
+      return;
+    }
+
     if (selectedDate) {
       const dateString = selectedDate.toISOString().split("T")[0];
       formData.set("birth_date", dateString);
@@ -108,6 +193,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
       inputs.cell_phone.value = person.cell_phone || "";
       inputs.email.value = person.email || "";
       inputs.person_type.value = person.person_type;
+      setPersonType(person.person_type);
       inputs.address.value = person.address || "";
       inputs.city.value = person.city || "";
       inputs.notes.value = person.notes || "";
@@ -134,6 +220,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
   function resetForm() {
     formRef.current?.reset();
     setSelectedDate(null);
+    setPersonType("visitor");
     setCheckboxes({
       is_first_time_visitor: false,
       comes_from_another_church: false,
@@ -223,6 +310,8 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
               <select
                 name="person_type"
                 required
+                value={personType}
+                onChange={(e) => setPersonType(e.target.value)}
                 className="w-full p-2 rounded-md border border-zinc-300 bg-zinc-50 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100 focus:outline-blue-500"
               >
                 <option value="visitor">Visitante</option>
@@ -230,6 +319,13 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                 <option value="leader">Líder</option>
               </select>
             </div>
+
+            {roleValidationMessage && (
+              <p className="text-sm text-red-600 dark:text-red-400 sm:col-span-2 font-medium">
+                {roleValidationMessage}
+              </p>
+            )}
+
             <div>
               <label className="block text-sm font-medium mb-1">Correo Electrónico</label>
               <input
@@ -238,6 +334,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                 className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
               />
             </div>
+
           </div>
 
           {/* Cambiado a grid-cols-1 por defecto */}
@@ -317,7 +414,8 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
           <div className="flex flex-col sm:flex-row gap-2 mt-2">
             <button
               type="submit"
-              className={`flex-1 text-white p-2 rounded-md font-semibold transition-colors cursor-pointer ${editingPerson ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'}`}
+              disabled={Boolean(roleValidationMessage)}
+              className={`flex-1 text-white p-2 rounded-md font-semibold transition-colors ${roleValidationMessage ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${editingPerson ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
               {editingPerson ? "Actualizar" : "Guardar Persona"}
             </button>
