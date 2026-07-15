@@ -113,7 +113,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
       }
 
       if (issues.length > 0) {
-        return `Para ser Miembro: ${issues.join(", ")}.`;
+        return `Para ser registrado como Miembro: ${issues.join(", ")}.`;
       }
     }
 
@@ -144,7 +144,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
       });
 
       if (issues.length > 0) {
-        return `Para ser Líder: ${issues.join(", ")}.`;
+        return `Para ser registrado como Líder: ${issues.join(", ")}.`;
       }
     }
 
