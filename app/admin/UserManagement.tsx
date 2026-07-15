@@ -39,7 +39,7 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
     e.preventDefault()
     setMessage('Creando usuario...')
 
-    const res = await adminCreateUser(email, password, name, createRole)
+    const res = await adminCreateUser(email, password, name)
 
     if (res.success) {
       setMessage(`Usuario ${name} creado con éxito`)
@@ -74,7 +74,7 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
     setEditName(user.user_metadata?.full_name || '')
     setEditEmail(user.email || '')
     setEditPassword('')
-    setEditRole(user.user_metadata?.role || 'user')
+    setEditRole('operator')
   }
 
   const handleUpdate = async (userId: string) => {
@@ -165,7 +165,6 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
               >
                 <option value="operator">Operator</option>
                 {userRole === "superadmin" && <option value="admin">Admin</option>}
-
               </select>
             </div>
 
