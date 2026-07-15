@@ -113,7 +113,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
       }
 
       if (issues.length > 0) {
-        return `No cumple con los requisitos para ser Miembro: ${issues.join(", ")}.`;
+        return `Para ser Miembro: ${issues.join(", ")}.`;
       }
     }
 
@@ -130,22 +130,21 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
         issues.push("debe haber recibido el Espíritu Santo");
       }
       const shouldBeFalseFields = [
-        { key: "is_first_time_visitor", label: "Visitante por primera vez" },
-        { key: "comes_from_another_church", label: "Viene de otra iglesia" },
-        { key: "needs_prayer", label: "Necesita oración" },
-        { key: "wants_to_be_visited", label: "Desea que lo visiten" },
-        { key: "wants_bible_studies", label: "Desea estudios bíblicos" },
-        { key: "is_new_in_area", label: "Nuevo en la zona" },
+        { key: "is_first_time_visitor", label: "ser visitante por primera vez" },
+        { key: "comes_from_another_church", label: "venir de otra iglesia" },
+        { key: "wants_to_be_visited", label: "desear que lo visiten" },
+        { key: "wants_bible_studies", label: "desear estudios bíblicos" },
+        { key: "is_new_in_area", label: "ser nuevo en la zona" },
       ] as const;
 
       shouldBeFalseFields.forEach((field) => {
         if (checkboxes[field.key]) {
-          issues.push(`no debe ser ${field.label.toLowerCase()}`);
+          issues.push(`no debe ${field.label.toLowerCase()}`);
         }
       });
 
       if (issues.length > 0) {
-        return `No cumple con los requisitos para ser Líder: ${issues.join(", ")}.`;
+        return `Para ser Líder: ${issues.join(", ")}.`;
       }
     }
 
