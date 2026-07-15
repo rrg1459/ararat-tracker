@@ -25,22 +25,22 @@ vi.mock("./people-manager", () => ({
   },
 }));
 
-vi.mock("./attendance/attendance-client", () => ({
+vi.mock("./attendance/AttendanceClient", () => ({
   default: (props: { people: unknown[]; initialLogs: unknown[]; currentDate: string }) => {
     attendanceClientSpy(props);
-    return <div data-testid="attendance-client">Attendance Client</div>;
+    return <div data-testid="AttendanceClient">Attendance Client</div>;
   },
 }));
 
-vi.mock("./components/user-settings-modal", () => ({
+vi.mock("./components/UserSettingsModal", () => ({
   default: (props: { userId: string; initialName: string; initialEmail: string }) => {
     userSettingsModalSpy(props);
     return <div data-testid="settings-modal">Settings</div>;
   },
 }));
 
-vi.mock("./components/ararat-logo", () => ({
-  default: () => <div data-testid="ararat-logo" />,
+vi.mock("./components/AraratLogo", () => ({
+  default: () => <div data-testid="AraratLogo" />,
 }));
 
 vi.mock("./svg/FaSignOutAlt", () => ({
@@ -146,7 +146,7 @@ describe("Home page", () => {
 
     render(ui);
 
-    expect(screen.getByTestId("attendance-client")).toBeInTheDocument();
+    expect(screen.getByTestId("AttendanceClient")).toBeInTheDocument();
     expect(attendanceClientSpy).toHaveBeenCalledWith({
       people,
       initialLogs: logs,

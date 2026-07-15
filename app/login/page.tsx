@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { login, type ActionState } from "../actions/actions";
-import AraratLogo from "../components/ararat-logo";
+import AraratLogo from "../components/AraratLogo";
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(login, null);

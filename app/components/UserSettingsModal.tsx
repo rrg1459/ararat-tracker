@@ -1,4 +1,4 @@
-// user-settings-modal.tsx
+// UserSettingsModal.tsx
 'use client';
 
 import { useState, useRef } from 'react';

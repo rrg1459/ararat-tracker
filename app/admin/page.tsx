@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "../utils/supabase";
 import { createAdminClient } from "../utils/supabase-admin";
-import AdminDashboardClient from "./admin-dashboard-client";
+import DashboardClient from "./DashboardClient";
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -104,7 +104,7 @@ export default async function AdminPage() {
 
   // 5. Pasar los usuarios ya filtrados al cliente
   return (
-    <AdminDashboardClient
+    <DashboardClient
       userName={userName}
       userRole={userRole}
       initialUsers={authUsers}

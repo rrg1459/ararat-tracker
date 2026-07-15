@@ -1,4 +1,4 @@
-// attendance-client.tsx
+// AttendanceClient.tsx
 "use client";
 
 import { useState, useTransition } from "react"; // 1. Importamos useTransition

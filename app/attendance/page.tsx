@@ -1,8 +1,8 @@
 // page.tsx
 import { createClient } from "../utils/supabase";
-import AttendanceClient, { Person } from "./attendance-client";
+import AttendanceClient, { Person } from "./AttendanceClient";
 import Link from "next/link";
-import AraratLogo from "../components/ararat-logo";
+import AraratLogo from "../components/AraratLogo";
 
 interface PageProps {
   searchParams: Promise<{ date?: string }>;

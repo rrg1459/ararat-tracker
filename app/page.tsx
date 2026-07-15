@@ -2,14 +2,14 @@
 import Image from "next/image";
 import { createClient } from "./utils/supabase";
 import PeopleManager from "./people-manager";
-import AttendanceClient from "./attendance/attendance-client";
+import AttendanceClient from "./attendance/AttendanceClient";
 import FaSignOutAlt from "./svg/FaSignOutAlt";
 // import FcSettings from "./svg/FcSettings";
 import { logout } from "./actions/actions";
 import Link from "next/link"; // Usamos Link de Next.js para navegación limpia
 // 1. IMPORTA EL NUEVO COMPONENTE DEL CLIENTE (Ya no necesitas importar FcSettings aquí)
-import UserSettingsModal from "./components/user-settings-modal";
-import AraratLogo from "./components/ararat-logo";
+import UserSettingsModal from "./components/UserSettingsModal";
+import AraratLogo from "./components/AraratLogo";
 import dashboardIcon from "../public/dashboard1.png";
 
 export default async function Home({

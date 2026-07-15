@@ -8,11 +8,11 @@ import { attendanceLogs } from "./MetricsSummary";
 import MetricsSummary from "./MetricsSummary";
 import AttendanceCharts from "./AttendanceCharts";
 import { User } from "@supabase/supabase-js";
-import AraratLogo from "../components/ararat-logo";
+import AraratLogo from "../components/AraratLogo";
 import FaSignOutAlt from "../svg/FaSignOutAlt";
 import { logout } from "../actions/actions";
 
-interface AdminDashboardClientProps {
+interface DashboardClientProps {
   userName: string;
   userRole: string;
   initialUsers: User[];
@@ -26,7 +26,7 @@ export default function AdminDashboardClient({
   initialUsers,
   initialPeople,
   attendanceLogs
-}: AdminDashboardClientProps) {
+}: DashboardClientProps) {
 
   const [activeTab, setActiveTab] = useState<"metrics" | "charts" | "users" | "persons">("metrics");
 
