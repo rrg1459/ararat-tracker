@@ -153,7 +153,7 @@ describe("Home page", () => {
       currentDate: today,
     });
 
-    expect(screen.getByText("Gestión Personas")).toBeInTheDocument();
+    expect(screen.getByText("Gestión personas")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Admin Icon" })).toHaveAttribute("href", "/admin");
     expect(userSettingsModalSpy).toHaveBeenCalledWith({
       userId: "u1",
@@ -182,7 +182,7 @@ describe("Home page", () => {
 
     expect(screen.getByTestId("people-manager")).toBeInTheDocument();
     expect(peopleManagerSpy).toHaveBeenCalledWith(people);
-    expect(screen.getByText("Tomar Asistencia")).toBeInTheDocument();
+    expect(screen.getByText("Tomar asistencia")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Admin Icon" })).not.toBeInTheDocument();
   });
 });
