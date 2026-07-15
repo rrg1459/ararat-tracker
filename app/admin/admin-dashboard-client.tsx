@@ -251,7 +251,7 @@ export default function AdminDashboardClient({
               href="/"
               className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm"
             >
-              Home
+              Gestión y Asistencia
             </Link>
 
             {/* NUEVO CONTENEDOR: Empuja el formulario de logout a la derecha en móviles */}

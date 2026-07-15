@@ -88,13 +88,13 @@ export default async function Home({
 
           {currentView !== "attendance" && (
             <Link href="/?view=attendance" scroll={false} className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
-              Tomar Asistencia
+              Tomar asistencia
             </Link>
           )}
 
           {currentView !== "people" && (
             <Link href="/?view=people" scroll={false} className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
-              Gestión Personas
+              Gestión personas
             </Link>
           )}
 
