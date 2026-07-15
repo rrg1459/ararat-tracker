@@ -89,6 +89,10 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
   const getRoleValidationMessage = (): string | null => {
     const age = calculateAge(selectedDate);
 
+    if (age !== null && age > 120) {
+      return "No se puede registrar: la edad no puede ser mayor a 120 años.";
+    }
+
     if (personType === "member") {
       const issues: string[] = [];
 
@@ -149,6 +153,12 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
   };
 
   const roleValidationMessage = getRoleValidationMessage();
+  const ageLimitValidationMessage = roleValidationMessage?.includes("mayor a 120 años")
+    ? roleValidationMessage
+    : null;
+  const roleRequirementsValidationMessage = ageLimitValidationMessage
+    ? null
+    : roleValidationMessage;
 
   async function handleSubmit(formData: FormData) {
     if (roleValidationMessage) {
@@ -320,9 +330,9 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
               </select>
             </div>
 
-            {roleValidationMessage && (
+            {roleRequirementsValidationMessage && (
               <p className="text-sm text-red-600 dark:text-red-400 sm:col-span-2 font-medium">
-                {roleValidationMessage}
+                {roleRequirementsValidationMessage}
               </p>
             )}
 
@@ -361,6 +371,11 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                 maxDate={new Date()}
                 className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-zinc-900 dark:text-zinc-100 dark:border-zinc-600 text-center"
               />
+              {ageLimitValidationMessage && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400 font-medium">
+                  {ageLimitValidationMessage}
+                </p>
+              )}
             </div>
           </div>
 

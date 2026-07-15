@@ -268,6 +268,35 @@ describe("PeopleManager", () => {
     expect(screen.getByTestId("birth-date-picker")).toHaveValue("");
   });
 
+  it("shows age limit error and blocks submit when person is older than 120", async () => {
+    const user = userEvent.setup();
+
+    const { container } = render(<PeopleManager initialPeople={[]} />);
+
+    await user.type(getInputByName("first_name"), "Pedro");
+    await user.type(getInputByName("last_name"), "Ramirez");
+
+    fireEvent.change(screen.getByTestId("birth-date-picker"), {
+      target: { value: "1900-01-01" },
+    });
+
+    expect(
+      screen.getByText("No se puede registrar: la edad no puede ser mayor a 120 años.")
+    ).toBeInTheDocument();
+
+    const submitButton = screen.getByRole("button", { name: "Guardar Persona" });
+    expect(submitButton).toBeDisabled();
+
+    const form = container.querySelector("form") as HTMLFormElement;
+    const action = getFormAction(form);
+    await act(async () => {
+      await action(new FormData(form));
+    });
+
+    expect(registerPersonMock).not.toHaveBeenCalled();
+    expect(updatePersonMock).not.toHaveBeenCalled();
+  });
+
   it("submits update flow with person id and exits editing mode", async () => {
     const user = userEvent.setup();
     const person = makePerson({
