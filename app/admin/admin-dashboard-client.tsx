@@ -9,6 +9,8 @@ import MetricsSummary from "./MetricsSummary";
 import AttendanceCharts from "./AttendanceCharts";
 import { User } from "@supabase/supabase-js";
 import AraratLogo from "../components/ararat-logo";
+import FaSignOutAlt from "../svg/FaSignOutAlt";
+import { logout } from "../actions/actions";
 
 interface AdminDashboardClientProps {
   userName: string;
@@ -47,7 +49,7 @@ export default function AdminDashboardClient({
 
   // 3. Filtramos las pestañas basándonos en el rol del usuario
   const visibleTabs = allTabs.filter(tab => {
-    if (tab.id === "users" && userRole !== "superadmin") {
+    if (tab.id === "users" && userRole !== "superadmin" && userRole !== "admin") {
       return false;
     }
 
@@ -251,7 +253,14 @@ export default function AdminDashboardClient({
             >
               Home
             </Link>
+
+            <form action={logout}>
+              <button type="submit" className="text-zinc-700 dark:text-zinc-200 my-2 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
+                <FaSignOutAlt size={30} />
+              </button>
+            </form>
           </div>
+
         </header>
 
         {/* Sistema de Pestañas (Tabs) */}
@@ -294,7 +303,7 @@ export default function AdminDashboardClient({
               monthlyVisitorsData={visitorsByMonthData}
             />
           )}
-          {activeTab === "users" && userRole === "superadmin" && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
+          {activeTab === "users" && (userRole === "superadmin" || userRole === "admin") && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
           {activeTab === "persons" && userRole === "superadmin" && <PersonManagement initialPeople={initialPeople} />}
         </main>
       </div>
