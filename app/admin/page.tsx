@@ -77,17 +77,16 @@ export default async function AdminPage() {
 
   // 4. FILTRAR SI EL USUARIO ES SOLO 'admin'
   if (userRole === "admin") {
-    // Traemos los IDs de los perfiles que son 'admin' o 'superadmin'
-    const { data: excludedProfiles } = await supabase
+    // Un admin solo puede gestionar usuarios con rol 'operator'
+    const { data: operatorProfiles } = await supabase
       .from("profiles")
       .select("id")
-      .in("role", ["admin", "superadmin"]);
+      .eq("role", "operator");
 
-    // Creamos un Set con los IDs a excluir para que la búsqueda sea ultra rápida
-    const excludedIds = new Set(excludedProfiles?.map((p) => p.id) || []);
+    const allowedIds = new Set(operatorProfiles?.map((p) => p.id) || []);
 
-    // Filtramos la lista de authUsers eliminando los que coincidan con esos IDs
-    authUsers = authUsers.filter((authUser) => !excludedIds.has(authUser.id));
+    // Filtramos la lista de authUsers dejando solo los operadores
+    authUsers = authUsers.filter((authUser) => allowedIds.has(authUser.id));
   } else if (userRole === "superadmin") {
     // Traemos los IDs de los perfiles que son 'superadmin'
     const { data: excludedProfiles } = await supabase
