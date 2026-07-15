@@ -232,7 +232,7 @@ export default function AdminDashboardClient({
                 Control de Asistencia
               </h1>
 
-              <p className="text-zinc-600 dark:text-zinc-400 text-sm block sm:hidden">
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm block">
                 Admin Dashboard
               </p>
 
