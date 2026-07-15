@@ -74,7 +74,7 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
     setEditName(user.user_metadata?.full_name || '')
     setEditEmail(user.email || '')
     setEditPassword('')
-    setEditRole('operator')
+    setEditRole(user.user_metadata?.role || 'operator')
   }
 
   const handleUpdate = async (userId: string) => {
