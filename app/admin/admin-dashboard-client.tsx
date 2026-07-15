@@ -246,7 +246,7 @@ export default function AdminDashboardClient({
           </div>
 
           {/* Botones de navegación nativa condicionales */}
-          <div className="flex items-center gap-3 justify-start sm:justify-end flex-wrap">
+          <div className="flex items-center gap-3 justify-start sm:justify-end flex-wrap w-full sm:w-auto">
             <Link
               href="/"
               className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm"
@@ -254,11 +254,14 @@ export default function AdminDashboardClient({
               Home
             </Link>
 
-            <form action={logout}>
-              <button type="submit" className="text-zinc-700 dark:text-zinc-200 my-2 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
-                <FaSignOutAlt size={30} />
-              </button>
-            </form>
+            {/* NUEVO CONTENEDOR: Empuja el formulario de logout a la derecha en móviles */}
+            <div className="flex items-center ml-auto sm:ml-0">
+              <form action={logout}>
+                <button type="submit" className="text-zinc-700 dark:text-zinc-200 my-2 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
+                  <FaSignOutAlt size={30} />
+                </button>
+              </form>
+            </div>
           </div>
 
         </header>

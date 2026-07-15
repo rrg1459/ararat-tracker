@@ -84,7 +84,7 @@ export default async function Home({
         </div>
 
         {/* Botones de navegación nativa condicionales */}
-        <div className="flex items-center gap-3 justify-start sm:justify-end flex-wrap">
+        <div className="flex items-center gap-3 justify-start sm:justify-end flex-wrap w-full sm:w-auto">
 
           {currentView !== "attendance" && (
             <Link href="/?view=attendance" scroll={false} className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm">
@@ -98,39 +98,41 @@ export default async function Home({
             </Link>
           )}
 
-          {isAdminOrSuperAdmin && (
-            <Link
-              href="/admin"
-              className="inline-flex h-10 w-10 items-center justify-center flex-shrink-0"
-            >
-              <Image
-                src={dashboardIcon}
-                alt="Admin Icon"
-                width={40}
-                height={40}
-                priority
-                className="block h-10 w-10 object-contain"
-                sizes="40px"
+          {/* NUEVO CONTENEDOR: Agrupa los iconos y los empuja a la derecha en móviles mediante ml-auto */}
+          <div className="flex items-center gap-3 ml-auto sm:ml-0">
+            {isAdminOrSuperAdmin && (
+              <Link
+                href="/admin"
+                className="inline-flex h-10 w-10 items-center justify-center flex-shrink-0"
+              >
+                <Image
+                  src={dashboardIcon}
+                  alt="Admin Icon"
+                  width={40}
+                  height={40}
+                  priority
+                  className="block h-10 w-10 object-contain"
+                  sizes="40px"
+                />
+              </Link>
+            )}
+
+            {user && (
+              <UserSettingsModal
+                userId={user.id}
+                initialName={profileData?.full_name || ""}
+                initialEmail={profileData?.email || user.email || ""}
               />
-            </Link>
-          )}
+            )}
 
-          {/* 2. AQUÍ INSERTAMOS EL COMPONENTE CLIENTE DEL MODAL DE CONFIGURACIÓN */}
-          {user && (
-            <UserSettingsModal
-              userId={user.id}
-              initialName={profileData?.full_name || ""}
-              initialEmail={profileData?.email || user.email || ""}
-            />
-          )}
-
-          <form action={logout}>
-            <button type="submit" className="text-zinc-700 dark:text-zinc-200 my-2 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
-              <FaSignOutAlt size={30} />
-            </button>
-          </form>
-
+            <form action={logout} className="flex items-center">
+              <button type="submit" className="text-zinc-700 dark:text-zinc-200 my-2 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
+                <FaSignOutAlt size={30} />
+              </button>
+            </form>
+          </div>
         </div>
+
       </header>
 
       <div className="max-w-5xl mx-auto">
