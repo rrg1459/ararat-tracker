@@ -7,8 +7,10 @@ import { AdminUserAttributes } from '@supabase/supabase-js'
 
 const supabaseAdmin = createAdminClient();
 
-// Función auxiliar para verificar si el usuario actual es Superadmin
-async function checkSuperAdmin() {
+type AdminActorRole = 'admin' | 'superadmin'
+
+// Función auxiliar para verificar si el usuario actual es admin o superadmin
+async function checkAdminActor(): Promise<AdminActorRole> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -20,15 +22,18 @@ async function checkSuperAdmin() {
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'superadmin') {
-    throw new Error('Acceso denegado: No eres superadmin')
+  if (profile?.role !== 'superadmin' && profile?.role !== 'admin') {
+    throw new Error('Acceso denegado: No eres admin ni superadmin')
   }
+
+  return profile.role as AdminActorRole
 }
 
 // 1. CREAR USUARIO
-export async function adminCreateUser(email: string, password: string, fullName: string, role: string = 'user') {
+export async function adminCreateUser(email: string, password: string, fullName: string) {
   try {
-    await checkSuperAdmin()
+    await checkAdminActor()
+    const normalizedRole = 'operator'
 
     // 1. Crear en Supabase Auth
     // Guardamos 'role' dentro de los metadatos. Si tienes un trigger en Postgres, 
@@ -37,7 +42,7 @@ export async function adminCreateUser(email: string, password: string, fullName:
       email,
       password,
       email_confirm: true,
-      user_metadata: { full_name: fullName, role: role }
+      user_metadata: { full_name: fullName, role: normalizedRole }
     })
 
     if (error) return { success: false, error: error.message }
@@ -51,7 +56,7 @@ export async function adminCreateUser(email: string, password: string, fullName:
       .upsert({
         id: newUserId,
         full_name: fullName,
-        role: role,          // 👈 AQUÍ enviamos explícitamente el rol a la columna
+        role: normalizedRole,
         email: email
       })
 
@@ -73,7 +78,19 @@ export async function adminUpdateUser(
   updates: { email?: string; password?: string; fullName?: string; role?: string; ban?: boolean }
 ) {
   try {
-    await checkSuperAdmin()
+    const actorRole = await checkAdminActor()
+
+    if (actorRole === 'admin') {
+      const { data: targetProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single()
+
+      if (!targetProfile || targetProfile.role !== 'operator') {
+        throw new Error('Acceso denegado: solo puedes editar usuarios operator')
+      }
+    }
 
     const payload: AdminUserAttributes = {}
 
@@ -85,7 +102,7 @@ export async function adminUpdateUser(
     if (updates.fullName || updates.role) {
       payload.user_metadata = {
         ...(updates.fullName ? { full_name: updates.fullName } : {}),
-        ...(updates.role ? { role: updates.role } : {})
+        ...(updates.role ? { role: 'operator' } : {})
       }
     }
 
@@ -102,7 +119,7 @@ export async function adminUpdateUser(
     // Creamos un objeto dinámico con todo lo que cambió, incluyendo el EMAIL si se modificó.
     const profileUpdates: { role?: string; full_name?: string; email?: string } = {}
 
-    if (updates.role) profileUpdates.role = updates.role
+    if (updates.role) profileUpdates.role = 'operator'
     if (updates.fullName) profileUpdates.full_name = updates.fullName
     if (updates.email) profileUpdates.email = updates.email // 👈 SOLUCIÓN: Sincroniza el nuevo email en la tabla 'profiles'
 
@@ -126,7 +143,20 @@ export async function adminUpdateUser(
 // 3. ELIMINAR USUARIO
 export async function adminDeleteUser(userId: string) {
   try {
-    await checkSuperAdmin()
+    const actorRole = await checkAdminActor()
+
+    if (actorRole === 'admin') {
+      const { data: targetProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single()
+
+      if (!targetProfile || targetProfile.role !== 'operator') {
+        throw new Error('Acceso denegado: solo puedes eliminar usuarios operator')
+      }
+    }
+
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId)
     if (error) return { success: false, error: error.message }
     return { success: true }
