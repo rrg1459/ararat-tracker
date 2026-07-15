@@ -18,10 +18,11 @@ export default function AraratLogo({
     <Image
       src={araratLogo}
       alt={alt}
-      width={size}
-      height={size}
+      width={araratLogo.width}
+      height={araratLogo.height}
       priority={priority}
       placeholder="blur"
+      style={{ width: `${size}px`, height: "auto" }}
       className={`object-contain flex-shrink-0 ${className}`.trim()}
       sizes={`${size}px`}
     />
