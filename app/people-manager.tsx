@@ -12,25 +12,25 @@ registerLocale("es", es);
 
 interface Person {
   id: string;
-  id_number: string;
+  id_number: string | null;
   first_name: string;
   last_name: string;
-  home_phone: string | null;
-  cell_phone: string | null;
-  email: string | null;
-  birth_date: string | null;
+  home_phone?: string | null;
+  cell_phone?: string | null;
+  email?: string | null;
+  birth_date?: string | null;
   person_type: string;
-  address: string | null;
-  city: string | null;
-  is_first_time_visitor: boolean;
-  comes_from_another_church: boolean;
-  needs_prayer: boolean;
-  wants_to_be_visited: boolean;
-  wants_bible_studies: boolean;
-  is_new_in_area: boolean;
-  accepted_jesus: boolean;
-  received_holy_spirit: boolean;
-  notes: string | null;
+  address?: string | null;
+  city?: string | null;
+  is_first_time_visitor?: boolean;
+  comes_from_another_church?: boolean;
+  needs_prayer?: boolean;
+  wants_to_be_visited?: boolean;
+  wants_bible_studies?: boolean;
+  is_new_in_area?: boolean;
+  accepted_jesus?: boolean;
+  received_holy_spirit?: boolean;
+  notes?: string | null;
 }
 
 export default function PeopleManager({ initialPeople }: { initialPeople: Person[] }) {
