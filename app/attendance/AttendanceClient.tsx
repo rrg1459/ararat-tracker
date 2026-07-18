@@ -140,8 +140,8 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
           />
         </div>
 
-        <div className="flex items-center gap-4">
-          {message && <p className="text-sm font-medium text-green-600 dark:text-green-400">{message}</p>}
+        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-4">
+          {message && <p className="text-sm font-medium text-green-600 dark:text-green-400 sm:whitespace-nowrap">{message}</p>}
 
           {isSelectedToday ? (
             <button
