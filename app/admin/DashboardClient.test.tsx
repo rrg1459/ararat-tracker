@@ -14,9 +14,15 @@ const {
 }));
 
 vi.mock("next/link", () => ({
-  default: ({ href, children }: { href: string; children: React.ReactNode }) => (
-    <a href={href}>{children}</a>
+  default: ({ href, children, ...rest }: { href: string; children: React.ReactNode } & Record<string, unknown>) => (
+    <a href={href} {...rest}>{children}</a>
   ),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
 }));
 
 vi.mock("./MetricsSummary", () => ({

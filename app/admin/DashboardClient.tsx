@@ -1,16 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import UserManagement from "./UserManagement";
 import PersonManagement, { People } from "./PersonManagement";
 import { attendanceLogs } from "./MetricsSummary";
 import MetricsSummary from "./MetricsSummary";
 import AttendanceCharts from "./AttendanceCharts";
 import { User } from "@supabase/supabase-js";
-import AraratLogo from "../components/AraratLogo";
-import FaSignOutAlt from "../svg/FaSignOutAlt";
-import { logout } from "../actions/actions";
+import AdminHeader from "./AdminHeader";
 
 interface DashboardClientProps {
   userName: string;
@@ -20,15 +18,34 @@ interface DashboardClientProps {
   attendanceLogs: attendanceLogs[];
 }
 
-export default function AdminDashboardClient({
+export default function DashboardClient({
   userName,
   userRole,
   initialUsers,
   initialPeople,
   attendanceLogs
 }: DashboardClientProps) {
+  const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"metrics" | "charts" | "users" | "persons">("metrics");
+
+  const handleGoHome = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    setIsNavigating(true);
+    router.push("/");
+  };
 
   // 1. Definimos el tipo de las pestañas permitidas
   type TabId = "metrics" | "charts" | "users" | "persons";
@@ -221,94 +238,62 @@ export default function AdminDashboardClient({
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 p-6 md:p-12">
       <div className="max-w-5xl mx-auto">
+        <AdminHeader userName={userName} userRole={userRole} onHomeClick={handleGoHome} />
 
-        <header className="max-w-5xl mx-auto mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-
-          {/* Info de la aplicación */}
-          <div className="flex items-center gap-4 justify-start min-w-0">
-            <AraratLogo size={60} />
-            <div className="min-w-0 flex flex-col justify-center">
-              <h1 style={{ fontSize: '20px' }} className="sm:text-3xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
-                Control de Asistencia
-              </h1>
-
-              <p className="text-zinc-600 dark:text-zinc-400 text-sm block">
-                Admin Dashboard
-              </p>
-
-              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium mt-0.5 truncate">
-                Sesión: <span className="text-zinc-500 dark:text-zinc-400 font-semibold">{userName}</span>
-                <span className="text-[9px] uppercase tracking-wider font-bold bg-terracota/10 text-terracota dark:bg-terracota/20 dark:text-terracota-light px-1.5 py-0.5 rounded flex-shrink-0 ml-2.5">
-                  {userRole}
-                </span>
-              </p>
-            </div>
+        {isNavigating && (
+          <div className="flex flex-col items-center justify-center py-12 gap-3">
+            <span className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            <p className="text-zinc-500 italic text-sm text-center dark:text-zinc-400">Procesando...</p>
           </div>
+        )}
 
-          {/* Botones de navegación nativa condicionales */}
-          <div className="flex items-center gap-3 justify-start sm:justify-end flex-wrap w-full sm:w-auto">
-            <Link
-              href="/"
-              className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm"
-            >
-              Gestión y Asistencia
-            </Link>
-
-            {/* NUEVO CONTENEDOR: Empuja el formulario de logout a la derecha en móviles */}
-            <div className="flex items-center ml-auto sm:ml-0">
-              <form action={logout}>
-                <button type="submit" className="text-zinc-700 dark:text-zinc-200 my-2 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
-                  <FaSignOutAlt size={30} />
-                </button>
-              </form>
+        {!isNavigating && (
+          <>
+            {/* Sistema de Pestañas (Tabs) */}
+            <div className="flex border-b border-zinc-200 dark:border-zinc-700 mb-8 overflow-x-auto scrollbar-none gap-1 sm:gap-2 -mb-[1px]">
+              {visibleTabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`pb-3 px-2 sm:px-4 text-xs sm:text-sm font-bold border-b-2 transition-all whitespace-nowrap focus:outline-none ${isActive
+                      ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 z-10"
+                      : "border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                      }`}
+                  >
+                    {/* Texto corto para móvil, largo para escritorio */}
+                    <span className="md:hidden">{tab.shortLabel}</span>
+                    <span className="hidden md:inline">{tab.longLabel}</span>
+                  </button>
+                );
+              })}
             </div>
-          </div>
 
-        </header>
-
-        {/* Sistema de Pestañas (Tabs) */}
-        <div className="flex border-b border-zinc-200 dark:border-zinc-700 mb-8 overflow-x-auto scrollbar-none gap-1 sm:gap-2 -mb-[1px]">
-          {visibleTabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`pb-3 px-2 sm:px-4 text-xs sm:text-sm font-bold border-b-2 transition-all whitespace-nowrap focus:outline-none ${isActive
-                  ? "border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 z-10"
-                  : "border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
-                  }`}
-              >
-                {/* Texto corto para móvil, largo para escritorio */}
-                <span className="md:hidden">{tab.shortLabel}</span>
-                <span className="hidden md:inline">{tab.longLabel}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Contenido Dinámico de las Pestañas (Se protege también por seguridad del render) */}
-        <main className="mt-4">
-          {activeTab === "metrics" &&
-            <MetricsSummary
-              totalMembers={totalMembersCount}
-              totalVisitors={totalVisitorsCount}
-              averageAttendanceRate={averageAttendanceRate}
-              newVisitorsThisMonth={newVisitorsThisMonth}
-              newVisitorsThisWeek={newVisitorsThisWeek}
-              returningVisitors={returningVisitors}
-            />}
-          {activeTab === "charts" && (
-            <AttendanceCharts
-              trendData={attendanceTrendData}
-              compositionData={churchCompositionData}
-              needsData={needsData}
-              monthlyVisitorsData={visitorsByMonthData}
-            />
-          )}
-          {activeTab === "users" && (userRole === "superadmin" || userRole === "admin") && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
-          {activeTab === "persons" && userRole === "superadmin" && <PersonManagement initialPeople={initialPeople} />}
-        </main>
+            {/* Contenido Dinámico de las Pestañas (Se protege también por seguridad del render) */}
+            <main className="mt-4">
+              {activeTab === "metrics" &&
+                <MetricsSummary
+                  totalMembers={totalMembersCount}
+                  totalVisitors={totalVisitorsCount}
+                  averageAttendanceRate={averageAttendanceRate}
+                  newVisitorsThisMonth={newVisitorsThisMonth}
+                  newVisitorsThisWeek={newVisitorsThisWeek}
+                  returningVisitors={returningVisitors}
+                />}
+              {activeTab === "charts" && (
+                <AttendanceCharts
+                  trendData={attendanceTrendData}
+                  compositionData={churchCompositionData}
+                  needsData={needsData}
+                  monthlyVisitorsData={visitorsByMonthData}
+                />
+              )}
+              {activeTab === "users" && (userRole === "superadmin" || userRole === "admin") && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
+              {activeTab === "persons" && userRole === "superadmin" && <PersonManagement initialPeople={initialPeople} />}
+            </main>
+          </>
+        )}
       </div>
     </div>
   );
