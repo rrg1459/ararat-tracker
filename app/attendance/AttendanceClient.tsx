@@ -1,7 +1,7 @@
 // AttendanceClient.tsx
 "use client";
 
-import { useState, useTransition } from "react"; // 1. Importamos useTransition
+import { useEffect, useState, useTransition } from "react"; // 1. Importamos useTransition
 import { saveAttendance } from "../actions/actions";
 import { getRoleBadge } from "../utils/person-role-badge";
 import DatePicker, { registerLocale } from "react-datepicker";
@@ -41,6 +41,18 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
   const attendedIds = attendedIdsByDate[dateKey] ?? new Set(initialLogs.map((log) => log.person_id));
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!message) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setMessage("");
+    }, 2500);
+
+    return () => clearTimeout(timeoutId);
+  }, [message]);
 
   const hasRecords = isSelectedToday ? people.length > 0 : initialLogs.length > 0;
 

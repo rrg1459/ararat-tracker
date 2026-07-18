@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { saveAttendanceMock, getRoleBadgeMock, pushMock, registerLocaleMock } = vi.hoisted(() => ({
@@ -157,5 +157,43 @@ describe("AttendanceClient", () => {
     fireEvent.click(screen.getByTestId("datepicker"));
 
     expect(pushMock).toHaveBeenCalledWith("?date=2026-07-15");
+  });
+
+  it("clears success message automatically after timeout", async () => {
+    vi.useFakeTimers();
+
+    try {
+      const todayString = toDateString(new Date());
+
+      render(
+        <AttendanceClient
+          people={makePeople()}
+          initialLogs={[]}
+          currentDate={todayString}
+        />,
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Guardar Asistencia" }));
+      });
+
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      expect(screen.getByText("¡Asistencia guardada con éxito!")).toBeInTheDocument();
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(2500);
+      });
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1);
+      });
+
+      expect(screen.queryByText("¡Asistencia guardada con éxito!")).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
