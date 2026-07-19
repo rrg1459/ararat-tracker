@@ -185,6 +185,8 @@ export async function login(prevState: ActionState, formData: FormData): Promise
 
   // 2. Si las credenciales están MAL, devolvemos el error y los campos intactos
   if (error) {
+    console.error("Error en login:", error);
+
     return {
       error: "El correo electrónico o la contraseña son incorrectos.",
       email,
