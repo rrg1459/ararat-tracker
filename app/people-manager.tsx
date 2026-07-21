@@ -31,6 +31,7 @@ interface Person {
   accepted_jesus?: boolean;
   received_holy_spirit?: boolean;
   notes?: string | null;
+  attendance_count: number;
 }
 
 export default function PeopleManager({ initialPeople }: { initialPeople: Person[] }) {
@@ -518,7 +519,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                         </span>
                       )}
 
-                      {person.is_first_time_visitor && (
+                      {person.is_first_time_visitor && person.attendance_count < 2 && (
                         <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-medium">
                           1ra Vez
                         </span>
@@ -535,7 +536,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                     onClick={() => handleEditClick(person)}
                     className="text-xs bg-white text-zinc-700 border border-zinc-300 px-3 py-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-600 dark:text-zinc-200 dark:border-zinc-500 dark:hover:bg-zinc-500 transition-colors cursor-pointer font-medium whitespace-nowrap"
                   >
-                    Editar
+                    {editingPerson && editingPerson.id === person.id ? "Editando" : "Editar"}
                   </button>
                 </div>
               );

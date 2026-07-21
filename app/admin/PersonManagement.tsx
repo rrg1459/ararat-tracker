@@ -143,7 +143,7 @@ export default function PersonManagement({ initialPeople = [] }: { initialPeople
                         </span>
                       )}
 
-                      {person.is_first_time_visitor && (
+                      {person.is_first_time_visitor && person.attendance_count < 2 && (
                         <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-medium">
                           1ra Vez
                         </span>

@@ -35,7 +35,10 @@ export default async function Home({
 
   const { data: people } = await supabase
     .from("people")
-    .select("*")
+    .select(`
+    *,
+    attendance_logs:attendance_logs(count)
+  `)
     .order("created_at", { ascending: false });
 
   const { data: initialLogs } = await supabase
@@ -43,12 +46,17 @@ export default async function Home({
     .select("person_id")
     .eq("created_at", currentDate);
 
+  const formattedPeople = people?.map(person => ({
+    ...person,
+    attendance_count: person.attendance_logs?.[0]?.count ?? 0
+  }));
+
   return (
     <div className="min-h-screen bg-zinc-50 p-6 md:p-12 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
       <HomeClientShell
         currentView={currentView}
         currentDate={currentDate}
-        people={people || []}
+        people={formattedPeople || []}
         initialLogs={initialLogs || []}
         isAdminOrSuperAdmin={isAdminOrSuperAdmin}
         user={user ? { id: user.id, email: user.email || undefined } : null}
