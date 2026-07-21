@@ -64,8 +64,8 @@ describe("UserManagement", () => {
     render(<UserManagement userRole="admin" initialUsers={[]} />);
 
     expect(screen.getByText("Panel de Gestión de Usuarios")).toBeInTheDocument();
-    expect(screen.getByText("Usuarios en Autenticación (0)")).toBeInTheDocument();
-    expect(screen.getByText("No hay usuarios registrados en autenticación.")).toBeInTheDocument();
+    expect(screen.getByText("Usuarios Registrados (0)")).toBeInTheDocument();
+    expect(screen.getByText("No hay usuarios registrados.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Crear Usuario" })).toBeInTheDocument();
   });
 

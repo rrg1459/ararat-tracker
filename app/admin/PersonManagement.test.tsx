@@ -66,7 +66,7 @@ describe("PersonManagement", () => {
 
   it("renders person details, attendance badge and tags", () => {
     const person = makePerson({
-      attendance_count: 3,
+      attendance_count: 1,
       accepted_jesus: true,
       is_first_time_visitor: true,
       needs_prayer: true,
@@ -78,7 +78,7 @@ describe("PersonManagement", () => {
     expect(screen.getByText("Cédula: V-123")).toBeInTheDocument();
     expect(screen.getByText("📱 Cel: 0414-1234567")).toBeInTheDocument();
     expect(screen.getByText("📅 Asistencias:")).toBeInTheDocument();
-    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByText("1")).toBeInTheDocument();
 
     expect(screen.getByText("VISITANTE")).toBeInTheDocument();
     expect(screen.getByText("Cristiano 🙏")).toBeInTheDocument();

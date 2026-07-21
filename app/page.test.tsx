@@ -56,7 +56,7 @@ vi.mock("next/image", () => ({
 }));
 
 vi.mock("next/link", () => ({
-  default: ({ href, children, ...rest }: { href: string; children: ReactNode } & Record<string, unknown>) => (
+  default: ({ href, children, scroll: _scroll, ...rest }: { href: string; children: ReactNode; scroll?: boolean } & Record<string, unknown>) => (
     <a href={href} {...rest}>{children}</a>
   ),
 }));
@@ -135,6 +135,10 @@ describe("Home page", () => {
   it("renders attendance view by default and passes expected props", async () => {
     const today = "2026-07-14";
     const people = [{ id: "p1" }, { id: "p2" }];
+    const expectedPeople = people.map((person) => ({
+      ...person,
+      attendance_count: 0,
+    }));
     const logs = [{ person_id: "p1" }];
 
     createClientMock.mockResolvedValue(
@@ -154,7 +158,7 @@ describe("Home page", () => {
 
     expect(screen.getByTestId("AttendanceClient")).toBeInTheDocument();
     expect(attendanceClientSpy).toHaveBeenCalledWith({
-      people,
+      people: expectedPeople,
       initialLogs: logs,
       currentDate: today,
     });
@@ -170,6 +174,10 @@ describe("Home page", () => {
 
   it("renders people view when view=people and hides admin icon for non-admin users", async () => {
     const people = [{ id: "p1" }];
+    const expectedPeople = people.map((person) => ({
+      ...person,
+      attendance_count: 0,
+    }));
 
     createClientMock.mockResolvedValue(
       buildSupabaseMock({
@@ -187,7 +195,7 @@ describe("Home page", () => {
     render(ui);
 
     expect(screen.getByTestId("people-manager")).toBeInTheDocument();
-    expect(peopleManagerSpy).toHaveBeenCalledWith(people);
+    expect(peopleManagerSpy).toHaveBeenCalledWith(expectedPeople);
     expect(screen.getByText("Tomar asistencia")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Admin Icon" })).not.toBeInTheDocument();
   });

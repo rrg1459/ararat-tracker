@@ -21,7 +21,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("next/link", () => ({
-  default: ({ href, children, ...rest }: { href: string; children: ReactNode } & Record<string, unknown>) => (
+  default: ({ href, children, scroll: _scroll, ...rest }: { href: string; children: ReactNode; scroll?: boolean } & Record<string, unknown>) => (
     <a href={href} {...rest}>{children}</a>
   ),
 }));
