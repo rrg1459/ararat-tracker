@@ -18,6 +18,7 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [createRole, setCreateRole] = useState('operator')
+  const [showCreateForm, setShowCreateForm] = useState(false)
   const [message, setMessage] = useState('')
   const router = useRouter()
 
@@ -42,11 +43,15 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
     const res = await adminCreateUser(email, password, name)
 
     if (res.success) {
-      setMessage(`Usuario ${name} creado con éxito`)
+      const successMessage = `Usuario ${name} creado con éxito`
+      setMessage(successMessage)
       setEmail('');
       setPassword('');
       setName('');
       setCreateRole('operator');
+      setTimeout(() => {
+        setMessage((currentMessage) => currentMessage === successMessage ? '' : currentMessage)
+      }, 2500)
       router.refresh();
     } else {
       setMessage(`Error: ${res.error}`)
@@ -61,7 +66,11 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
     setMessage('Eliminando...')
     const res = await adminDeleteUser(userId)
     if (res.success) {
-      setMessage(`Usuario ${nameToDisplay} eliminado correctamente`)
+      const successMessage = `Usuario ${nameToDisplay} eliminado correctamente`
+      setMessage(successMessage)
+      setTimeout(() => {
+        setMessage((currentMessage) => currentMessage === successMessage ? '' : currentMessage)
+      }, 2500)
       router.refresh();
     } else {
       setMessage(`Error: ${res.error}`)
@@ -129,73 +138,85 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
           {message && <p className="p-2 mb-4 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded text-sm">{message}</p>}
 
           <form onSubmit={handleCreate} className="flex flex-col gap-4">
-            <h3 className="font-semibold text-base text-zinc-700 dark:text-zinc-300">Crear Nuevo Usuario</h3>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Nombre Completo *</label>
-              <input
-                type="text"
-                placeholder="Ej: Juan Pérez"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Correo Electrónico *</label>
-              <input
-                type="email"
-                placeholder="correo@ejemplo.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                autoComplete="off"
-                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Rol del Usuario *</label>
-              <select
-                value={createRole}
-                onChange={e => setCreateRole(e.target.value)}
-                className="w-full p-2 text-sm rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
-              >
-                <option value="operator">Operator</option>
-                {userRole === "superadmin" && <option value="admin">Admin</option>}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Contraseña *</label>
-              <input
-                type="password"
-                placeholder="Mínimo 6 caracteres"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                autoComplete="new-password"
-                className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
-              />
-            </div>
-
-            <button type="submit" className="w-full bg-green-600 text-white p-2 rounded-md font-semibold hover:bg-green-700 transition-colors cursor-pointer mt-2">
-              Crear Usuario
+            <button
+              type="button"
+              onClick={() => setShowCreateForm(prev => !prev)}
+              className="sm:hidden w-full text-left font-medium text-sm text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-600 rounded-md px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20"
+            >
+              {showCreateForm ? 'Ocultar' : 'Mostrar'} Crear Nuevo Usuario
             </button>
+
+            <h3 className="hidden sm:block font-semibold text-base text-zinc-700 dark:text-zinc-300">
+              Crear Nuevo Usuario
+            </h3>
+
+            <div className={`${showCreateForm ? 'block' : 'hidden'} sm:block space-y-4`}>
+              <div>
+                <label className="block text-sm font-medium mb-1">Nombre Completo *</label>
+                <input
+                  type="text"
+                  placeholder="Ej: Juan Pérez"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  required
+                  className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Correo Electrónico *</label>
+                <input
+                  type="email"
+                  placeholder="correo@ejemplo.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                  autoComplete="off"
+                  className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Rol del Usuario *</label>
+                <select
+                  value={createRole}
+                  onChange={e => setCreateRole(e.target.value)}
+                  className="w-full p-2 text-sm rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
+                >
+                  <option value="operator">Operator</option>
+                  {userRole === "superadmin" && <option value="admin">Admin</option>}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Contraseña *</label>
+                <input
+                  type="password"
+                  placeholder="Mínimo 6 caracteres"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100"
+                />
+              </div>
+
+              <button type="submit" className="w-full bg-green-600 text-white p-2 rounded-md font-semibold hover:bg-green-700 transition-colors cursor-pointer mt-2">
+                Crear Usuario
+              </button>
+            </div>
           </form>
         </section>
 
         {/* COLUMNA 2: LISTADO CON EDICIÓN INTEGRADA */}
         <section className="lg:col-span-7 bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100">
           <h2 className="text-md sm:text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-200">
-            Usuarios en Autenticación ({initialUsers.length})
+            Usuarios Registrados ({initialUsers.length})
           </h2>
 
           <div className="flex flex-col gap-3 max-h-[550px] overflow-y-auto pr-2">
             {initialUsers.length === 0 ? (
-              <p className="text-zinc-500 text-sm italic">No hay usuarios registrados en autenticación.</p>
+              <p className="text-zinc-500 text-sm italic">No hay usuarios registrados.</p>
             ) : (
               initialUsers.map((user) => {
                 const isEditing = editingUserId === user.id
