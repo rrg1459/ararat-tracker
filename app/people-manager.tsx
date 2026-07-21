@@ -31,7 +31,7 @@ interface Person {
   accepted_jesus?: boolean;
   received_holy_spirit?: boolean;
   notes?: string | null;
-  attendance_count: number;
+  attendance_count?: number;
 }
 
 export default function PeopleManager({ initialPeople }: { initialPeople: Person[] }) {
@@ -519,7 +519,7 @@ export default function PeopleManager({ initialPeople }: { initialPeople: Person
                         </span>
                       )}
 
-                      {person.is_first_time_visitor && person.attendance_count < 2 && (
+                      {person.is_first_time_visitor && (person.attendance_count ?? 0) < 2 && (
                         <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-medium">
                           1ra Vez
                         </span>
