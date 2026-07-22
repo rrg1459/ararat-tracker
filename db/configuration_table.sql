@@ -22,10 +22,10 @@ values
 alter table app_settings enable row level security;
 
 -- 4. Políticas de acceso (Permitir lectura a usuarios autenticados, escritura solo a administradores)
--- create policy "Cualquier usuario autenticado puede leer la configuración"
---  on app_settings for select
---  to authenticated
---  using (true);
+create policy "Cualquier usuario autenticado puede leer la configuración"
+ on app_settings for select
+ to authenticated
+ using (true);
 
 -- Política para permitir INSERT, UPDATE y DELETE solo a administradores
 create policy "Solo los administradores pueden modificar configuraciones"
