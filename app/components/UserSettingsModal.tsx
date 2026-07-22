@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import FcSettings from '../svg/FcSettings';
+import GrUserSettings from '../svg/GrUserSettings';
 // Si vas a crear una server action para actualizar al usuario en Supabase, la importas aquí:
 import { logout, updateOwnUserSettings } from '../actions/actions';
 
@@ -106,7 +106,7 @@ export default function UserSettingsModal({
         className="text-zinc-700 dark:text-zinc-200 rounded-md font-semibold hover:bg-blue-300 dark:hover:bg-blue-600 transition-colors cursor-pointer text-sm"
         title="Configuración de Usuario"
       >
-        <FcSettings size={30} />
+        <GrUserSettings size={26} />
       </button>
 
       {/* Modal nativo con el formato que pediste */}
