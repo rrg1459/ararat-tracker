@@ -54,7 +54,16 @@ create policy "Solo los administradores pueden modificar configuraciones"
     )
   );
 
+-- 1. Eliminamos la política anterior
+drop policy if exists "Solo los administradores pueden modificar configuraciones" on app_settings;
 
+-- 2. Creamos la nueva política limpia para usuarios autenticados
+create policy "Usuarios autenticados pueden modificar configuraciones"
+  on app_settings
+  for all
+  to authenticated
+  using (true)
+  with check (true);
 
 -- 2. Cómo Consultar desde Frontend (JavaScript/TypeScript)
 -- import { supabase } from './supabaseClient'
