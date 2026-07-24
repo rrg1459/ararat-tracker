@@ -16,6 +16,7 @@ interface DashboardClientProps {
   initialUsers: User[];
   initialPeople: People[];
   attendanceLogs: attendanceLogs[];
+  appSettings: { key: string; value: number }[];
 }
 
 export default function DashboardClient({
@@ -23,7 +24,8 @@ export default function DashboardClient({
   userRole,
   initialUsers,
   initialPeople,
-  attendanceLogs
+  attendanceLogs,
+  appSettings
 }: DashboardClientProps) {
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
@@ -238,7 +240,12 @@ export default function DashboardClient({
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 p-6 md:p-12">
       <div className="max-w-5xl mx-auto">
-        <AdminHeader userName={userName} userRole={userRole} onHomeClick={handleGoHome} />
+        <AdminHeader
+          userName={userName}
+          userRole={userRole}
+          onHomeClick={handleGoHome}
+          appSettings={appSettings}
+        />
 
         {isNavigating && (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
