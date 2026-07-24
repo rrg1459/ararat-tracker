@@ -5,9 +5,13 @@ import AraratLogo from "../components/AraratLogo";
 import FaSignOutAlt from "../svg/FaSignOutAlt";
 import { logout } from "../actions/actions";
 
+import AppSettingsModal from "./AppSettingsModal";
+
 interface AdminHeaderProps {
-  userName: string;
-  userRole: string;
+  userName: string | null;
+  userRole: string | null;
+  // user: { id: string; email?: string } | null;
+  appSettings?: { key: string; value: number }[];
   onHomeClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
   logoPriority?: boolean;
 }
@@ -17,6 +21,7 @@ export default function AdminHeader({
   userRole,
   onHomeClick,
   logoPriority = false,
+  appSettings = [],
 }: AdminHeaderProps) {
   return (
     <header className="max-w-5xl mx-auto mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -50,6 +55,12 @@ export default function AdminHeader({
         </Link>
 
         <div className="flex items-center ml-auto sm:ml-0">
+          <AppSettingsModal
+            appSettings={appSettings}
+          // userId={"52aa0f49-5f84-4104-bf66-e2ee4e3e2b9d"}
+          // initialName={"Nombre"}
+          // initialEmail={"Apellido"}
+          />
           <form action={logout}>
             <button type="submit" className="text-zinc-700 dark:text-zinc-200 my-2 rounded-md font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer text-sm">
               <FaSignOutAlt size={30} />
