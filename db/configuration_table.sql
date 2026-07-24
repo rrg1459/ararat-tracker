@@ -14,9 +14,16 @@ create table app_settings (
 
 -- 2. Insertar los valores iniciales para las edades
 insert into app_settings (key, value, description)
-values 
-  ('min_age_member', '18'::jsonb, 'Edad mínima permitida para miembros estándar'),
+values
+  ('min_age_member', '18'::jsonb, 'Edad mínima permitida para miembros'),
   ('min_age_leader', '21'::jsonb, 'Edad mínima permitida para líderes');
+
+-- 2. Insertar los valores iniciales para las edades
+insert into app_settings (key, value, description)
+values
+  ('max_age_member', '99'::jsonb, 'Edad máxima permitida para miembros'),
+  ('max_age_leader', '79'::jsonb, 'Edad máxima permitida para líderes');
+
 
 -- 3. Habilitar Seguridad a Nivel de Fila (RLS)
 alter table app_settings enable row level security;
