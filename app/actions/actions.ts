@@ -305,3 +305,37 @@ export async function updateOwnUserSettings(updates: UpdateOwnUserPayload) {
     return { success: false, error: 'Error desconocido al actualizar el usuario.' };
   }
 }
+
+export async function updateAppSetting(key: string, value: Record<string, unknown> | unknown, description?: string) {
+  const supabase = await createClient();
+
+  // Preparamos los datos para guardar o actualizar (Upsert)
+  const payload: {
+    key: string;
+    value: unknown;
+    updated_at: string;
+    description?: string;
+  } = {
+    key,
+    value,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (description !== undefined) {
+    payload.description = description;
+  }
+
+  // Realizamos un upsert (inserta si no existe la key, actualiza si ya existe)
+  const { error } = await supabase
+    .from("app_settings")
+    .upsert(payload, { onConflict: "key" });
+
+  if (error) {
+    console.error("Error updating app setting:", error.message);
+    return { success: false, error: error.message };
+  }
+
+  // Revalidamos las rutas donde se consultan estas configuraciones
+  revalidatePath("/admin");
+  return { success: true };
+}
