@@ -49,6 +49,11 @@ export default async function AdminPage() {
     console.error("Error al listar usuarios de autenticación:", error.message);
   }
 
+  const { data: appSettings } = await supabase
+    .from('app_settings')
+    .select('key, value')
+    .in('key', ['min_age_member', 'min_age_leader', 'max_age_member', 'max_age_leader']);
+
   const { data: people } = await supabase
     .from("people")
     .select(`
@@ -110,6 +115,7 @@ export default async function AdminPage() {
       initialUsers={authUsers}
       initialPeople={formattedPeople ?? []}
       attendanceLogs={attendanceLogs ?? []}
+      appSettings={appSettings ?? []}
     />
   );
 }
