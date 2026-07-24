@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import FcSettings from '../svg/FcSettings';
-import { logout, updateOwnUserSettings } from '../actions/actions';
+import { updateAppSetting } from '../actions/actions';
 
 interface AppSettingItem {
   key: string;
@@ -27,7 +27,6 @@ export default function AppSettingsModal({
   appSettings = [],
 }: AppSettingsModalProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
-  const logoutFormRef = useRef<HTMLFormElement>(null);
 
   // const [editName, setEditName] = useState(initialName || '');
   // const [editEmail, setEditEmail] = useState(initialEmail || '');
@@ -43,6 +42,11 @@ export default function AppSettingsModal({
     }, {} as Record<string, number>);
   });
 
+  const initialSettingsValues = appSettings.reduce((acc, curr) => {
+    acc[curr.key] = curr.value;
+    return acc;
+  }, {} as Record<string, number>);
+
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -54,6 +58,9 @@ export default function AppSettingsModal({
   };
 
   const closeModal = () => {
+    setSettingsValues(initialSettingsValues); // <-- Resetea los sliders
+    setErrorMessage('');
+    setSuccessMessage('');
     modalRef.current?.close();
   };
 
@@ -88,39 +95,32 @@ export default function AppSettingsModal({
       // const trimmedEmail = editEmail.trim();
       // const trimmedPassword = editPassword.trim();
 
-      const updates: {
-        fullName?: string;
-        email?: string;
-        password?: string;
-        appSettings?: { key: string; value: number }[];
-      } = {};
+      const updates = Object.entries(settingsValues).filter(
+        ([key, value]) => initialSettingsValues[key] !== value
+      );
 
-      // if (trimmedName !== (initialName || '').trim()) updates.fullName = trimmedName;
-      // if (trimmedEmail !== (initialEmail || '').trim()) updates.email = trimmedEmail;
-      // if (editPassword) updates.password = editPassword;
+      if (updates.length === 0) {
+        throw new Error('No hay cambios para guardar.');
+      }
 
-      const formattedSettings = Object.entries(settingsValues).map(([key, value]) => ({
-        key,
-        value,
-      }));
-      updates.appSettings = formattedSettings;
+      const results = await Promise.all(
+        updates.map(([key, value]) => updateAppSetting(key, value))
+      );
+      const firstError = results.find((res) => !res?.success);
 
-      const result = await updateOwnUserSettings(updates);
-
-      if (!result?.success) {
+      if (firstError) {
         throw new Error(
-          typeof result?.error === 'string' && result.error.trim() !== ''
-            ? result.error
-            : 'No se pudo actualizar el usuario.'
+          typeof firstError.error === 'string' && firstError.error.trim() !== ''
+            ? firstError.error
+            : 'No se pudo actualizar la configuración.'
         );
       }
 
       // setEditPassword('');
-      setSuccessMessage('Datos actualizados. Cerrando sesión...');
+      setSuccessMessage('Configuración actualizada correctamente.');
 
       setTimeout(() => {
         closeModal();
-        logoutFormRef.current?.requestSubmit();
       }, 2000);
     } catch (error) {
       console.error('Error al actualizar:', error);
@@ -326,8 +326,6 @@ export default function AppSettingsModal({
           )}
         </div>
       </dialog>
-
-      <form ref={logoutFormRef} action={logout} className="hidden" />
     </>
   );
 }
