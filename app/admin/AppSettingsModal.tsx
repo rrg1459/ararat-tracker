@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import FcSettings from '../svg/FcSettings';
 import { logout, updateOwnUserSettings } from '../actions/actions';
 
@@ -42,16 +42,6 @@ export default function AppSettingsModal({
       return acc;
     }, {} as Record<string, number>);
   });
-
-  useEffect(() => {
-    if (appSettings && appSettings.length > 0) {
-      const initialMap = appSettings.reduce((acc, curr) => {
-        acc[curr.key] = curr.value;
-        return acc;
-      }, {} as Record<string, number>);
-      setSettingsValues(initialMap);
-    }
-  }, [appSettings]);
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
