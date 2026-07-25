@@ -25,6 +25,8 @@ interface HomeClientShellProps {
   userRole: string;
   profileName: string;
   profileEmail: string;
+  rangeMember: { min: number; max: number };
+  rangeLeader: { min: number; max: number };
 }
 
 export default function HomeClientShell({
@@ -38,6 +40,8 @@ export default function HomeClientShell({
   userRole,
   profileName,
   profileEmail,
+  rangeMember,
+  rangeLeader,
 }: HomeClientShellProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -159,7 +163,7 @@ export default function HomeClientShell({
         ) : currentView === "attendance" ? (
           <AttendanceClient people={people || []} initialLogs={initialLogs || []} currentDate={currentDate} />
         ) : (
-          <PeopleManager initialPeople={people || []} />
+          <PeopleManager initialPeople={people || []} rangeMember={rangeMember} rangeLeader={rangeLeader} />
         )}
       </div>
     </>
