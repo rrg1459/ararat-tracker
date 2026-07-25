@@ -51,6 +51,25 @@ export default async function Home({
     attendance_count: person.attendance_logs?.[0]?.count ?? 0
   }));
 
+  const { data: appSettings } = await supabase
+    .from('app_settings')
+    .select('key, value')
+    .in('key', ['min_age_member', 'min_age_leader', 'max_age_member', 'max_age_leader']);
+
+  // 1. Convertimos el arreglo de objetos a un objeto plano: { min_age_leader: 21, ... }
+  const settingsMap = Object.fromEntries((appSettings ?? []).map(item => [item.key, item.value]));
+
+  // 2. Extraemos el rango para cada rol
+  const rangeMember = {
+    min: settingsMap.min_age_member,
+    max: settingsMap.max_age_member
+  };
+
+  const rangeLeader = {
+    min: settingsMap.min_age_leader,
+    max: settingsMap.max_age_leader
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50 p-6 md:p-12 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
       <HomeClientShell
@@ -64,6 +83,8 @@ export default async function Home({
         userRole={userRole}
         profileName={profileData?.full_name || ""}
         profileEmail={profileData?.email || user?.email || ""}
+        rangeMember={rangeMember}
+        rangeLeader={rangeLeader}
       />
     </div>
   );
