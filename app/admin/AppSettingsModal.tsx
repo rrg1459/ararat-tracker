@@ -10,9 +10,6 @@ interface AppSettingItem {
 }
 
 interface AppSettingsModalProps {
-  // userId: string;
-  // initialName: string;
-  // initialEmail: string;
   appSettings: AppSettingItem[];
 }
 
@@ -21,18 +18,10 @@ const MAX_AGE_LIMIT = 100;
 const MIN_GAP = 10; // Rango mínimo de 10 años entre mín y máx
 
 export default function AppSettingsModal({
-  // userId,
-  // initialName,
-  // initialEmail,
   appSettings = [],
 }: AppSettingsModalProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
-  // const [editName, setEditName] = useState(initialName || '');
-  // const [editEmail, setEditEmail] = useState(initialEmail || '');
-  // const [editPassword, setEditPassword] = useState('');
-
-  // Control para saber qué input debe estar por encima según cuál usó el usuario al último
   const [activeThumb, setActiveThumb] = useState<Record<string, 'min' | 'max'>>({});
 
   const [settingsValues, setSettingsValues] = useState<Record<string, number>>(() => {
@@ -55,6 +44,11 @@ export default function AppSettingsModal({
     setErrorMessage('');
     setSuccessMessage('');
     modalRef.current?.showModal();
+
+    setSettingsValues(appSettings.reduce((acc, curr) => {
+      acc[curr.key] = curr.value;
+      return acc;
+    }, {} as Record<string, number>));
   };
 
   const closeModal = () => {
@@ -91,9 +85,6 @@ export default function AppSettingsModal({
     setErrorMessage('');
     setSuccessMessage('');
     try {
-      // const trimmedName = editName.trim();
-      // const trimmedEmail = editEmail.trim();
-      // const trimmedPassword = editPassword.trim();
 
       const updates = Object.entries(settingsValues).filter(
         ([key, value]) => initialSettingsValues[key] !== value
