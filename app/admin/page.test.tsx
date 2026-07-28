@@ -29,6 +29,7 @@ vi.mock("./DashboardClient", () => ({
     initialUsers: Array<{ id: string }>;
     initialPeople: Array<Record<string, unknown>>;
     attendanceLogs: Array<Record<string, unknown>>;
+    appSettings: Array<Record<string, unknown>>;
   }) => <div data-testid="dashboard-client">{JSON.stringify(props)}</div>,
 }));
 
@@ -41,6 +42,7 @@ type BuildSupabaseOptions = {
   profile?: { role?: string; full_name?: string } | null;
   people?: Array<Record<string, unknown>>;
   attendanceLogs?: Array<Record<string, unknown>>;
+  appSettings?: Array<Record<string, unknown>>;
   operatorProfiles?: Array<{ id: string }>;
   excludedProfiles?: Array<{ id: string }>;
 };
@@ -51,6 +53,7 @@ function buildSupabaseMock(options: BuildSupabaseOptions) {
     profile = null,
     people = [],
     attendanceLogs = [],
+    appSettings = [],
     operatorProfiles = [],
     excludedProfiles = [],
   } = options;
@@ -95,6 +98,14 @@ function buildSupabaseMock(options: BuildSupabaseOptions) {
         return {
           select: vi.fn(() => ({
             order: vi.fn().mockResolvedValue({ data: attendanceLogs }),
+          })),
+        };
+      }
+
+      if (table === "app_settings") {
+        return {
+          select: vi.fn(() => ({
+            in: vi.fn(() => Promise.resolve({ data: appSettings })),
           })),
         };
       }
@@ -158,6 +169,7 @@ describe("AdminPage", () => {
           },
         ],
         attendanceLogs: [{ id: "l1" }],
+        appSettings: [{ key: "min_age_member", value: 18 }],
       }),
     );
 
@@ -188,6 +200,7 @@ describe("AdminPage", () => {
         },
       ],
       attendanceLogs: [{ id: "l1" }],
+      appSettings: [{ key: "min_age_member", value: 18 }],
     });
   });
 
@@ -207,6 +220,7 @@ describe("AdminPage", () => {
           },
         ],
         attendanceLogs: [],
+        appSettings: [{ key: "max_age_leader", value: 60 }],
       }),
     );
 
@@ -236,6 +250,7 @@ describe("AdminPage", () => {
         },
       ],
       attendanceLogs: [],
+      appSettings: [{ key: "max_age_leader", value: 60 }],
     });
   });
 });
