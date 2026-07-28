@@ -261,6 +261,7 @@ export default function AppSettingsModal({
       <button
         type="button"
         onClick={openModal}
+        aria-label="Configuración de App"
         className="text-zinc-700 dark:text-zinc-200 rounded-md font-semibold hover:bg-blue-300 dark:hover:bg-blue-600 transition-colors cursor-pointer text-sm me-2.5"
         title="Configuración de App"
       >
