@@ -34,7 +34,7 @@ interface Person {
   attendance_count?: number;
 }
 
-export default function PeopleManager({ initialPeople, rangeMember, rangeLeader }: { initialPeople: Person[]; rangeMember: { min: number; max: number }; rangeLeader: { min: number; max: number } }) {
+export default function PeopleManager({ initialPeople, rangeMember, rangeLeader }: { initialPeople: Person[]; rangeMember?: { min: number; max: number }; rangeLeader?: { min: number; max: number } }) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const [personType, setPersonType] = useState<string>("visitor");
@@ -87,6 +87,9 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
     return age;
   };
 
+  const memberRange = rangeMember ?? { min: 0, max: 120 };
+  const leaderRange = rangeLeader ?? { min: 0, max: 120 };
+
   const getRoleValidationMessage = (): string | null => {
     const age = calculateAge(selectedDate);
 
@@ -97,8 +100,8 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
     if (personType === "member") {
       const issues: string[] = [];
 
-      if (age === null || age < rangeMember.min || age > rangeMember.max) {
-        issues.push(`debe tener entre ${rangeMember.min} y ${rangeMember.max} años`);
+      if (age === null || age < memberRange.min || age > memberRange.max) {
+        issues.push(`debe tener entre ${memberRange.min} y ${memberRange.max} años`);
       }
       if (!checkboxes.accepted_jesus) {
         issues.push("debe haber aceptado a Jesús");
@@ -121,8 +124,8 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
     if (personType === "leader") {
       const issues: string[] = [];
 
-      if (age === null || age < rangeLeader.min || age > rangeLeader.max) {
-        issues.push(`debe tener entre ${rangeLeader.min} y ${rangeLeader.max} años`);
+      if (age === null || age < leaderRange.min || age > leaderRange.max) {
+        issues.push(`debe tener entre ${leaderRange.min} y ${leaderRange.max} años`);
       }
       if (!checkboxes.accepted_jesus) {
         issues.push("debe haber aceptado a Jesús");
