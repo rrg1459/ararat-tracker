@@ -57,17 +57,17 @@ export default async function Home({
     .in('key', ['min_age_member', 'min_age_leader', 'max_age_member', 'max_age_leader']);
 
   // 1. Convertimos el arreglo de objetos a un objeto plano: { min_age_leader: 21, ... }
-  const settingsMap = Object.fromEntries((appSettings ?? []).map(item => [item.key, item.value]));
+  const settingsMap = Object.fromEntries((appSettings ?? []).map((item) => [item.key, item.value]));
 
-  // 2. Extraemos el rango para cada rol
+  // 2. Extraemos el rango para cada rol con valores por defecto seguros
   const rangeMember = {
-    min: settingsMap.min_age_member,
-    max: settingsMap.max_age_member
+    min: Number(settingsMap.min_age_member ?? 0),
+    max: Number(settingsMap.max_age_member ?? 120),
   };
 
   const rangeLeader = {
-    min: settingsMap.min_age_leader,
-    max: settingsMap.max_age_leader
+    min: Number(settingsMap.min_age_leader ?? 0),
+    max: Number(settingsMap.max_age_leader ?? 120),
   };
 
   return (
