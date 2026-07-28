@@ -45,7 +45,8 @@ describe("AdminHeader", () => {
     const homeLink = screen.getByRole("link", { name: "Gestión y Asistencia" });
     expect(homeLink).toHaveAttribute("href", "/");
 
-    expect(screen.getByRole("button")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Salir" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Configuración de App" })).toBeInTheDocument();
     expect(screen.getByText("Salir")).toBeInTheDocument();
   });
 
