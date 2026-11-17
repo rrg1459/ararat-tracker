@@ -106,7 +106,7 @@ export default function HomeClientShell({
               onClick={handleNavClick("/?view=attendance")}
               className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm"
             >
-              Tomar asistencia
+              Ir a Tomar asistencia
             </Link>
           )}
 
@@ -117,7 +117,7 @@ export default function HomeClientShell({
               onClick={handleNavClick("/?view=people")}
               className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm"
             >
-              Gestión personas
+              Ir a Gestión personas
             </Link>
           )}
 

@@ -163,8 +163,8 @@ export default function SettingsManagement({
   return (
     <section className="w-full max-w-2xl rounded-lg border border-zinc-200 bg-white p-6 text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100">
       <div className="flex flex-col gap-3">
-        <p className="text-xs font-bold text-blue-600 dark:text-blue-400">
-          Configuración de la Aplicación
+        <p className="text-xl font-bold text-black-600 dark:text-black-500">
+          Ajustes Generales
         </p>
 
         <div className="flex flex-col gap-1 border-t border-zinc-200 pt-3 dark:border-zinc-700">

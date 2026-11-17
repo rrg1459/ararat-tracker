@@ -51,7 +51,7 @@ export default function AdminHeader({
           onClick={onHomeClick}
           className="px-3 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors text-center text-sm"
         >
-          Gestión y Asistencia
+          Ir a Gestión y Asistencia
         </Link>
 
         <div className="flex items-center ml-auto sm:ml-0">
