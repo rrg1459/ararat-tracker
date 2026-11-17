@@ -161,6 +161,7 @@ describe("PeopleManager", () => {
       accepted_jesus: true,
       is_first_time_visitor: true,
       needs_prayer: true,
+      notes: "Prefiere recibir una llamada por la tarde.",
     });
 
     const child = makePerson({
@@ -173,6 +174,7 @@ describe("PeopleManager", () => {
       needs_prayer: false,
       cell_phone: null,
       person_type: "member",
+      notes: "   ",
     });
 
     render(<PeopleManager initialPeople={[baby, child]} />);
@@ -180,6 +182,9 @@ describe("PeopleManager", () => {
     expect(screen.getByText("Personas Registradas (2)")).toBeInTheDocument();
     expect(screen.getByText("Bebe Uno")).toBeInTheDocument();
     expect(screen.getByText("Nino Dos")).toBeInTheDocument();
+    expect(screen.getByText("Notas:")).toBeInTheDocument();
+    expect(screen.getByText("Prefiere recibir una llamada por la tarde.")).toBeInTheDocument();
+    expect(screen.queryAllByText("Notas:")).toHaveLength(1);
     expect(screen.getByText("Bebé 👶")).toBeInTheDocument();
     expect(screen.getByText("Niño 👦")).toBeInTheDocument();
     expect(screen.getByText("Cristiano 🙏")).toBeInTheDocument();

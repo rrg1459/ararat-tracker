@@ -496,6 +496,12 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
                         📱 Cel: {person.cell_phone}
                       </p>
                     )}
+                    {person.notes?.trim() && (
+                      <p className="text-xs text-amber-700 dark:text-amber-300 mt-1 whitespace-pre-wrap">
+                        <span aria-hidden="true">📝 </span>
+                        <strong>Notas:</strong> {person.notes}
+                      </p>
+                    )}
 
                     {/* CONTENEDOR DE ETIQUETAS */}
                     <div className="flex flex-wrap gap-1 mt-1.5">
