@@ -164,8 +164,9 @@ export default function PersonManagement({
               type="button"
               onClick={handleExport}
               disabled={peopleList.length === 0}
-              className="shrink-0 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="shrink-0 rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
+              <span aria-hidden="true">📥 </span>
               Exportar a CSV
             </button>
           )}
