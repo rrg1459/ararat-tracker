@@ -78,6 +78,7 @@ describe("PersonManagement", () => {
       accepted_jesus: true,
       is_first_time_visitor: true,
       needs_prayer: true,
+      notes: "Prefiere recibir una llamada por la tarde.",
     });
 
     render(<PersonManagement initialPeople={[person]} />);
@@ -85,6 +86,8 @@ describe("PersonManagement", () => {
     expect(screen.getByText("Ana Perez")).toBeInTheDocument();
     expect(screen.getByText("Cédula: V-123")).toBeInTheDocument();
     expect(screen.getByText("📱 Cel: 0414-1234567")).toBeInTheDocument();
+    expect(screen.getByText("Notas:")).toBeInTheDocument();
+    expect(screen.getByText("Prefiere recibir una llamada por la tarde.")).toBeInTheDocument();
     expect(screen.getByText("📅 Asistencias:")).toBeInTheDocument();
     expect(screen.getByText("1")).toBeInTheDocument();
 
@@ -94,6 +97,20 @@ describe("PersonManagement", () => {
     expect(screen.getByText("Oración 🙏")).toBeInTheDocument();
 
     expect(getRoleBadgeMock).toHaveBeenCalledWith("visitor", "personManagement");
+  });
+
+  it("does not show notes when they are empty or only whitespace", () => {
+    render(
+      <PersonManagement
+        initialPeople={[
+          makePerson({ id: "p-empty", notes: "" }),
+          makePerson({ id: "p-whitespace", notes: "   " }),
+          makePerson({ id: "p-null", notes: null }),
+        ]}
+      />,
+    );
+
+    expect(screen.queryByText("Notas:")).not.toBeInTheDocument();
   });
 
   it("shows recorded dates and lets admins update or clear them", async () => {
