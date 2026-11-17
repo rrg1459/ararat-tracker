@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -78,6 +78,72 @@ describe("PersonManagement", () => {
 
     expect(screen.getByText("Personas Registradas (0)")).toBeInTheDocument();
     expect(screen.getByText("No hay personas registradas aún.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Exportar a CSV" })).not.toBeInTheDocument();
+  });
+
+  it("exports the current list as a safely escaped CSV", async () => {
+    const user = userEvent.setup();
+    const createObjectURL = vi.fn().mockReturnValue("blob:personas");
+    const revokeObjectURL = vi.fn();
+    const clickLink = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    vi.stubGlobal("URL", class extends URL {
+      static createObjectURL = createObjectURL;
+      static revokeObjectURL = revokeObjectURL;
+    });
+
+    try {
+      const person = makePerson({
+        first_name: 'Ana, "A"',
+        notes: "=1+1\nSegunda línea",
+        invited_by_id: "invitador-1",
+        first_visit_date: "2025-03-10",
+      });
+      render(
+        <PersonManagement
+          initialPeople={[person, makePerson({ id: "p-delete", first_name: "Luis" })]}
+          canExport
+          canEditDates
+        />,
+      );
+
+      await user.click(screen.getAllByRole("button", { name: "Eliminar" })[1]);
+      await waitFor(() => expect(screen.queryByText("Luis Perez")).not.toBeInTheDocument());
+      await user.click(screen.getByRole("button", { name: "Editar fechas" }));
+      await user.clear(screen.getByLabelText("Primera visita"));
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+      await waitFor(() => expect(screen.queryByLabelText("Primera visita")).not.toBeInTheDocument());
+
+      vi.setSystemTime(new Date(1967, 7, 10, 12));
+      try {
+        fireEvent.click(screen.getByRole("button", { name: "Exportar a CSV" }));
+      } finally {
+        vi.useRealTimers();
+      }
+
+      const blob = createObjectURL.mock.calls[0][0] as Blob;
+      const csv = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsText(blob);
+      });
+      expect(blob.type).toBe("text/csv;charset=utf-8");
+      expect(csv).toBe([
+        [
+          "Nombres", "Apellidos", "Teléfono local", "Correo", "Fecha de nacimiento",
+          "Tipo de persona", "Teléfono celular", "Fecha de 1era Visita", "Bautizado el", "Notas",
+        ].map((column) => `"${column}"`).join(","),
+        '"Ana, ""A""","Perez","","ana@test.com","2020-01-01","visitor","0414-1234567","","","\'=1+1\nSegunda línea"',
+      ].join("\r\n"));
+      expect(csv).not.toContain("p-delete");
+      expect(csv).not.toContain("2025-03-10");
+      expect(clickLink).toHaveBeenCalledOnce();
+      expect(clickLink.mock.instances[0]).toHaveAttribute("download", "personas-1967ago10.csv");
+      expect(revokeObjectURL).toHaveBeenCalledWith("blob:personas");
+    } finally {
+      clickLink.mockRestore();
+      vi.unstubAllGlobals();
+    }
   });
 
   it("renders person details, attendance badge and tags", () => {

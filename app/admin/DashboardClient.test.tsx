@@ -296,6 +296,27 @@ describe("DashboardClient", () => {
     expect(personManagementSpy).toHaveBeenCalledWith({
       initialPeople: makePeople(),
       canEditDates: true,
+      canExport: false,
+    });
+  });
+
+  it("allows superadmins to export the people list", () => {
+    render(
+      <DashboardClient
+        userName="Superadmin"
+        userRole="superadmin"
+        initialUsers={[]}
+        initialPeople={makePeople() as never[]}
+        attendanceLogs={[]}
+        appSettings={[]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Personas/ }));
+    expect(personManagementSpy).toHaveBeenCalledWith({
+      initialPeople: makePeople(),
+      canEditDates: true,
+      canExport: true,
     });
   });
 

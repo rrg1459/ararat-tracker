@@ -92,7 +92,7 @@ describe("admin-actions", () => {
       error: null,
     });
 
-    const result = await adminCreateUser("new@test.com", "StrongPass123", "Nuevo Usuario");
+    const result = await adminCreateUser("new@test.com", "StrongPass123", "Nuevo Usuario", "operator");
 
     expect(supabaseAdminMock.auth.admin.createUser).toHaveBeenCalledWith({
       email: "new@test.com",
@@ -131,7 +131,7 @@ describe("admin-actions", () => {
       throw new Error(`Unexpected admin table: ${table}`);
     });
 
-    const result = await adminCreateUser("broken@test.com", "StrongPass123", "Broken");
+    const result = await adminCreateUser("broken@test.com", "StrongPass123", "Broken", "operator");
 
     expect(supabaseAdminMock.auth.admin.deleteUser).toHaveBeenCalledWith("new-user-2");
     expect(result).toEqual({
@@ -143,7 +143,7 @@ describe("admin-actions", () => {
   it("adminCreateUser returns unauthenticated error when actor has no session", async () => {
     createClientMock.mockResolvedValue(mockActorClient({ userId: null }));
 
-    const result = await adminCreateUser("x@test.com", "StrongPass123", "X");
+    const result = await adminCreateUser("x@test.com", "StrongPass123", "X", "operator");
 
     expect(result).toEqual({ success: false, error: "No autenticado" });
     expect(supabaseAdminMock.auth.admin.createUser).not.toHaveBeenCalled();

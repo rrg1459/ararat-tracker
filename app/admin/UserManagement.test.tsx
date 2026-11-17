@@ -87,7 +87,7 @@ describe("UserManagement", () => {
     await user.click(screen.getByRole("button", { name: "Crear Usuario" }));
 
     await waitFor(() => {
-      expect(adminCreateUserMock).toHaveBeenCalledWith("ana@test.com", "123456", "Ana Admin");
+      expect(adminCreateUserMock).toHaveBeenCalledWith("ana@test.com", "123456", "Ana Admin", "admin");
     });
 
     expect(screen.getByText("Usuario Ana Admin creado con éxito")).toBeInTheDocument();

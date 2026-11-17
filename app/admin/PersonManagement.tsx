@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from "react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 // Importa tu acción del servidor para eliminar
 import { deletePerson } from "../actions/actions";
 import { adminUpdatePersonDates } from "../actions/admin-actions";
@@ -16,6 +18,7 @@ export interface People {
   email: string | null;
   birth_date: string | null;
   person_type: string;
+  invited_by_id?: string | null;
   address: string | null;
   city: string | null;
   is_first_time_visitor: boolean;
@@ -35,9 +38,11 @@ export interface People {
 export default function PersonManagement({
   initialPeople = [],
   canEditDates = false,
+  canExport = false,
 }: {
   initialPeople?: People[];
   canEditDates?: boolean;
+  canExport?: boolean;
 }) {
   const [peopleList, setPeopleList] = useState<People[]>(initialPeople);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
@@ -45,6 +50,43 @@ export default function PersonManagement({
   const [firstVisitDate, setFirstVisitDate] = useState("");
   const [baptizedAt, setBaptizedAt] = useState("");
   const [isSavingDates, setIsSavingDates] = useState(false);
+
+  const handleExport = () => {
+    const columns = [
+      { key: "first_name", label: "Nombres" },
+      { key: "last_name", label: "Apellidos" },
+      { key: "home_phone", label: "Teléfono local" },
+      { key: "email", label: "Correo" },
+      { key: "birth_date", label: "Fecha de nacimiento" },
+      { key: "person_type", label: "Tipo de persona" },
+      { key: "cell_phone", label: "Teléfono celular" },
+      { key: "first_visit_date", label: "Fecha de 1era Visita" },
+      { key: "baptized_at", label: "Bautizado el" },
+      { key: "notes", label: "Notas" },
+    ] as const satisfies readonly { key: keyof People; label: string }[];
+    const csvCell = (value: string | boolean | null | undefined) => {
+      let text = value == null ? "" : String(value);
+      if (/^[\s]*[=+\-@]/.test(text)) {
+        text = `'${text}`;
+      }
+      return `"${text.replace(/"/g, '""')}"`;
+    };
+    const csv = [
+      columns.map((column) => csvCell(column.label)).join(","),
+      ...peopleList.map((person) => columns.map((column) => csvCell(person[column.key])).join(",")),
+    ].join("\r\n");
+    const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
+    try {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `personas-${format(new Date(), "yyyyMMMdd", { locale: es })}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
 
   const handleEditDates = (person: People) => {
     setEditingDatesId(person.id);
@@ -113,9 +155,21 @@ export default function PersonManagement({
 
       {/* SECCIÓN DEL LISTADO */}
       <section className="bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
-        <h3 className="text-md sm:text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-200">
-          Personas Registradas ({peopleList.length})
-        </h3>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h3 className="text-md sm:text-xl font-bold text-zinc-800 dark:text-zinc-200">
+            Personas Registradas ({peopleList.length})
+          </h3>
+          {canExport && (
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={peopleList.length === 0}
+              className="shrink-0 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Exportar a CSV
+            </button>
+          )}
+        </div>
 
         <div className="flex flex-col gap-3 max-h-[700px] overflow-y-auto pr-2">
           {peopleList.length === 0 ? (

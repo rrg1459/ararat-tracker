@@ -1,15 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("recharts", () => {
-  const toSerializableProps = (props: Record<string, unknown>) => {
-    const { children, ...rest } = props;
-    return rest;
-  };
-
   const createMockComponent = (name: string) => {
-    return ({ children, ...props }: Record<string, unknown>) => {
-      const serializableProps = JSON.stringify(toSerializableProps(props));
+    return function MockComponent({ children, ...props }: { children?: ReactNode } & Record<string, unknown>) {
+      const serializableProps = JSON.stringify(props);
       return (
         <div data-testid={name} data-props={serializableProps}>
           {children}
