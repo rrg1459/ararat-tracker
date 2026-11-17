@@ -5,7 +5,7 @@ import AraratLogo from "../components/AraratLogo";
 import FaSignOutAlt from "../svg/FaSignOutAlt";
 import { logout } from "../actions/actions";
 
-import AppSettingsModal from "./AppSettingsModal";
+// import AppSettingsModal from "./AppSettingsModal";
 
 interface AdminHeaderProps {
   userName: string | null;
@@ -21,7 +21,7 @@ export default function AdminHeader({
   userRole,
   onHomeClick,
   logoPriority = false,
-  appSettings = [],
+  // appSettings = [],
 }: AdminHeaderProps) {
   return (
     <header className="max-w-5xl mx-auto mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -55,12 +55,12 @@ export default function AdminHeader({
         </Link>
 
         <div className="flex items-center ml-auto sm:ml-0">
-          <AppSettingsModal
+          {/* <AppSettingsModal
             appSettings={appSettings}
           // userId={"52aa0f49-5f84-4104-bf66-e2ee4e3e2b9d"}
           // initialName={"Nombre"}
           // initialEmail={"Apellido"}
-          />
+          /> */}
           <form action={logout}>
             <button
               type="submit"
