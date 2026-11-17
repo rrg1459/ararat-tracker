@@ -51,6 +51,14 @@ function makePerson(overrides: Partial<People> = {}): People {
   };
 }
 
+function birthDateForAge(age: number) {
+  const today = new Date();
+  const year = today.getFullYear() - age;
+  const month = today.getMonth();
+  const day = Math.min(today.getDate(), new Date(year, month + 1, 0).getDate());
+  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
 describe("PersonManagement", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -97,6 +105,17 @@ describe("PersonManagement", () => {
     expect(screen.getByText("Oración 🙏")).toBeInTheDocument();
 
     expect(getRoleBadgeMock).toHaveBeenCalledWith("visitor", "personManagement");
+  });
+
+  it("shows the adolescent tag for people aged 12 through 17", () => {
+    render(
+      <PersonManagement
+        initialPeople={[makePerson({ birth_date: birthDateForAge(16) })]}
+      />,
+    );
+
+    expect(screen.getByText("Adolescente 👱")).toBeInTheDocument();
+    expect(screen.queryByText("Niño 👦")).not.toBeInTheDocument();
   });
 
   it("does not show notes when they are empty or only whitespace", () => {

@@ -254,6 +254,11 @@ export default function PersonManagement({
                           Niño 👦
                         </span>
                       )}
+                      {age !== null && age >= 12 && age <= 17 && (
+                        <span className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-0.5">
+                          Adolescente 👱
+                        </span>
+                      )}
 
                       {/* ETIQUETA: CRISTIANO */}
                       {person.accepted_jesus && (
