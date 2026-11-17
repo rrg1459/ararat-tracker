@@ -70,6 +70,10 @@ export default function DashboardClient({
 
   // 3. Filtramos las pestañas basándonos en el rol del usuario
   const visibleTabs = allTabs.filter(tab => {
+    if (tab.id === "settings" && userRole !== "superadmin") {
+      return false;
+    }
+
     if (tab.id === "users" && userRole !== "superadmin" && userRole !== "admin") {
       return false;
     }

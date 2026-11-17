@@ -193,6 +193,7 @@ describe("DashboardClient", () => {
     expect(screen.getByText("Gráficos")).toBeInTheDocument();
     expect(screen.getByText("Usuarios")).toBeInTheDocument();
     expect(screen.getByText("Personas")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Ajustes/ })).toBeInTheDocument();
 
     expect(screen.getByTestId("metrics-summary")).toBeInTheDocument();
     expect(metricsSummarySpy).toHaveBeenCalled();
@@ -280,6 +281,7 @@ describe("DashboardClient", () => {
 
     expect(screen.getByText("Usuarios")).toBeInTheDocument();
     expect(screen.getByText("Personas")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Ajustes/ })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Usuarios/ }));
 
@@ -311,6 +313,7 @@ describe("DashboardClient", () => {
 
     expect(screen.queryByText("Usuarios")).not.toBeInTheDocument();
     expect(screen.queryByText("Personas")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Ajustes/ })).not.toBeInTheDocument();
     expect(screen.getByTestId("metrics-summary")).toBeInTheDocument();
   });
 });
