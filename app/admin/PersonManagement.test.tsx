@@ -105,6 +105,7 @@ describe("PersonManagement", () => {
           canEditDates
         />,
       );
+      expect(screen.getByRole("button", { name: "Exportar a CSV" })).toHaveClass("hidden", "lg:inline-flex");
 
       await user.click(screen.getAllByRole("button", { name: "Eliminar" })[1]);
       await waitFor(() => expect(screen.queryByText("Luis Perez")).not.toBeInTheDocument());
