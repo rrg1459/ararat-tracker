@@ -40,7 +40,7 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
     e.preventDefault()
     setMessage('Creando usuario...')
 
-    const res = await adminCreateUser(email, password, name)
+    const res = await adminCreateUser(email, password, name, createRole)
 
     if (res.success) {
       const successMessage = `Usuario ${name} creado con éxito`

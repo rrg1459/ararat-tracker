@@ -72,10 +72,10 @@ export async function adminUpdatePersonDates(personId: string, dates: PersonDate
 }
 
 // 1. CREAR USUARIO
-export async function adminCreateUser(email: string, password: string, fullName: string) {
+export async function adminCreateUser(email: string, password: string, fullName: string, role: string) {
   try {
     await checkAdminActor()
-    const normalizedRole = 'operator'
+    const normalizedRole = role
 
     // 1. Crear en Supabase Auth
     // Guardamos 'role' dentro de los metadatos. Si tienes un trigger en Postgres, 
