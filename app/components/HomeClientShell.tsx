@@ -17,6 +17,7 @@ const PENDING_TEXT = "Procesando...";
 interface HomeClientShellProps {
   currentView: "attendance" | "people";
   currentDate: string;
+  serverToday: string;
   people: Person[];
   initialLogs: { person_id: string }[];
   attendanceDates: string[];
@@ -33,6 +34,7 @@ interface HomeClientShellProps {
 export default function HomeClientShell({
   currentView,
   currentDate,
+  serverToday,
   people,
   initialLogs,
   attendanceDates,
@@ -163,7 +165,7 @@ export default function HomeClientShell({
             </p>
           </div>
         ) : currentView === "attendance" ? (
-          <AttendanceClient people={people || []} initialLogs={initialLogs || []} currentDate={currentDate} attendanceDates={attendanceDates} />
+          <AttendanceClient people={people || []} initialLogs={initialLogs || []} currentDate={currentDate} serverToday={serverToday} attendanceDates={attendanceDates} />
         ) : (
           <PeopleManager initialPeople={people || []} rangeMember={rangeMember} rangeLeader={rangeLeader} />
         )}

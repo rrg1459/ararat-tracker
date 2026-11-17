@@ -176,6 +176,7 @@ describe("Home page", () => {
       people: expectedPeople,
       initialLogs: logs,
       currentDate: today,
+      serverToday: new Date().toISOString().split("T")[0],
       attendanceDates: ["2026-07-14"],
     });
 
@@ -215,5 +216,21 @@ describe("Home page", () => {
     expect(peopleManagerSpy).toHaveBeenCalledWith(expectedPeople);
     expect(screen.getByText("Tomar asistencia")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Admin Icon" })).not.toBeInTheDocument();
+  });
+
+  it("uses the browser's local day to load attendance when no date is selected", async () => {
+    const client = buildSupabaseMock({ user: null, profile: null, people: [], logs: [] });
+    createClientMock.mockResolvedValue(client);
+
+    const ui = await Home({
+      searchParams: Promise.resolve({ local_today: "2026-11-16" }),
+    });
+    render(ui);
+
+    expect(attendanceClientSpy).toHaveBeenCalledWith(expect.objectContaining({
+      currentDate: "2026-11-16",
+      serverToday: "2026-11-16",
+    }));
+    expect(client.from).toHaveBeenCalledWith("attendance_logs");
   });
 });

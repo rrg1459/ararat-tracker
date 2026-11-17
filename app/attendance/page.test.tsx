@@ -15,6 +15,7 @@ vi.mock("./AttendanceClient", () => ({
     people: Array<Record<string, unknown>>;
     initialLogs: Array<{ person_id: string }>;
     currentDate: string;
+    serverToday: string;
     attendanceDates: string[];
   }) => {
     attendanceClientSpy(props);
@@ -136,6 +137,7 @@ describe("AttendancePage", () => {
       people: allPeople,
       initialLogs: logs,
       currentDate: today,
+      serverToday: today,
       attendanceDates,
     });
   });
@@ -162,6 +164,7 @@ describe("AttendancePage", () => {
       people: attendedPeople,
       initialLogs: logs,
       currentDate: targetDate,
+      serverToday: new Date().toISOString().split("T")[0],
       attendanceDates: [],
     });
   });
@@ -182,8 +185,27 @@ describe("AttendancePage", () => {
       people: [],
       initialLogs: [],
       currentDate: targetDate,
+      serverToday: new Date().toISOString().split("T")[0],
       attendanceDates: [],
     });
+  });
+
+  it("loads the full directory for the browser's local today", async () => {
+    const { client, spies } = buildSupabaseMock({ logs: [], allPeople: [] });
+    createClientMock.mockResolvedValue(client);
+
+    const ui = await AttendancePage({
+      searchParams: Promise.resolve({ local_today: "2026-11-16" }),
+    });
+    render(ui);
+
+    expect(spies.attendanceEqMock).toHaveBeenCalledWith("created_at", "2026-11-16");
+    expect(spies.peopleOrderMock).toHaveBeenCalled();
+    expect(screen.getByText("Marcar asistencia para el servicio de hoy")).toBeInTheDocument();
+    expect(attendanceClientSpy).toHaveBeenCalledWith(expect.objectContaining({
+      currentDate: "2026-11-16",
+      serverToday: "2026-11-16",
+    }));
   });
 
   it("reports errors when attendance dates cannot be loaded", async () => {

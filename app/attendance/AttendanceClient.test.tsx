@@ -1,12 +1,14 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { saveAttendanceMock, getRoleBadgeMock, pushMock, registerLocaleMock } = vi.hoisted(() => ({
+const { saveAttendanceMock, getRoleBadgeMock, pushMock, replaceMock, registerLocaleMock } = vi.hoisted(() => ({
   saveAttendanceMock: vi.fn(),
   getRoleBadgeMock: vi.fn(),
   pushMock: vi.fn(),
+  replaceMock: vi.fn(),
   registerLocaleMock: vi.fn(),
 }));
+const mockedRouter = { push: pushMock, replace: replaceMock };
 
 vi.mock("../actions/actions", () => ({
   saveAttendance: saveAttendanceMock,
@@ -17,7 +19,7 @@ vi.mock("../utils/person-role-badge", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock }),
+  useRouter: () => mockedRouter,
 }));
 
 vi.mock("react-datepicker", () => ({
@@ -26,7 +28,7 @@ vi.mock("react-datepicker", () => ({
     <button
       type="button"
       data-testid="datepicker"
-      data-selected={selected ? selected.toISOString().slice(0, 10) : ""}
+      data-selected={selected ? toDateString(selected) : ""}
       data-weekday-class={dayClassName(new Date(2026, 6, 15))}
       data-weekend-class={dayClassName(new Date(2026, 6, 19))}
       disabled={disabled}
@@ -65,6 +67,7 @@ function toDateString(date: Date): string {
 describe("AttendanceClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.history.replaceState({}, "", "/");
 
     saveAttendanceMock.mockResolvedValue({ success: true });
     getRoleBadgeMock.mockImplementation((role: string) => ({
@@ -81,6 +84,7 @@ describe("AttendanceClient", () => {
         people={makePeople()}
         initialLogs={[{ person_id: "p1" }]}
         currentDate={todayString}
+        serverToday={todayString}
         attendanceDates={[]}
       />,
     );
@@ -111,6 +115,7 @@ describe("AttendanceClient", () => {
         people={makePeople()}
         initialLogs={[{ person_id: "p2" }]}
         currentDate={toDateString(yesterday)}
+        serverToday={toDateString(new Date())}
         attendanceDates={[]}
       />,
     );
@@ -132,6 +137,7 @@ describe("AttendanceClient", () => {
         people={makePeople()}
         initialLogs={[]}
         currentDate={todayString}
+        serverToday={todayString}
         attendanceDates={[]}
       />,
     );
@@ -153,19 +159,21 @@ describe("AttendanceClient", () => {
 
   it("navigates to selected date on date picker change", () => {
     const todayString = toDateString(new Date());
+    window.history.replaceState({}, "", `/?view=attendance&local_today=${todayString}`);
 
     render(
       <AttendanceClient
         people={makePeople()}
         initialLogs={[]}
         currentDate={todayString}
+        serverToday={todayString}
         attendanceDates={[]}
       />,
     );
 
     fireEvent.click(screen.getByTestId("datepicker"));
 
-    expect(pushMock).toHaveBeenCalledWith("?date=2026-07-15");
+    expect(pushMock).toHaveBeenCalledWith(`?view=attendance&local_today=${todayString}&date=2026-07-15`);
   });
 
   it("clears success message automatically after timeout", async () => {
@@ -179,6 +187,7 @@ describe("AttendanceClient", () => {
           people={makePeople()}
           initialLogs={[]}
           currentDate={todayString}
+          serverToday={todayString}
           attendanceDates={[]}
         />,
       );
@@ -212,6 +221,7 @@ describe("AttendanceClient", () => {
       people: makePeople(),
       initialLogs: [],
       currentDate: toDateString(new Date()),
+      serverToday: toDateString(new Date()),
     };
     const { rerender } = render(
       <AttendanceClient {...props} attendanceDates={["2026-07-15", "2026-07-19"]} />,
@@ -225,5 +235,60 @@ describe("AttendanceClient", () => {
     rerender(<AttendanceClient {...props} attendanceDates={[]} />);
     expect(datepicker).toHaveAttribute("data-weekday-class", "");
     expect(datepicker).toHaveAttribute("data-weekend-class", "weekend-day");
+  });
+
+  it("corrects the server date using the browser's local day", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 10, 16, 22, 12));
+    window.history.replaceState({}, "", "/?view=attendance");
+
+    try {
+      const { rerender } = render(
+        <AttendanceClient
+          people={makePeople()}
+          initialLogs={[]}
+          currentDate="2026-11-17"
+          serverToday="2026-11-17"
+          attendanceDates={[]}
+        />,
+      );
+
+      expect(replaceMock).toHaveBeenCalledWith("?view=attendance&local_today=2026-11-16");
+      rerender(
+        <AttendanceClient
+          people={makePeople()}
+          initialLogs={[]}
+          currentDate="2026-11-16"
+          serverToday="2026-11-16"
+          attendanceDates={[]}
+        />,
+      );
+      expect(screen.getByTestId("datepicker")).toHaveAttribute("data-selected", "2026-11-16");
+      expect(screen.getByRole("button", { name: "Guardar Asistencia" })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("preserves an explicitly selected date when synchronizing the local day", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 10, 16, 22, 12));
+    window.history.replaceState({}, "", "/?date=2026-10-10");
+
+    try {
+      render(
+        <AttendanceClient
+          people={makePeople()}
+          initialLogs={[]}
+          currentDate="2026-10-10"
+          serverToday="2026-11-17"
+          attendanceDates={[]}
+        />,
+      );
+
+      expect(replaceMock).toHaveBeenCalledWith("?date=2026-10-10&local_today=2026-11-16");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

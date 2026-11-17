@@ -5,10 +5,10 @@ import { getAttendanceDates } from "./attendance/attendance-dates";
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; date?: string }>;
+  searchParams: Promise<{ view?: string; date?: string; local_today?: string }>;
 }) {
   const supabase = await createClient();
-  const { view, date } = await searchParams;
+  const { view, date, local_today } = await searchParams;
 
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -32,7 +32,10 @@ export default async function Home({
   const isAdminOrSuperAdmin = userRole === "admin" || userRole === "superadmin";
 
   const currentView = view === "people" ? "people" : "attendance";
-  const currentDate = date || new Date().toISOString().split("T")[0];
+  const serverToday = local_today && /^\d{4}-\d{2}-\d{2}$/.test(local_today)
+    ? local_today
+    : new Date().toISOString().split("T")[0];
+  const currentDate = date || serverToday;
   const attendanceDates = currentView === "attendance" ? await getAttendanceDates(supabase) : [];
 
   const { data: people } = await supabase
@@ -77,6 +80,7 @@ export default async function Home({
       <HomeClientShell
         currentView={currentView}
         currentDate={currentDate}
+        serverToday={serverToday}
         people={formattedPeople || []}
         initialLogs={initialLogs || []}
         attendanceDates={attendanceDates}

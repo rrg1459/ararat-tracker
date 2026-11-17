@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 
 import "react-datepicker/dist/react-datepicker.css";
 import { es } from "date-fns/locale";
+import { format } from "date-fns";
 
 registerLocale("es", es);
 
@@ -24,24 +25,34 @@ interface AttendanceClientProps {
   people: Person[];
   initialLogs: { person_id: string }[];
   currentDate: string;
+  serverToday: string;
   attendanceDates: string[];
 }
 
-export default function AttendanceClient({ people, initialLogs, currentDate, attendanceDates }: AttendanceClientProps) {
+export default function AttendanceClient({ people, initialLogs, currentDate, serverToday, attendanceDates }: AttendanceClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition(); // 2. Inicializamos el hook de transición
 
   const selectedDate: Date | null = currentDate ? new Date(`${currentDate}T00:00:00`) : new Date();
-  const today = new Date();
-  const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-  const isSelectedToday = currentDate === todayString;
+  const isSelectedToday = currentDate === serverToday;
 
   const [searchTerm, setSearchTerm] = useState("");
-  const dateKey = currentDate || todayString;
+  const dateKey = currentDate || serverToday;
   const [attendedIdsByDate, setAttendedIdsByDate] = useState<Record<string, Set<string>>>({});
   const attendedIds = attendedIdsByDate[dateKey] ?? new Set(initialLogs.map((log) => log.person_id));
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const localToday = format(new Date(), "yyyy-MM-dd");
+    if (serverToday !== localToday) {
+      const params = new URLSearchParams(window.location.search);
+      params.set("local_today", localToday);
+      startTransition(() => {
+        router.replace(`?${params.toString()}`);
+      });
+    }
+  }, [router, serverToday]);
 
   useEffect(() => {
     if (!message) {
@@ -103,8 +114,10 @@ export default function AttendanceClient({ people, initialLogs, currentDate, att
       setSearchTerm("");
 
       // 3. Envolvemos el router.push en startTransition para rastrear la carga del servidor
+      const params = new URLSearchParams(window.location.search);
+      params.set("date", dateString);
       startTransition(() => {
-        router.push(`?date=${dateString}`);
+        router.push(`?${params.toString()}`);
       });
     }
   };

@@ -71,6 +71,7 @@ import HomeClientShell from "./HomeClientShell";
 
 const baseProps = {
   currentDate: "2026-07-18",
+  serverToday: "2026-07-18",
   people: [{ id: "p1", id_number: "123", first_name: "Ana", last_name: "Perez", person_type: "member" }],
   initialLogs: [{ person_id: "p1" }],
   attendanceDates: ["2026-07-18"] as string[],
@@ -111,6 +112,7 @@ describe("HomeClientShell", () => {
       people: baseProps.people,
       initialLogs: baseProps.initialLogs,
       currentDate: "2026-07-18",
+      serverToday: "2026-07-18",
       attendanceDates: baseProps.attendanceDates,
     });
 

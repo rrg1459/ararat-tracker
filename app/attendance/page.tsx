@@ -6,14 +6,16 @@ import AraratLogo from "../components/AraratLogo";
 import { getAttendanceDates } from "./attendance-dates";
 
 interface PageProps {
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<{ date?: string; local_today?: string }>;
 }
 
 export default async function AttendancePage({ searchParams }: PageProps) {
   const supabase = await createClient();
 
   const resolvedParams = await searchParams;
-  const today = new Date().toISOString().split('T')[0];
+  const today = resolvedParams.local_today && /^\d{4}-\d{2}-\d{2}$/.test(resolvedParams.local_today)
+    ? resolvedParams.local_today
+    : new Date().toISOString().split('T')[0];
   const targetDate = resolvedParams.date || today;
 
   const isToday = targetDate === today;
@@ -90,6 +92,7 @@ export default async function AttendancePage({ searchParams }: PageProps) {
         people={people}
         initialLogs={initialLogs}
         currentDate={targetDate}
+        serverToday={today}
         attendanceDates={attendanceDates}
       />
     </div>

@@ -118,7 +118,7 @@ describe("actions", () => {
 
   it("updatePerson updates expected row and handles empty id_number", async () => {
     const eqMock = vi.fn().mockResolvedValue({ error: null });
-    const updateMock = vi.fn(() => ({ eq: eqMock }));
+    const updateMock = vi.fn<(payload: Record<string, unknown>) => { eq: typeof eqMock }>(() => ({ eq: eqMock }));
 
     createClientMock.mockResolvedValue({
       from: vi.fn(() => ({ update: updateMock })),
