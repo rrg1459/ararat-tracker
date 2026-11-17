@@ -137,9 +137,14 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
     })
     : people;
 
-  const visiblePeople = isSelectedToday
-    ? filteredPeople
-    : filteredPeople.filter(person => attendedIds.has(person.id));
+  const visiblePeople = [
+    ...(isSelectedToday
+      ? filteredPeople
+      : filteredPeople.filter((person) => attendedIds.has(person.id))),
+  ].sort(
+    (first, second) =>
+      Number(attendedIds.has(second.id)) - Number(attendedIds.has(first.id))
+  );
 
   return (
     <div className="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
@@ -237,7 +242,12 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
                   {isSelectedToday ? "Directorio" : "Asistentes"}
                 </h3>
                 <div className="flex items-center gap-2">
-                  {searchTerm.trim().length === 0 && (
+                  {attendedIds.size > 0 && (
+                    <span className="text-sm font-medium bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-2.5 py-0.5 rounded-full">
+                      Asistentes: {attendedIds.size}
+                    </span>
+                  )}
+                  {isSelectedToday && searchTerm.trim().length === 0 && (
                     <span className="text-sm font-medium bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-2.5 py-0.5 rounded-full">
                       Total: {visiblePeople.length}
                     </span>

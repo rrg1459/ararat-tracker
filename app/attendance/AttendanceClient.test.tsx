@@ -91,12 +91,14 @@ describe("AttendanceClient", () => {
 
     expect(screen.getByRole("button", { name: "Guardar Asistencia" })).toBeInTheDocument();
     expect(screen.getByText("Directorio")).toBeInTheDocument();
+    expect(screen.getByText("Asistentes: 1")).toBeInTheDocument();
     expect(screen.getByText("Total: 3")).toBeInTheDocument();
 
     const checkboxes = screen.getAllByRole("checkbox");
     expect(checkboxes).toHaveLength(3);
 
     fireEvent.click(checkboxes[1]);
+    expect(screen.getByText("Asistentes: 2")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Guardar Asistencia" }));
 
     await waitFor(() => {
@@ -104,6 +106,32 @@ describe("AttendanceClient", () => {
     });
 
     expect(screen.getByText("¡Asistencia guardada con éxito!")).toBeInTheDocument();
+  });
+
+  it("keeps checked people first and resorts when checkboxes change", () => {
+    const todayString = toDateString(new Date());
+    const { container } = render(
+      <AttendanceClient
+        people={makePeople()}
+        initialLogs={[{ person_id: "p2" }]}
+        currentDate={todayString}
+        serverToday={todayString}
+        attendanceDates={[]}
+      />,
+    );
+
+    const getPeopleOrder = () =>
+      screen.getAllByRole("checkbox").map((checkbox) =>
+        checkbox.closest("label")?.querySelector("p")?.textContent
+      );
+
+    expect(getPeopleOrder()).toEqual(["Luis Mora", "Ana Perez", "Carla Rivas"]);
+
+    fireEvent.click(container.querySelectorAll('input[type="checkbox"]')[2]);
+    expect(getPeopleOrder()).toEqual(["Luis Mora", "Carla Rivas", "Ana Perez"]);
+
+    fireEvent.click(container.querySelectorAll('input[type="checkbox"]')[0]);
+    expect(getPeopleOrder()).toEqual(["Carla Rivas", "Ana Perez", "Luis Mora"]);
   });
 
   it("renders read-only past day and only shows attended people", () => {
@@ -124,7 +152,8 @@ describe("AttendanceClient", () => {
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
 
     expect(screen.getByText("Luis Mora")).toBeInTheDocument();
-    expect(screen.getByText("Total: 1")).toBeInTheDocument();
+    expect(screen.getByText("Asistentes: 1")).toBeInTheDocument();
+    expect(screen.queryByText(/^Total:/)).not.toBeInTheDocument();
     expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
     expect(screen.getByText("Asistentes")).toBeInTheDocument();
   });
@@ -152,7 +181,7 @@ describe("AttendanceClient", () => {
     fireEvent.change(input, { target: { value: "ana" } });
 
     expect(screen.getByText("Resultados: 1")).toBeInTheDocument();
-    expect(screen.queryByText("Total: 3")).not.toBeInTheDocument();
+    expect(screen.queryByText("Asistentes: 0")).not.toBeInTheDocument();
     expect(screen.getByText("Ana Perez")).toBeInTheDocument();
     expect(screen.queryByText("Luis Mora")).not.toBeInTheDocument();
   });
