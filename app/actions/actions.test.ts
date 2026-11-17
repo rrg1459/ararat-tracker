@@ -171,6 +171,7 @@ describe("actions", () => {
       p_person_ids: ["p1", "p2"],
     });
     expect(revalidatePathMock).toHaveBeenCalledWith("/attendance");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/");
     expect(result).toEqual({ success: true });
   });
 

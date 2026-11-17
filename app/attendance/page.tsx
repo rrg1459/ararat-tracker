@@ -3,6 +3,7 @@ import { createClient } from "../utils/supabase";
 import AttendanceClient, { Person } from "./AttendanceClient";
 import Link from "next/link";
 import AraratLogo from "../components/AraratLogo";
+import { getAttendanceDates } from "./attendance-dates";
 
 interface PageProps {
   searchParams: Promise<{ date?: string }>;
@@ -19,6 +20,7 @@ export default async function AttendancePage({ searchParams }: PageProps) {
 
   let people: Person[] = [];
   let initialLogs: { person_id: string }[] = [];
+  const attendanceDates = await getAttendanceDates(supabase);
 
   if (isToday) {
     // HOY: Traemos logs de hoy y el directorio completo
@@ -88,6 +90,7 @@ export default async function AttendancePage({ searchParams }: PageProps) {
         people={people}
         initialLogs={initialLogs}
         currentDate={targetDate}
+        attendanceDates={attendanceDates}
       />
     </div>
   );

@@ -19,6 +19,7 @@ interface HomeClientShellProps {
   currentDate: string;
   people: Person[];
   initialLogs: { person_id: string }[];
+  attendanceDates: string[];
   isAdminOrSuperAdmin: boolean;
   user: { id: string; email?: string } | null;
   userName: string;
@@ -34,6 +35,7 @@ export default function HomeClientShell({
   currentDate,
   people,
   initialLogs,
+  attendanceDates,
   isAdminOrSuperAdmin,
   user,
   userName,
@@ -161,7 +163,7 @@ export default function HomeClientShell({
             </p>
           </div>
         ) : currentView === "attendance" ? (
-          <AttendanceClient people={people || []} initialLogs={initialLogs || []} currentDate={currentDate} />
+          <AttendanceClient people={people || []} initialLogs={initialLogs || []} currentDate={currentDate} attendanceDates={attendanceDates} />
         ) : (
           <PeopleManager initialPeople={people || []} rangeMember={rangeMember} rangeLeader={rangeLeader} />
         )}

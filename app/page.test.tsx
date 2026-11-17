@@ -7,11 +7,17 @@ const {
   peopleManagerSpy,
   attendanceClientSpy,
   userSettingsModalSpy,
+  getAttendanceDatesMock,
 } = vi.hoisted(() => ({
   createClientMock: vi.fn(),
   peopleManagerSpy: vi.fn(),
   attendanceClientSpy: vi.fn(),
   userSettingsModalSpy: vi.fn(),
+  getAttendanceDatesMock: vi.fn(),
+}));
+
+vi.mock("./attendance/attendance-dates", () => ({
+  getAttendanceDates: getAttendanceDatesMock,
 }));
 
 vi.mock("./utils/supabase", () => ({
@@ -138,6 +144,7 @@ function buildSupabaseMock({
 describe("Home page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    getAttendanceDatesMock.mockResolvedValue(["2026-07-14"]);
   });
 
   it("renders attendance view by default and passes expected props", async () => {
@@ -169,6 +176,7 @@ describe("Home page", () => {
       people: expectedPeople,
       initialLogs: logs,
       currentDate: today,
+      attendanceDates: ["2026-07-14"],
     });
 
     expect(screen.getByText("Gestión personas")).toBeInTheDocument();
@@ -203,6 +211,7 @@ describe("Home page", () => {
     render(ui);
 
     expect(screen.getByTestId("people-manager")).toBeInTheDocument();
+    expect(getAttendanceDatesMock).not.toHaveBeenCalled();
     expect(peopleManagerSpy).toHaveBeenCalledWith(expectedPeople);
     expect(screen.getByText("Tomar asistencia")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Admin Icon" })).not.toBeInTheDocument();

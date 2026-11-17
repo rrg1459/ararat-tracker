@@ -1,5 +1,6 @@
 import { createClient } from "./utils/supabase";
 import HomeClientShell from "./components/HomeClientShell";
+import { getAttendanceDates } from "./attendance/attendance-dates";
 
 export default async function Home({
   searchParams,
@@ -32,6 +33,7 @@ export default async function Home({
 
   const currentView = view === "people" ? "people" : "attendance";
   const currentDate = date || new Date().toISOString().split("T")[0];
+  const attendanceDates = currentView === "attendance" ? await getAttendanceDates(supabase) : [];
 
   const { data: people } = await supabase
     .from("people")
@@ -77,6 +79,7 @@ export default async function Home({
         currentDate={currentDate}
         people={formattedPeople || []}
         initialLogs={initialLogs || []}
+        attendanceDates={attendanceDates}
         isAdminOrSuperAdmin={isAdminOrSuperAdmin}
         user={user ? { id: user.id, email: user.email || undefined } : null}
         userName={userName}

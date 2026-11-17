@@ -56,3 +56,25 @@ body {
   color: white !important;
   background-color: #fc8585 !important; /* Tailwind 'red-400' para hover */
 }
+
+.react-datepicker .attendance-day {
+  position: relative;
+}
+
+.react-datepicker .attendance-day::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #059669;
+  transform: translateX(-50%);
+}
+
+.react-datepicker .react-datepicker__day--selected.attendance-day::after,
+.react-datepicker .react-datepicker__day--keyboard-selected.attendance-day:hover::after,
+.react-datepicker .weekend-day.attendance-day:hover::after {
+  background-color: white;
+}

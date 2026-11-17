@@ -162,6 +162,7 @@ export async function saveAttendance(date: string, personIds: string[]) {
   }
 
   revalidatePath("/attendance");
+  revalidatePath("/");
   return { success: true };
 }
 

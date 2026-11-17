@@ -24,9 +24,10 @@ interface AttendanceClientProps {
   people: Person[];
   initialLogs: { person_id: string }[];
   currentDate: string;
+  attendanceDates: string[];
 }
 
-export default function AttendanceClient({ people, initialLogs, currentDate }: AttendanceClientProps) {
+export default function AttendanceClient({ people, initialLogs, currentDate, attendanceDates }: AttendanceClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition(); // 2. Inicializamos el hook de transición
 
@@ -55,6 +56,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
   }, [message]);
 
   const hasRecords = isSelectedToday ? people.length > 0 : initialLogs.length > 0;
+  const attendanceDateSet = new Set(attendanceDates);
 
   function handleCheckboxChange(personId: string) {
     setAttendedIdsByDate((prev) => {
@@ -146,10 +148,17 @@ export default function AttendanceClient({ people, initialLogs, currentDate }: A
             disabled={isPending} // Deshabilitar el input temporalmente mientras procesa
             dayClassName={(date) => {
               const day = date.getDay();
-              return day === 0 || day === 6 ? "weekend-day" : "";
+              const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+              return [
+                day === 0 || day === 6 ? "weekend-day" : "",
+                attendanceDateSet.has(dateString) ? "attendance-day" : "",
+              ].filter(Boolean).join(" ");
             }}
             className="p-2 w-full sm:w-[140px] rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 font-medium text-zinc-900 dark:text-zinc-100 text-center disabled:opacity-50"
           />
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="text-emerald-600 dark:text-emerald-400" aria-hidden="true">●</span> Fecha con asistencia
+          </p>
         </div>
 
         <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-4">

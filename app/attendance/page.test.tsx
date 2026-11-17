@@ -15,6 +15,7 @@ vi.mock("./AttendanceClient", () => ({
     people: Array<Record<string, unknown>>;
     initialLogs: Array<{ person_id: string }>;
     currentDate: string;
+    attendanceDates: string[];
   }) => {
     attendanceClientSpy(props);
     return <div data-testid="attendance-client">Attendance Client</div>;
@@ -45,14 +46,38 @@ function buildSupabaseMock(options: {
   logs: Array<{ person_id: string }>;
   allPeople?: PersonRow[];
   attendedPeople?: PersonRow[];
+  attendanceDates?: string[];
+  datesError?: { message: string };
 }) {
-  const { logs, allPeople = [], attendedPeople = [] } = options;
+  const { logs, allPeople = [], attendedPeople = [], attendanceDates = [], datesError } = options;
 
   const attendanceEqMock = vi.fn().mockResolvedValue({ data: logs });
   const peopleOrderMock = vi.fn().mockResolvedValue({ data: allPeople });
   const peopleInMock = vi.fn(() => ({ order: vi.fn().mockResolvedValue({ data: attendedPeople }) }));
+  const datesGtMock = vi.fn();
 
   const fromMock = vi.fn((table: string) => {
+    if (table === "attendance_dates") {
+      let after: string | null = null;
+      const query = {
+        order: vi.fn(() => query),
+        limit: vi.fn(() => query),
+        gt: vi.fn((_column: string, value: string) => {
+          datesGtMock(_column, value);
+          after = value;
+          return query;
+        }),
+        then: (resolve: (result: unknown) => void) => Promise.resolve({
+          data: attendanceDates
+            .filter((date) => after === null || date > after)
+            .slice(0, 2)
+            .map((attendance_date) => ({ attendance_date })),
+          error: datesError ?? null,
+        }).then(resolve),
+      };
+      return { select: vi.fn(() => query) };
+    }
+
     if (table === "attendance_logs") {
       return {
         select: vi.fn(() => ({
@@ -75,7 +100,7 @@ function buildSupabaseMock(options: {
 
   return {
     client: { from: fromMock },
-    spies: { fromMock, attendanceEqMock, peopleOrderMock, peopleInMock },
+    spies: { fromMock, attendanceEqMock, peopleOrderMock, peopleInMock, datesGtMock },
   };
 }
 
@@ -92,7 +117,8 @@ describe("AttendancePage", () => {
       { id: "p2", id_number: "V-2", first_name: "Luis", last_name: "Mora", person_type: "visitor" },
     ];
 
-    const { client, spies } = buildSupabaseMock({ logs, allPeople });
+    const attendanceDates = ["2026-07-01", "2026-07-10", "2026-07-15"];
+    const { client, spies } = buildSupabaseMock({ logs, allPeople, attendanceDates });
     createClientMock.mockResolvedValue(client);
 
     const ui = await AttendancePage({ searchParams: Promise.resolve({}) });
@@ -104,11 +130,13 @@ describe("AttendancePage", () => {
 
     expect(spies.attendanceEqMock).toHaveBeenCalledWith("created_at", today);
     expect(spies.peopleOrderMock).toHaveBeenCalledWith("first_name", { ascending: true });
+    expect(spies.datesGtMock).toHaveBeenCalledWith("attendance_date", "2026-07-10");
 
     expect(attendanceClientSpy).toHaveBeenCalledWith({
       people: allPeople,
       initialLogs: logs,
       currentDate: today,
+      attendanceDates,
     });
   });
 
@@ -134,6 +162,7 @@ describe("AttendancePage", () => {
       people: attendedPeople,
       initialLogs: logs,
       currentDate: targetDate,
+      attendanceDates: [],
     });
   });
 
@@ -153,6 +182,21 @@ describe("AttendancePage", () => {
       people: [],
       initialLogs: [],
       currentDate: targetDate,
+      attendanceDates: [],
     });
+  });
+
+  it("reports errors when attendance dates cannot be loaded", async () => {
+    const { client } = buildSupabaseMock({ logs: [], datesError: { message: "query failed" } });
+    createClientMock.mockResolvedValue(client);
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    try {
+      await expect(AttendancePage({ searchParams: Promise.resolve({}) }))
+        .rejects.toThrow("No se pudieron consultar las fechas de asistencia.");
+      expect(consoleError).toHaveBeenCalled();
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });

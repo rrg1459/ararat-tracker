@@ -22,11 +22,13 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("react-datepicker", () => ({
   registerLocale: registerLocaleMock,
-  default: ({ selected, onChange, disabled }: { selected: Date | null; onChange: (date: Date | null) => void; disabled?: boolean }) => (
+  default: ({ selected, onChange, disabled, dayClassName }: { selected: Date | null; onChange: (date: Date | null) => void; disabled?: boolean; dayClassName: (date: Date) => string }) => (
     <button
       type="button"
       data-testid="datepicker"
       data-selected={selected ? selected.toISOString().slice(0, 10) : ""}
+      data-weekday-class={dayClassName(new Date(2026, 6, 15))}
+      data-weekend-class={dayClassName(new Date(2026, 6, 19))}
       disabled={disabled}
       onClick={() => onChange(new Date(2026, 6, 15))}
     >
@@ -79,6 +81,7 @@ describe("AttendanceClient", () => {
         people={makePeople()}
         initialLogs={[{ person_id: "p1" }]}
         currentDate={todayString}
+        attendanceDates={[]}
       />,
     );
 
@@ -108,6 +111,7 @@ describe("AttendanceClient", () => {
         people={makePeople()}
         initialLogs={[{ person_id: "p2" }]}
         currentDate={toDateString(yesterday)}
+        attendanceDates={[]}
       />,
     );
 
@@ -128,6 +132,7 @@ describe("AttendanceClient", () => {
         people={makePeople()}
         initialLogs={[]}
         currentDate={todayString}
+        attendanceDates={[]}
       />,
     );
 
@@ -154,6 +159,7 @@ describe("AttendanceClient", () => {
         people={makePeople()}
         initialLogs={[]}
         currentDate={todayString}
+        attendanceDates={[]}
       />,
     );
 
@@ -173,6 +179,7 @@ describe("AttendanceClient", () => {
           people={makePeople()}
           initialLogs={[]}
           currentDate={todayString}
+          attendanceDates={[]}
         />,
       );
 
@@ -198,5 +205,25 @@ describe("AttendanceClient", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("marks dates with attendance while preserving weekend styling and updates when dates change", () => {
+    const props = {
+      people: makePeople(),
+      initialLogs: [],
+      currentDate: toDateString(new Date()),
+    };
+    const { rerender } = render(
+      <AttendanceClient {...props} attendanceDates={["2026-07-15", "2026-07-19"]} />,
+    );
+
+    const datepicker = screen.getByTestId("datepicker");
+    expect(datepicker).toHaveAttribute("data-weekday-class", "attendance-day");
+    expect(datepicker).toHaveAttribute("data-weekend-class", "weekend-day attendance-day");
+    expect(screen.getByText("Fecha con asistencia")).toBeInTheDocument();
+
+    rerender(<AttendanceClient {...props} attendanceDates={[]} />);
+    expect(datepicker).toHaveAttribute("data-weekday-class", "");
+    expect(datepicker).toHaveAttribute("data-weekend-class", "weekend-day");
   });
 });
