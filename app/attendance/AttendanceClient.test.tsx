@@ -84,6 +84,7 @@ describe("AttendanceClient", () => {
 
     expect(screen.getByRole("button", { name: "Guardar Asistencia" })).toBeInTheDocument();
     expect(screen.getByText("Directorio")).toBeInTheDocument();
+    expect(screen.getByText("Total: 3")).toBeInTheDocument();
 
     const checkboxes = screen.getAllByRole("checkbox");
     expect(checkboxes).toHaveLength(3);
@@ -114,6 +115,7 @@ describe("AttendanceClient", () => {
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
 
     expect(screen.getByText("Luis Mora")).toBeInTheDocument();
+    expect(screen.getByText("Total: 1")).toBeInTheDocument();
     expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
     expect(screen.getByText("Asistentes")).toBeInTheDocument();
   });
@@ -139,6 +141,7 @@ describe("AttendanceClient", () => {
     fireEvent.change(input, { target: { value: "ana" } });
 
     expect(screen.getByText("Resultados: 1")).toBeInTheDocument();
+    expect(screen.queryByText("Total: 3")).not.toBeInTheDocument();
     expect(screen.getByText("Ana Perez")).toBeInTheDocument();
     expect(screen.queryByText("Luis Mora")).not.toBeInTheDocument();
   });
