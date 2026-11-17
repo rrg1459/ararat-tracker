@@ -182,6 +182,7 @@ describe("DashboardClient", () => {
         initialUsers={[] as never[]}
         initialPeople={makePeople() as never[]}
         attendanceLogs={makeAttendanceLogs() as never[]}
+        appSettings={[]}
       />,
     );
 
@@ -223,6 +224,7 @@ describe("DashboardClient", () => {
         initialUsers={[] as never[]}
         initialPeople={makePeople() as never[]}
         attendanceLogs={makeAttendanceLogs() as never[]}
+        appSettings={[]}
       />,
     );
 
@@ -262,7 +264,7 @@ describe("DashboardClient", () => {
     expect(chartsProps.monthlyVisitorsData.map((item) => item.cantidad).sort((a, b) => a - b)).toEqual([1, 2]);
   });
 
-  it("shows users tab for admin and hides persons tab", async () => {
+  it("shows users and persons tabs for admin", async () => {
     const initialUsers = [{ id: "u-1" }, { id: "u-2" }];
 
     render(
@@ -272,11 +274,12 @@ describe("DashboardClient", () => {
         initialUsers={initialUsers as never[]}
         initialPeople={makePeople() as never[]}
         attendanceLogs={makeAttendanceLogs() as never[]}
+        appSettings={[]}
       />,
     );
 
     expect(screen.getByText("Usuarios")).toBeInTheDocument();
-    expect(screen.queryByText("Personas")).not.toBeInTheDocument();
+    expect(screen.getByText("Personas")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Usuarios/ }));
 
@@ -284,6 +287,13 @@ describe("DashboardClient", () => {
     expect(userManagementSpy).toHaveBeenCalledWith({
       userRole: "admin",
       initialUsers,
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Personas/ }));
+    expect(screen.getByTestId("person-management")).toBeInTheDocument();
+    expect(personManagementSpy).toHaveBeenCalledWith({
+      initialPeople: makePeople(),
+      canEditDates: true,
     });
   });
 
@@ -295,6 +305,7 @@ describe("DashboardClient", () => {
         initialUsers={[] as never[]}
         initialPeople={makePeople() as never[]}
         attendanceLogs={makeAttendanceLogs() as never[]}
+        appSettings={[]}
       />,
     );
 

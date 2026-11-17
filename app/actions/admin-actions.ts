@@ -1,6 +1,7 @@
 // app/actions/admin-actions.ts
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '../utils/supabase-admin'
 import { createClient } from '../utils/supabase'
 import { AdminUserAttributes } from '@supabase/supabase-js'
@@ -27,6 +28,47 @@ async function checkAdminActor(): Promise<AdminActorRole> {
   }
 
   return profile.role as AdminActorRole
+}
+
+type PersonDates = {
+  first_visit_date: string | null
+  baptized_at: string | null
+}
+
+function isValidDate(value: string | null): boolean {
+  if (value === null) return true
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+
+  const date = new Date(`${value}T00:00:00.000Z`)
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
+}
+
+export async function adminUpdatePersonDates(personId: string, dates: PersonDates) {
+  try {
+    await checkAdminActor()
+
+    if (!personId.trim()) throw new Error('Identificador de persona inválido')
+    if (!isValidDate(dates.first_visit_date) || !isValidDate(dates.baptized_at)) {
+      throw new Error('Las fechas deben tener un formato válido')
+    }
+
+    const { error } = await supabaseAdmin
+      .from('people')
+      .update({
+        first_visit_date: dates.first_visit_date,
+        baptized_at: dates.baptized_at,
+      })
+      .eq('id', personId)
+
+    if (error) return { success: false, error: error.message }
+
+    revalidatePath('/admin')
+    revalidatePath('/')
+    return { success: true }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
+    return { success: false, error: errorMessage }
+  }
 }
 
 // 1. CREAR USUARIO

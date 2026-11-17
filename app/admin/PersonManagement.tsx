@@ -3,6 +3,7 @@
 import { useState } from "react";
 // Importa tu acción del servidor para eliminar
 import { deletePerson } from "../actions/actions";
+import { adminUpdatePersonDates } from "../actions/admin-actions";
 import { getRoleBadge } from "../utils/person-role-badge";
 
 export interface People {
@@ -27,11 +28,60 @@ export interface People {
   received_holy_spirit: boolean;
   notes: string | null;
   attendance_count: number;
+  first_visit_date: string | null;
+  baptized_at: string | null;
 }
 
-export default function PersonManagement({ initialPeople = [] }: { initialPeople?: People[] }) {
+export default function PersonManagement({
+  initialPeople = [],
+  canEditDates = false,
+}: {
+  initialPeople?: People[];
+  canEditDates?: boolean;
+}) {
   const [peopleList, setPeopleList] = useState<People[]>(initialPeople);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
+  const [editingDatesId, setEditingDatesId] = useState<string | null>(null);
+  const [firstVisitDate, setFirstVisitDate] = useState("");
+  const [baptizedAt, setBaptizedAt] = useState("");
+  const [isSavingDates, setIsSavingDates] = useState(false);
+
+  const handleEditDates = (person: People) => {
+    setEditingDatesId(person.id);
+    setFirstVisitDate(person.first_visit_date ?? "");
+    setBaptizedAt(person.baptized_at ?? "");
+  };
+
+  const handleSaveDates = async (personId: string) => {
+    try {
+      setIsSavingDates(true);
+      const result = await adminUpdatePersonDates(personId, {
+        first_visit_date: firstVisitDate || null,
+        baptized_at: baptizedAt || null,
+      });
+
+      if (!result.success) {
+        alert(`No se pudieron guardar las fechas: ${result.error}`);
+        return;
+      }
+
+      setPeopleList((prev) => prev.map((person) => (
+        person.id === personId
+          ? {
+              ...person,
+              first_visit_date: firstVisitDate || null,
+              baptized_at: baptizedAt || null,
+            }
+          : person
+      )));
+      setEditingDatesId(null);
+    } catch (error) {
+      console.error("Error al actualizar fechas de persona:", error);
+      alert("No se pudieron guardar las fechas. Intente de nuevo.");
+    } finally {
+      setIsSavingDates(false);
+    }
+  };
 
   // Handler adaptado para recibir las asistencias y personalizar el texto de confirmación
   const handleDelete = async (id: string, attendanceCount: number) => {
@@ -111,6 +161,68 @@ export default function PersonManagement({ initialPeople = [] }: { initialPeople
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate mt-1">
                       Cédula: {person.id_number || "No registrada"}
                     </p>
+
+                    {(person.first_visit_date || person.baptized_at) && (
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-[11px] text-zinc-600 dark:text-zinc-300">
+                        {person.first_visit_date && (
+                          <span>Primera visita: {person.first_visit_date}</span>
+                        )}
+                        {person.baptized_at && (
+                          <span>Bautizado el: {person.baptized_at}</span>
+                        )}
+                      </div>
+                    )}
+
+                    {canEditDates && (
+                      <div className="mt-2">
+                        {editingDatesId === person.id ? (
+                          <div className="flex flex-wrap items-end gap-2">
+                            <label className="flex flex-col gap-1 text-[11px] text-zinc-600 dark:text-zinc-300">
+                              Primera visita
+                              <input
+                                type="date"
+                                value={firstVisitDate}
+                                onChange={(event) => setFirstVisitDate(event.target.value)}
+                                className="rounded border border-zinc-300 bg-white px-2 py-1 text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                              />
+                            </label>
+                            <label className="flex flex-col gap-1 text-[11px] text-zinc-600 dark:text-zinc-300">
+                              Bautizado el
+                              <input
+                                type="date"
+                                value={baptizedAt}
+                                onChange={(event) => setBaptizedAt(event.target.value)}
+                                className="rounded border border-zinc-300 bg-white px-2 py-1 text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              disabled={isSavingDates}
+                              onClick={() => handleSaveDates(person.id)}
+                              className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                            >
+                              {isSavingDates ? "Guardando..." : "Guardar"}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isSavingDates}
+                              onClick={() => setEditingDatesId(null)}
+                              className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-semibold text-zinc-700 dark:border-zinc-600 dark:text-zinc-200"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleEditDates(person)}
+                            className="text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                          >
+                            Editar fechas
+                          </button>
+                        )}
+                      </div>
+                    )}
 
                     {person.cell_phone && (
                       <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">

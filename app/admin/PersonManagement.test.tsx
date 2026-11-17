@@ -2,13 +2,18 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { deletePersonMock, getRoleBadgeMock } = vi.hoisted(() => ({
+const { deletePersonMock, adminUpdatePersonDatesMock, getRoleBadgeMock } = vi.hoisted(() => ({
   deletePersonMock: vi.fn(),
+  adminUpdatePersonDatesMock: vi.fn(),
   getRoleBadgeMock: vi.fn(),
 }));
 
 vi.mock("../actions/actions", () => ({
   deletePerson: deletePersonMock,
+}));
+
+vi.mock("../actions/admin-actions", () => ({
+  adminUpdatePersonDates: adminUpdatePersonDatesMock,
 }));
 
 vi.mock("../utils/person-role-badge", () => ({
@@ -40,6 +45,8 @@ function makePerson(overrides: Partial<People> = {}): People {
     received_holy_spirit: false,
     notes: null,
     attendance_count: 0,
+    first_visit_date: null,
+    baptized_at: null,
     ...overrides,
   };
 }
@@ -52,6 +59,7 @@ describe("PersonManagement", () => {
       classes: "bg-slate-100 text-slate-800",
     });
     deletePersonMock.mockResolvedValue({ success: true });
+    adminUpdatePersonDatesMock.mockResolvedValue({ success: true });
     vi.spyOn(window, "confirm").mockReturnValue(true);
     vi.spyOn(window, "alert").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -86,6 +94,38 @@ describe("PersonManagement", () => {
     expect(screen.getByText("Oración 🙏")).toBeInTheDocument();
 
     expect(getRoleBadgeMock).toHaveBeenCalledWith("visitor", "personManagement");
+  });
+
+  it("shows recorded dates and lets admins update or clear them", async () => {
+    const user = userEvent.setup();
+    const person = makePerson({
+      first_visit_date: "2025-03-10",
+      baptized_at: "2025-08-20",
+    });
+
+    render(<PersonManagement initialPeople={[person]} canEditDates />);
+
+    expect(screen.getByText("Primera visita: 2025-03-10")).toBeInTheDocument();
+    expect(screen.getByText("Bautizado el: 2025-08-20")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Editar fechas" }));
+    await user.clear(screen.getByLabelText("Primera visita"));
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => {
+      expect(adminUpdatePersonDatesMock).toHaveBeenCalledWith("p-1", {
+        first_visit_date: null,
+        baptized_at: "2025-08-20",
+      });
+      expect(screen.queryByText("Primera visita: 2025-03-10")).not.toBeInTheDocument();
+    });
+    expect(screen.getByText("Bautizado el: 2025-08-20")).toBeInTheDocument();
+  });
+
+  it("does not show date editing controls to users without admin permissions", () => {
+    render(<PersonManagement initialPeople={[makePerson()]} />);
+
+    expect(screen.queryByRole("button", { name: "Editar fechas" })).not.toBeInTheDocument();
   });
 
   it("does not delete when user cancels confirmation", async () => {

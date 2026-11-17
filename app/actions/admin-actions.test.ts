@@ -4,6 +4,7 @@ const {
   createClientMock,
   createAdminClientMock,
   supabaseAdminMock,
+  revalidatePathMock,
 } = vi.hoisted(() => {
   const supabaseAdmin = {
     auth: {
@@ -20,8 +21,13 @@ const {
     createClientMock: vi.fn(),
     createAdminClientMock: vi.fn(() => supabaseAdmin),
     supabaseAdminMock: supabaseAdmin,
+    revalidatePathMock: vi.fn(),
   };
 });
+
+vi.mock("next/cache", () => ({
+  revalidatePath: revalidatePathMock,
+}));
 
 vi.mock("../utils/supabase", () => ({
   createClient: createClientMock,
@@ -31,7 +37,12 @@ vi.mock("../utils/supabase-admin", () => ({
   createAdminClient: createAdminClientMock,
 }));
 
-import { adminCreateUser, adminDeleteUser, adminUpdateUser } from "./admin-actions";
+import {
+  adminCreateUser,
+  adminDeleteUser,
+  adminUpdatePersonDates,
+  adminUpdateUser,
+} from "./admin-actions";
 
 function mockActorClient(params: { userId?: string | null; actorRole?: string | null }) {
   const { userId = "actor-1", actorRole = "superadmin" } = params;
@@ -136,6 +147,59 @@ describe("admin-actions", () => {
 
     expect(result).toEqual({ success: false, error: "No autenticado" });
     expect(supabaseAdminMock.auth.admin.createUser).not.toHaveBeenCalled();
+  });
+
+  it("adminUpdatePersonDates allows admin to set and clear nullable dates", async () => {
+    createClientMock.mockResolvedValue(mockActorClient({ actorRole: "admin" }));
+
+    const eqMock = vi.fn().mockResolvedValue({ error: null });
+    const updateMock = vi.fn(() => ({ eq: eqMock }));
+    supabaseAdminMock.from.mockImplementation((table: string) => {
+      if (table === "people") return { update: updateMock };
+      throw new Error(`Unexpected admin table: ${table}`);
+    });
+
+    const result = await adminUpdatePersonDates("person-1", {
+      first_visit_date: "2025-03-10",
+      baptized_at: null,
+    });
+
+    expect(updateMock).toHaveBeenCalledWith({
+      first_visit_date: "2025-03-10",
+      baptized_at: null,
+    });
+    expect(eqMock).toHaveBeenCalledWith("id", "person-1");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/admin");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/");
+    expect(result).toEqual({ success: true });
+  });
+
+  it("adminUpdatePersonDates rejects invalid dates and non-admin users", async () => {
+    createClientMock.mockResolvedValue(mockActorClient({ actorRole: "superadmin" }));
+
+    const invalidDateResult = await adminUpdatePersonDates("person-1", {
+      first_visit_date: "2025-02-30",
+      baptized_at: null,
+    });
+
+    expect(invalidDateResult).toEqual({
+      success: false,
+      error: "Las fechas deben tener un formato válido",
+    });
+    expect(supabaseAdminMock.from).not.toHaveBeenCalled();
+
+    createClientMock.mockResolvedValue(mockActorClient({ actorRole: "operator" }));
+
+    const result = await adminUpdatePersonDates("person-1", {
+      first_visit_date: null,
+      baptized_at: null,
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: "Acceso denegado: No eres admin ni superadmin",
+    });
+    expect(supabaseAdminMock.from).not.toHaveBeenCalled();
   });
 
   it("adminUpdateUser denies admin editing non-operator targets", async () => {

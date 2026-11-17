@@ -72,7 +72,7 @@ export default function DashboardClient({
       return false;
     }
 
-    if (tab.id === "persons" && userRole !== "superadmin") {
+    if (tab.id === "persons" && userRole !== "superadmin" && userRole !== "admin") {
       return false;
     }
 
@@ -297,7 +297,9 @@ export default function DashboardClient({
                 />
               )}
               {activeTab === "users" && (userRole === "superadmin" || userRole === "admin") && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
-              {activeTab === "persons" && userRole === "superadmin" && <PersonManagement initialPeople={initialPeople} />}
+              {activeTab === "persons" && (userRole === "superadmin" || userRole === "admin") && (
+                <PersonManagement initialPeople={initialPeople} canEditDates />
+              )}
             </main>
           </>
         )}
