@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import UserManagement from "./UserManagement";
+import SettingsManagement from "./SettingsManagement";
 import PersonManagement, { People } from "./PersonManagement";
 import { attendanceLogs } from "./MetricsSummary";
 import MetricsSummary from "./MetricsSummary";
@@ -30,7 +31,7 @@ export default function DashboardClient({
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<"metrics" | "charts" | "users" | "persons">("metrics");
+  const [activeTab, setActiveTab] = useState<"metrics" | "charts" | "users" | "persons" | "settings">("metrics");
 
   const handleGoHome = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (
@@ -50,7 +51,7 @@ export default function DashboardClient({
   };
 
   // 1. Definimos el tipo de las pestañas permitidas
-  type TabId = "metrics" | "charts" | "users" | "persons";
+  type TabId = "metrics" | "charts" | "users" | "persons" | "settings";
 
   interface TabItem {
     id: TabId;
@@ -64,6 +65,7 @@ export default function DashboardClient({
     { id: "charts", shortLabel: "Gráficos", longLabel: "Gráficos de Asistencia" },
     { id: "users", shortLabel: "Usuarios", longLabel: "Gestión de Usuarios" },
     { id: "persons", shortLabel: "Personas", longLabel: "Gestión de Personas" },
+    { id: "settings", shortLabel: "Ajustes", longLabel: "Ajustes Generales" },
   ];
 
   // 3. Filtramos las pestañas basándonos en el rol del usuario
@@ -299,6 +301,10 @@ export default function DashboardClient({
               {activeTab === "users" && (userRole === "superadmin" || userRole === "admin") && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
               {activeTab === "persons" && (userRole === "superadmin" || userRole === "admin") && (
                 <PersonManagement initialPeople={initialPeople} canEditDates />
+              )}
+              {activeTab === "users" && (userRole === "superadmin" || userRole === "admin") && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
+              {activeTab === "settings" && (userRole === "superadmin") && (
+                <SettingsManagement appSettings={appSettings} />
               )}
             </main>
           </>
