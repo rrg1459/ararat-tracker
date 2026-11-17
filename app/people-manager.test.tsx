@@ -136,8 +136,8 @@ function makePerson(overrides: Partial<Person> = {}): Person {
 describe("PeopleManager", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    registerPersonMock.mockResolvedValue(undefined);
-    updatePersonMock.mockResolvedValue(undefined);
+    registerPersonMock.mockResolvedValue({ success: true });
+    updatePersonMock.mockResolvedValue({ success: true });
     getRoleBadgeMock.mockImplementation((personType: string) => ({
       label: personType.toUpperCase(),
       classes: "bg-slate-100 text-slate-800",
@@ -273,6 +273,51 @@ describe("PeopleManager", () => {
 
     expect(updatePersonMock).not.toHaveBeenCalled();
     expect(screen.getByTestId("birth-date-picker")).toHaveValue("");
+  });
+
+  it("shows a registration error and keeps the form values when creation fails", async () => {
+    const user = userEvent.setup();
+    registerPersonMock.mockResolvedValue({
+      success: false,
+      error: "No se pudo registrar la persona.",
+    });
+
+    const { container } = render(<PeopleManager initialPeople={[]} />);
+    await user.type(getInputByName("first_name"), "Luis");
+    await user.type(getInputByName("last_name"), "Perez");
+
+    const form = container.querySelector("form") as HTMLFormElement;
+    const action = getFormAction(form);
+    await act(async () => {
+      await action(new FormData(form));
+    });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("No se pudo registrar la persona.");
+    expect(getInputByName("first_name")).toHaveValue("Luis");
+  });
+
+  it("clears the form but displays the attendance error after the person was created", async () => {
+    const user = userEvent.setup();
+    registerPersonMock.mockResolvedValue({
+      success: false,
+      error: "La persona fue creada, pero no se pudo registrar su asistencia.",
+      personCreated: true,
+    });
+
+    const { container } = render(<PeopleManager initialPeople={[]} />);
+    await user.type(getInputByName("first_name"), "Luis");
+    await user.type(getInputByName("last_name"), "Perez");
+
+    const form = container.querySelector("form") as HTMLFormElement;
+    const action = getFormAction(form);
+    await act(async () => {
+      await action(new FormData(form));
+    });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "La persona fue creada, pero no se pudo registrar su asistencia."
+    );
+    expect(getInputByName("first_name")).toHaveValue("");
   });
 
   it("shows age limit error and blocks submit when person is older than 120", async () => {

@@ -42,11 +42,11 @@ describe("AdminHeader", () => {
     expect(screen.getByText("Ana Perez")).toBeInTheDocument();
     expect(screen.getByText("superadmin")).toBeInTheDocument();
 
-    const homeLink = screen.getByRole("link", { name: "Gestión y Asistencia" });
+    const homeLink = screen.getByRole("link", { name: "Ir a Gestión y Asistencia" });
     expect(homeLink).toHaveAttribute("href", "/");
 
     expect(screen.getByRole("button", { name: "Salir" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Configuración de App" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Configuración de App" })).not.toBeInTheDocument();
     expect(screen.getByText("Salir")).toBeInTheDocument();
   });
 
@@ -61,7 +61,7 @@ describe("AdminHeader", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("link", { name: "Gestión y Asistencia" }));
+    fireEvent.click(screen.getByRole("link", { name: "Ir a Gestión y Asistencia" }));
 
     expect(onHomeClick).toHaveBeenCalledTimes(1);
   });

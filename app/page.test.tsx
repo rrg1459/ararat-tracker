@@ -180,7 +180,7 @@ describe("Home page", () => {
       attendanceDates: ["2026-07-14"],
     });
 
-    expect(screen.getByText("Gestión personas")).toBeInTheDocument();
+    expect(screen.getByText("Ir a Gestión personas")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Admin Icon" })).toHaveAttribute("href", "/admin");
     expect(userSettingsModalSpy).toHaveBeenCalledWith({
       userId: "u1",
@@ -214,7 +214,7 @@ describe("Home page", () => {
     expect(screen.getByTestId("people-manager")).toBeInTheDocument();
     expect(getAttendanceDatesMock).not.toHaveBeenCalled();
     expect(peopleManagerSpy).toHaveBeenCalledWith(expectedPeople);
-    expect(screen.getByText("Tomar asistencia")).toBeInTheDocument();
+    expect(screen.getByText("Ir a Tomar asistencia")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Admin Icon" })).not.toBeInTheDocument();
   });
 

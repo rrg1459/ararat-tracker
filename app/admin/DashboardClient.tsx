@@ -302,7 +302,6 @@ export default function DashboardClient({
               {activeTab === "persons" && (userRole === "superadmin" || userRole === "admin") && (
                 <PersonManagement initialPeople={initialPeople} canEditDates />
               )}
-              {activeTab === "users" && (userRole === "superadmin" || userRole === "admin") && <UserManagement userRole={userRole} initialUsers={initialUsers} />}
               {activeTab === "settings" && (userRole === "superadmin") && (
                 <SettingsManagement appSettings={appSettings} />
               )}

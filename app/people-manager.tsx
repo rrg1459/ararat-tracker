@@ -39,6 +39,7 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const [personType, setPersonType] = useState<string>("visitor");
+  const [submissionError, setSubmissionError] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   const [checkboxes, setCheckboxes] = useState<Record<string, boolean>>({
@@ -168,6 +169,7 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
     if (roleValidationMessage) {
       return;
     }
+    setSubmissionError("");
 
     if (selectedDate) {
       const dateString = selectedDate.toISOString().split("T")[0];
@@ -194,7 +196,14 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
       await updatePerson(editingPerson.id, formData);
       setEditingPerson(null);
     } else {
-      await registerPerson(formData);
+      const result = await registerPerson(formData);
+      if (!result.success) {
+        if (result.personCreated) {
+          resetForm();
+        }
+        setSubmissionError(result.error);
+        return;
+      }
     }
 
     resetForm();
@@ -241,6 +250,7 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
     formRef.current?.reset();
     setSelectedDate(null);
     setPersonType("visitor");
+    setSubmissionError("");
     setCheckboxes({
       is_first_time_visitor: false,
       comes_from_another_church: false,
@@ -268,6 +278,11 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
         </h2>
 
         <form ref={formRef} action={handleSubmit} className="flex flex-col gap-4">
+          {submissionError && (
+            <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
+              {submissionError}
+            </p>
+          )}
 
           <div>
             <label className="block text-sm font-bold mb-1 text-amber-600 dark:text-amber-400">

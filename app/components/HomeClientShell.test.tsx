@@ -21,9 +21,11 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("next/link", () => ({
-  default: ({ href, children, scroll: _scroll, ...rest }: { href: string; children: ReactNode; scroll?: boolean } & Record<string, unknown>) => (
-    <a href={href} {...rest}>{children}</a>
-  ),
+  default: ({ href, children, ...rest }: { href: string; children: ReactNode; scroll?: boolean } & Record<string, unknown>) => {
+    const linkProps = { ...rest };
+    delete linkProps.scroll;
+    return <a href={href} {...linkProps}>{children}</a>;
+  },
 }));
 
 vi.mock("next/image", () => ({
@@ -75,11 +77,13 @@ const baseProps = {
   people: [{ id: "p1", id_number: "123", first_name: "Ana", last_name: "Perez", person_type: "member" }],
   initialLogs: [{ person_id: "p1" }],
   attendanceDates: ["2026-07-18"] as string[],
+  rangeMember: { min: 0, max: 120 },
+  rangeLeader: { min: 0, max: 120 },
   userName: "Ana Perez",
   userRole: "admin",
   profileName: "Ana Perez",
   profileEmail: "ana@test.com",
-} as const;
+};
 
 describe("HomeClientShell", () => {
   beforeEach(() => {
@@ -101,7 +105,7 @@ describe("HomeClientShell", () => {
     expect(screen.getByText("Ana Perez")).toBeInTheDocument();
     expect(screen.getByText("admin")).toBeInTheDocument();
 
-    expect(screen.getByRole("link", { name: "Gestión personas" })).toHaveAttribute("href", "/?view=people");
+    expect(screen.getByRole("link", { name: "Ir a Gestión personas" })).toHaveAttribute("href", "/?view=people");
     expect(screen.queryByRole("link", { name: "Tomar asistencia" })).not.toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Admin Icon" })).toHaveAttribute("href", "/admin");
@@ -133,8 +137,8 @@ describe("HomeClientShell", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Tomar asistencia" })).toHaveAttribute("href", "/?view=attendance");
-    expect(screen.queryByRole("link", { name: "Gestión personas" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ir a Tomar asistencia" })).toHaveAttribute("href", "/?view=attendance");
+    expect(screen.queryByRole("link", { name: "Ir a Gestión personas" })).not.toBeInTheDocument();
 
     expect(screen.queryByRole("link", { name: "Admin Icon" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("settings-modal")).not.toBeInTheDocument();
@@ -153,7 +157,7 @@ describe("HomeClientShell", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("link", { name: "Gestión personas" }));
+    fireEvent.click(screen.getByRole("link", { name: "Ir a Gestión personas" }));
 
     expect(pushMock).toHaveBeenCalledWith("/?view=people", { scroll: false });
   });

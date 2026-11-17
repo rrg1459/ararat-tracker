@@ -5,8 +5,34 @@ import { redirect } from "next/navigation";
 import { createClient } from "../utils/supabase";
 import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js";
 
-export async function registerPerson(formData: FormData) {
+type RegisterPersonResult =
+  | { success: true }
+  | { success: false; error: string; personCreated?: boolean };
+
+export async function registerPerson(formData: FormData): Promise<RegisterPersonResult> {
   const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError) {
+    console.error("Error verifying user before registering person:", authError.message);
+    return { success: false, error: authError.message };
+  }
+
+  let isSuperadmin = false;
+  if (user) {
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error("Error getting user role before registering person:", profileError.message);
+      return { success: false, error: profileError.message };
+    }
+
+    isSuperadmin = profile?.role === "superadmin";
+  }
 
   // Extraemos los datos del formulario de manera segura
   const rawIdNumber = formData.get("id_number") as string;
@@ -37,7 +63,7 @@ export async function registerPerson(formData: FormData) {
     : null;
 
   // Insertamos en la tabla 'people' usando la nueva estructura de la base de datos
-  const { error } = await supabase.from("people").insert([
+  const { data: person, error } = await supabase.from("people").insert([
     {
       id_number: idNumber,
       first_name: firstName,
@@ -60,11 +86,31 @@ export async function registerPerson(formData: FormData) {
       received_holy_spirit: receivedHolySpirit,
       notes: notes || null,
     },
-  ]);
+  ]).select("id").single();
 
   if (error) {
     console.error("Error inserting person:", error.message);
     return { success: false, error: error.message };
+  }
+
+  if (!person) {
+    const message = "No se pudo obtener el registro de la persona creada.";
+    console.error(message);
+    return { success: false, error: message };
+  }
+
+  if (user && !isSuperadmin) {
+    const { error: attendanceError } = await supabase.from("attendance_logs").insert({
+      person_id: person.id,
+      created_at: new Date().toISOString().split("T")[0],
+    });
+
+    if (attendanceError) {
+      const message = `La persona fue creada, pero no se pudo registrar su asistencia: ${attendanceError.message}`;
+      console.error("Error inserting attendance for new person:", attendanceError.message);
+      revalidatePath("/");
+      return { success: false, error: message, personCreated: true };
+    }
   }
 
   revalidatePath("/");

@@ -46,6 +46,57 @@ function buildFormData(values: Record<string, string>) {
   return formData;
 }
 
+function makeRegisterPersonClient({
+  role = "operator",
+  personError = null,
+  attendanceError = null,
+}: {
+  role?: string;
+  personError?: { message: string } | null;
+  attendanceError?: { message: string } | null;
+} = {}) {
+  const personSingleMock = vi.fn().mockResolvedValue({
+    data: personError ? null : { id: "person-1" },
+    error: personError,
+  });
+  const personSelectMock = vi.fn(() => ({ single: personSingleMock }));
+  const personInsertMock = vi.fn(() => ({ select: personSelectMock }));
+  const attendanceInsertMock = vi.fn().mockResolvedValue({ error: attendanceError });
+  const profileMaybeSingleMock = vi.fn().mockResolvedValue({
+    data: { role },
+    error: null,
+  });
+  const profileEqMock = vi.fn(() => ({ maybeSingle: profileMaybeSingleMock }));
+  const profileSelectMock = vi.fn(() => ({ eq: profileEqMock }));
+  const fromMock = vi.fn((table: string) => {
+    if (table === "profiles") {
+      return { select: profileSelectMock };
+    }
+    if (table === "people") {
+      return { insert: personInsertMock };
+    }
+    if (table === "attendance_logs") {
+      return { insert: attendanceInsertMock };
+    }
+    throw new Error(`Unexpected table: ${table}`);
+  });
+
+  return {
+    supabase: {
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "user-1" } },
+          error: null,
+        }),
+      },
+      from: fromMock,
+    },
+    attendanceInsertMock,
+    fromMock,
+    personInsertMock,
+  };
+}
+
 describe("actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -54,10 +105,8 @@ describe("actions", () => {
   });
 
   it("registerPerson inserts normalized payload and revalidates on success", async () => {
-    const insertMock = vi.fn().mockResolvedValue({ error: null });
-    const fromMock = vi.fn(() => ({ insert: insertMock }));
-
-    createClientMock.mockResolvedValue({ from: fromMock });
+    const client = makeRegisterPersonClient();
+    createClientMock.mockResolvedValue(client.supabase);
 
     const formData = buildFormData({
       id_number: "  V-12345 ",
@@ -79,8 +128,8 @@ describe("actions", () => {
 
     const result = await registerPerson(formData);
 
-    expect(fromMock).toHaveBeenCalledWith("people");
-    expect(insertMock).toHaveBeenCalledWith([
+    expect(client.fromMock).toHaveBeenCalledWith("people");
+    expect(client.personInsertMock).toHaveBeenCalledWith([
       expect.objectContaining({
         id_number: "v-12345",
         first_name: "Ana",
@@ -94,18 +143,53 @@ describe("actions", () => {
         needs_prayer: false,
       }),
     ]);
+    expect(client.attendanceInsertMock).toHaveBeenCalledWith({
+      person_id: "person-1",
+      created_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+    });
     expect(revalidatePathMock).toHaveBeenCalledWith("/");
     expect(result).toEqual({ success: true });
   });
 
-  it("registerPerson returns error payload when insert fails", async () => {
-    const insertMock = vi.fn().mockResolvedValue({
-      error: { message: "duplicate key value violates unique constraint" },
-    });
+  it("registerPerson skips attendance for superadmins", async () => {
+    const client = makeRegisterPersonClient({ role: "superadmin" });
+    createClientMock.mockResolvedValue(client.supabase);
 
-    createClientMock.mockResolvedValue({
-      from: vi.fn(() => ({ insert: insertMock })),
+    const result = await registerPerson(buildFormData({
+      first_name: "Ana",
+      last_name: "Perez",
+      person_type: "visitor",
+    }));
+
+    expect(result).toEqual({ success: true });
+    expect(client.attendanceInsertMock).not.toHaveBeenCalled();
+  });
+
+  it("registerPerson reports partial success when attendance insert fails", async () => {
+    const client = makeRegisterPersonClient({
+      attendanceError: { message: "attendance insert failed" },
     });
+    createClientMock.mockResolvedValue(client.supabase);
+
+    const result = await registerPerson(buildFormData({
+      first_name: "Ana",
+      last_name: "Perez",
+      person_type: "visitor",
+    }));
+
+    expect(result).toEqual({
+      success: false,
+      error: "La persona fue creada, pero no se pudo registrar su asistencia: attendance insert failed",
+      personCreated: true,
+    });
+    expect(revalidatePathMock).toHaveBeenCalledWith("/");
+  });
+
+  it("registerPerson returns error payload when insert fails", async () => {
+    const client = makeRegisterPersonClient({
+      personError: { message: "duplicate key value violates unique constraint" },
+    });
+    createClientMock.mockResolvedValue(client.supabase);
 
     const result = await registerPerson(buildFormData({ first_name: "Ana", last_name: "Perez", person_type: "visitor" }));
 
@@ -114,6 +198,7 @@ describe("actions", () => {
       error: "duplicate key value violates unique constraint",
     });
     expect(revalidatePathMock).not.toHaveBeenCalled();
+    expect(client.attendanceInsertMock).not.toHaveBeenCalled();
   });
 
   it("updatePerson updates expected row and handles empty id_number", async () => {
