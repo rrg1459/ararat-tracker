@@ -67,6 +67,7 @@ describe("actions", () => {
       cell_phone: "0414-1234567",
       email: "ana@test.com",
       birth_date: "2000-10-01",
+      first_visit_date: "2026-07-16",
       person_type: "visitor",
       address: "Av. 1",
       city: "Caracas",
@@ -87,6 +88,7 @@ describe("actions", () => {
         home_phone: null,
         cell_phone: "0414-1234567",
         is_first_time_visitor: true,
+        first_visit_date: "2026-07-16",
         wants_bible_studies: true,
         accepted_jesus: true,
         needs_prayer: false,
@@ -140,8 +142,24 @@ describe("actions", () => {
       }),
     );
     expect(eqMock).toHaveBeenCalledWith("id", "person-1");
+    expect(updateMock.mock.calls[0][0]).not.toHaveProperty("first_visit_date");
     expect(revalidatePathMock).toHaveBeenCalledWith("/");
     expect(result).toEqual({ success: true });
+  });
+
+  it("updatePerson saves the supplied first visit date for a first-time visitor", async () => {
+    const updateMock = vi.fn(() => ({ eq: vi.fn().mockResolvedValue({ error: null }) }));
+    createClientMock.mockResolvedValue({ from: vi.fn(() => ({ update: updateMock })) });
+
+    await updatePerson("person-1", buildFormData({
+      is_first_time_visitor: "on",
+      first_visit_date: "2026-07-16",
+    }));
+
+    expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({
+      is_first_time_visitor: true,
+      first_visit_date: "2026-07-16",
+    }));
   });
 
   it("deletePerson deletes by id and returns success", async () => {

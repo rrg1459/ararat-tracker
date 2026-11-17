@@ -16,6 +16,7 @@ export async function registerPerson(formData: FormData) {
   const cellPhone = formData.get("cell_phone") as string;  // Nuevo campo
   const email = formData.get("email") as string;
   const birthDate = formData.get("birth_date") as string;
+  const firstVisitDate = formData.get("first_visit_date") as string | null;
   const personType = formData.get("person_type") as string;
   const address = formData.get("address") as string;       // Nuevo campo
   const city = formData.get("city") as string;             // Nuevo campo
@@ -45,6 +46,7 @@ export async function registerPerson(formData: FormData) {
       cell_phone: cellPhone || null,
       email: email || null,
       birth_date: birthDate || null,
+      ...(isFirstTimeVisitor && firstVisitDate ? { first_visit_date: firstVisitDate } : {}),
       person_type: personType,
       address: address || null,
       city: city || null,
@@ -80,6 +82,7 @@ export async function updatePerson(id: string, formData: FormData) {
   const cellPhone = formData.get("cell_phone") as string;
   const email = formData.get("email") as string;
   const birthDate = formData.get("birth_date") as string;
+  const firstVisitDate = formData.get("first_visit_date") as string | null;
   const personType = formData.get("person_type") as string;
   const address = formData.get("address") as string;
   const city = formData.get("city") as string;
@@ -110,6 +113,7 @@ export async function updatePerson(id: string, formData: FormData) {
       cell_phone: cellPhone || null,
       email: email || null,
       birth_date: birthDate || null,
+      ...(isFirstTimeVisitor && firstVisitDate ? { first_visit_date: firstVisitDate } : {}),
       person_type: personType,
       address: address || null,
       city: city || null,

@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { registerPerson, updatePerson } from "./actions/actions";
 import { getRoleBadge } from "./utils/person-role-badge";
 import DatePicker, { registerLocale } from "react-datepicker";
+import { format } from "date-fns";
 
 import "react-datepicker/dist/react-datepicker.css";
 import { es } from "date-fns/locale";
@@ -182,6 +183,12 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
         formData.delete(key);
       }
     });
+
+    if (checkboxes.is_first_time_visitor) {
+      formData.set("first_visit_date", format(new Date(), "yyyy-MM-dd"));
+    } else {
+      formData.delete("first_visit_date");
+    }
 
     if (editingPerson) {
       await updatePerson(editingPerson.id, formData);

@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { format } from "date-fns";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { registerPersonMock, updatePersonMock, getRoleBadgeMock, registerLocaleMock } = vi.hoisted(() => ({
@@ -265,6 +266,7 @@ describe("PeopleManager", () => {
     expect(submittedFormData.get("first_name")).toBe("Luis");
     expect(submittedFormData.get("last_name")).toBe("Perez");
     expect(submittedFormData.get("birth_date")).toBe("1999-05-12");
+    expect(submittedFormData.get("first_visit_date")).toBe(format(new Date(), "yyyy-MM-dd"));
     expect(submittedFormData.get("is_first_time_visitor")).toBe("on");
     expect(submittedFormData.get("wants_bible_studies")).toBe("on");
     expect(submittedFormData.has("needs_prayer")).toBe(false);
@@ -337,11 +339,28 @@ describe("PeopleManager", () => {
     expect(submittedFormData.get("first_name")).toBe("Mariana");
     expect(submittedFormData.get("birth_date")).toBe("1990-03-10");
     expect(submittedFormData.has("is_first_time_visitor")).toBe(false);
+    expect(submittedFormData.has("first_visit_date")).toBe(false);
 
     expect(registerPersonMock).not.toHaveBeenCalled();
 
     await waitFor(() => {
       expect(screen.getByText("Registro de Nueva Persona")).toBeInTheDocument();
     });
+  });
+
+  it("sets today's first visit date when saving an existing first-time visitor", async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <PeopleManager initialPeople={[makePerson({ is_first_time_visitor: true })]} />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Editar" }));
+    const form = container.querySelector("form") as HTMLFormElement;
+    await act(async () => {
+      await getFormAction(form)(new FormData(form));
+    });
+
+    const [, submittedFormData] = updatePersonMock.mock.calls[0] as [string, FormData];
+    expect(submittedFormData.get("first_visit_date")).toBe(format(new Date(), "yyyy-MM-dd"));
   });
 });
