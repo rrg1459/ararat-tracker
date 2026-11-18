@@ -141,9 +141,9 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
     ...(isSelectedToday
       ? filteredPeople
       : filteredPeople.filter((person) => attendedIds.has(person.id))),
-  ].sort(
-    (first, second) =>
-      Number(attendedIds.has(second.id)) - Number(attendedIds.has(first.id))
+  ].sort((first, second) =>
+    Number(attendedIds.has(second.id)) - Number(attendedIds.has(first.id)) ||
+    first.first_name.localeCompare(second.first_name, "es", { sensitivity: "base" })
   );
 
   return (

@@ -97,7 +97,7 @@ describe("AttendanceClient", () => {
     const checkboxes = screen.getAllByRole("checkbox");
     expect(checkboxes).toHaveLength(3);
 
-    fireEvent.click(checkboxes[1]);
+    fireEvent.click(checkboxes[2]);
     expect(screen.getByText("Asistentes: 2")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Guardar Asistencia" }));
 
@@ -108,7 +108,7 @@ describe("AttendanceClient", () => {
     expect(screen.getByText("¡Asistencia guardada con éxito!")).toBeInTheDocument();
   });
 
-  it("keeps checked people first and resorts when checkboxes change", () => {
+  it("keeps checked people first and sorts each group by first name", () => {
     const todayString = toDateString(new Date());
     const { container } = render(
       <AttendanceClient
@@ -128,20 +128,20 @@ describe("AttendanceClient", () => {
     expect(getPeopleOrder()).toEqual(["Luis Mora", "Ana Perez", "Carla Rivas"]);
 
     fireEvent.click(container.querySelectorAll('input[type="checkbox"]')[2]);
-    expect(getPeopleOrder()).toEqual(["Luis Mora", "Carla Rivas", "Ana Perez"]);
+    expect(getPeopleOrder()).toEqual(["Carla Rivas", "Luis Mora", "Ana Perez"]);
 
     fireEvent.click(container.querySelectorAll('input[type="checkbox"]')[0]);
-    expect(getPeopleOrder()).toEqual(["Carla Rivas", "Ana Perez", "Luis Mora"]);
+    expect(getPeopleOrder()).toEqual(["Luis Mora", "Ana Perez", "Carla Rivas"]);
   });
 
   it("renders read-only past day and only shows attended people", () => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
 
-    render(
+    const { container } = render(
       <AttendanceClient
         people={makePeople()}
-        initialLogs={[{ person_id: "p2" }]}
+        initialLogs={[{ person_id: "p2" }, { person_id: "p3" }]}
         currentDate={toDateString(yesterday)}
         serverToday={toDateString(new Date())}
         attendanceDates={[]}
@@ -152,7 +152,10 @@ describe("AttendanceClient", () => {
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
 
     expect(screen.getByText("Luis Mora")).toBeInTheDocument();
-    expect(screen.getByText("Asistentes: 1")).toBeInTheDocument();
+    expect(screen.getByText("Asistentes: 2")).toBeInTheDocument();
+    expect(
+      Array.from(container.querySelectorAll("label p.font-semibold")).map((person) => person.textContent),
+    ).toEqual(["Carla Rivas", "Luis Mora"]);
     expect(screen.queryByText(/^Total:/)).not.toBeInTheDocument();
     expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
     expect(screen.getByText("Asistentes")).toBeInTheDocument();
