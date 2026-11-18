@@ -101,7 +101,7 @@ BEGIN
     (v_person_id, '2026-10-18T00:00:00Z');
 
 -- Persona #13: Alexander David X
-  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Alexander David', 'X', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
+  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Alexander David', ' ', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
   INSERT INTO public.attendance_logs (person_id, created_at) VALUES
     (v_person_id, '2026-09-06T00:00:00Z'),
     (v_person_id, '2026-09-13T00:00:00Z'),
@@ -209,7 +209,7 @@ BEGIN
     (v_person_id, '2026-11-01T00:00:00Z');
 
 -- Persona #25: Anais del Valle X
-  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Anais del Valle', 'X', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
+  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Anais del Valle', ' ', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
   INSERT INTO public.attendance_logs (person_id, created_at) VALUES
     (v_person_id, '2026-10-18T00:00:00Z');
 
@@ -1648,7 +1648,7 @@ BEGIN
     (v_person_id, '2026-09-13T00:00:00Z');
 
 -- Persona #241: Matias del Valle X
-  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Matias del Valle', 'X', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
+  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Matias del Valle', ' ', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
   INSERT INTO public.attendance_logs (person_id, created_at) VALUES
     (v_person_id, '2026-11-01T00:00:00Z');
 
@@ -2185,7 +2185,7 @@ BEGIN
     (v_person_id, '2026-10-25T00:00:00Z');
 
 -- Persona #319: Yeiber del Valle X
-  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Yeiber del Valle', 'X', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
+  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Yeiber del Valle', ' ', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
   INSERT INTO public.attendance_logs (person_id, created_at) VALUES
     (v_person_id, '2026-09-13T00:00:00Z'),
     (v_person_id, '2026-10-04T00:00:00Z'),
@@ -2305,7 +2305,7 @@ BEGIN
     (v_person_id, '2026-11-15T00:00:00Z');
 
 -- Persona #337: Yubel Del Valle X
-  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Yubel Del Valle', 'X', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
+  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Yubel Del Valle', ' ', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
   INSERT INTO public.attendance_logs (person_id, created_at) VALUES
     (v_person_id, '2026-09-13T00:00:00Z'),
     (v_person_id, '2026-11-01T00:00:00Z');
@@ -2440,6 +2440,7 @@ BEGIN
     ('Anthony', 'Castellano', ' (A)'),
     ('Arianna David', 'Campos', ' (A)'),
     ('Ashley', 'Rios', ' (N)'),
+    ('Avril Carolina', 'Montilla Testa', ' (N)'),
     ('Azai Valero', 'Blanco', ' (N)'),
     ('Camila', 'Castillo', ' (N)'),
     ('Carlimar', 'Terán', ' (N)'),
@@ -2457,38 +2458,13 @@ BEGIN
     ('Jeremias', 'Cardenas', ' (N)'),
     ('Jeremías', 'Rodríguez Amezquita', ' (N)'),
     ('Josabet Shadai', 'Guédez Solorzano', ' (A)'),
+    ('Jose', 'Valera N', ' (N)'),
     ('Joseannys Lusía', 'Rodriguez Ortega', ' (N)'),
     ('Josias', 'Pacheco', ' (N)'),
     ('Josué', 'Sánchez', ' (N)'),
     ('Juliana', 'Aguilar', ' (A)'),
     ('Keiver David', 'Rosales Martínez', ' (N)'),
-    ('Kimdreilys', 'Romero', ' (N)'),
-    ('Liam', 'Gonzalez', ' (N)'),
-    ('Liam', 'Mota', ' (N)'),
-    ('Liam', 'Rojas', ' (N)'),
-    ('Lissie Adriel', 'Castro Pedrón', ' (N)'),
-    ('Lucia', 'Rodriguez', ' (N)'),
-    ('Matias del Valle', 'X', ' (N)'),
-    ('Nahomi', 'Perez', ' (N)'),
-    ('Neyelbe', 'Freite', ' (N)'),
-    ('Nicol', 'De Sousa', ' (A)'),
-    ('Raisbelis', 'Escudero', ' (A)'),
-    ('Salome', 'Paredes Pereira', ' (N)'),
-    ('Samuel Elías', 'Ladera Rodríguez', ' (N)'),
-    ('Samuel', 'Quintana', ' (A)'),
-    ('Santiago José', 'Calcurian  González', ' (N)'),
-    ('Sebastian', 'Tovar', ' (N)'),
-    ('Sebastin', 'Ortiz', ' (N)'),
-    ('Valentina', 'Marin', ' (A)'),
-    ('Valeria', 'Escudero', ' (A)'),
-    ('Victoria Alissandra', 'Antequera P', ' (N)'),
-    ('Victoria', 'Diaz Zelaya', ' (N)'),
-    ('Walter', 'Niño Porras', ' (A)'),
-    ('Yeisdiber', 'Tovar', ' (N)'),
-    ('Yelvis Miguel', 'Torrealba Izaguirre', ' (N)'),
-    ('Yirbin', 'Brazon', ' (A)'),
-    ('Ysamar', 'Carmona', ' (A)'),
-    ('Nelianis', 'Zelaya', ' (A)')
+    ('Raisbelis', 'Escudero', ' (A)')
   ) AS tags(first_name, last_name, suffix)
   WHERE p.first_name = tags.first_name
     AND p.last_name = tags.last_name;
