@@ -2426,6 +2426,73 @@ BEGIN
   INSERT INTO public.attendance_logs (person_id, created_at) VALUES
     (v_person_id, '2026-11-15T00:00:00Z');
 
+  UPDATE public.people AS p
+  SET last_name = p.last_name || tags.suffix
+  FROM (VALUES
+    ('Abraham', 'Sierra', ' (N)'),
+    ('Ailany', 'Perez', ' (N)'),
+    ('Aixa Valentina', 'Rangel', ' (N)'),
+    ('Alaya', 'Guevara', ' (N)'),
+    ('Alexismar', 'Lara', ' (A)'),
+    ('Alirio Josué', 'Antequera Palma', ' (N)'),
+    ('Andrea', 'Martinez', ' (N)'),
+    ('Andris Miguel', 'Hermoso Aranguren', ' (N)'),
+    ('Anthony', 'Castellano', ' (A)'),
+    ('Arianna David', 'Campos', ' (A)'),
+    ('Ashley', 'Rios', ' (N)'),
+    ('Azai Valero', 'Blanco', ' (N)'),
+    ('Camila', 'Castillo', ' (N)'),
+    ('Carlimar', 'Terán', ' (N)'),
+    ('David', 'Vasquez Perez', ' (N)'),
+    ('Dilan', 'Mota', ' (N)'),
+    ('Eddie Alejandro', 'Paredes Pereira', ' (A)'),
+    ('Eliangely', 'Alfonzo', ' (N)'),
+    ('Elianyelis Valentina', 'Alfonzo Brazon', ' (N)'),
+    ('Elías', 'Valero', ' (N)'),
+    ('Eliezer Noe', 'Alfonzo Brazon', ' (A)'),
+    ('Enrique', 'Ortiz', ' (N)'),
+    ('Genoba', 'Ortiz', ' (N)'),
+    ('Hellen', 'Campos Brito', ' (N)'),
+    ('Jacob', 'Aguilar', ' (N)'),
+    ('Jeremias', 'Cardenas', ' (N)'),
+    ('Jeremías', 'Rodríguez Amezquita', ' (N)'),
+    ('Josabet Shadai', 'Guédez Solorzano', ' (A)'),
+    ('Joseannys Lusía', 'Rodriguez Ortega', ' (N)'),
+    ('Josias', 'Pacheco', ' (N)'),
+    ('Josué', 'Sánchez', ' (N)'),
+    ('Juliana', 'Aguilar', ' (A)'),
+    ('Keiver David', 'Rosales Martínez', ' (N)'),
+    ('Kimdreilys', 'Romero', ' (N)'),
+    ('Liam', 'Gonzalez', ' (N)'),
+    ('Liam', 'Mota', ' (N)'),
+    ('Liam', 'Rojas', ' (N)'),
+    ('Lissie Adriel', 'Castro Pedrón', ' (N)'),
+    ('Lucia', 'Rodriguez', ' (N)'),
+    ('Matias del Valle', 'X', ' (N)'),
+    ('Nahomi', 'Perez', ' (N)'),
+    ('Neyelbe', 'Freite', ' (N)'),
+    ('Nicol', 'De Sousa', ' (A)'),
+    ('Raisbelis', 'Escudero', ' (A)'),
+    ('Salome', 'Paredes Pereira', ' (N)'),
+    ('Samuel Elías', 'Ladera Rodríguez', ' (N)'),
+    ('Samuel', 'Quintana', ' (A)'),
+    ('Santiago José', 'Calcurian  González', ' (N)'),
+    ('Sebastian', 'Tovar', ' (N)'),
+    ('Sebastin', 'Ortiz', ' (N)'),
+    ('Valentina', 'Marin', ' (A)'),
+    ('Valeria', 'Escudero', ' (A)'),
+    ('Victoria Alissandra', 'Antequera P', ' (N)'),
+    ('Victoria', 'Diaz Zelaya', ' (N)'),
+    ('Walter', 'Niño Porras', ' (A)'),
+    ('Yeisdiber', 'Tovar', ' (N)'),
+    ('Yelvis Miguel', 'Torrealba Izaguirre', ' (N)'),
+    ('Yirbin', 'Brazon', ' (A)'),
+    ('Ysamar', 'Carmona', ' (A)'),
+    ('Nelianis', 'Zelaya', ' (A)')
+  ) AS tags(first_name, last_name, suffix)
+  WHERE p.first_name = tags.first_name
+    AND p.last_name = tags.last_name;
+
 END $$;
 
 COMMIT;
