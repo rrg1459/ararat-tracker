@@ -216,6 +216,58 @@ export async function saveAttendance(date: string, personIds: string[]) {
   return { success: true };
 }
 
+export async function setAttendance(date: string, personId: string, attended: boolean) {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    const message = authError?.message ?? "No autenticado.";
+    console.error("Error verifying user before updating attendance:", message);
+    return { success: false, error: message };
+  }
+
+  if (attended) {
+    const { data: existingLog, error: existingLogError } = await supabase
+      .from("attendance_logs")
+      .select("person_id")
+      .eq("created_at", date)
+      .eq("person_id", personId)
+      .maybeSingle();
+
+    if (existingLogError) {
+      console.error("Error checking attendance log:", existingLogError.message);
+      return { success: false, error: existingLogError.message };
+    }
+
+    if (!existingLog) {
+      const { error } = await supabase.from("attendance_logs").insert({
+        person_id: personId,
+        created_at: date,
+      });
+
+      if (error) {
+        console.error("Error inserting attendance log:", error.message);
+        return { success: false, error: error.message };
+      }
+    }
+  } else {
+    const { error } = await supabase
+      .from("attendance_logs")
+      .delete()
+      .eq("created_at", date)
+      .eq("person_id", personId);
+
+    if (error) {
+      console.error("Error deleting attendance log:", error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  revalidatePath("/attendance");
+  revalidatePath("/");
+  return { success: true };
+}
+
 export type ActionState = {
   error?: string;
   success?: boolean;

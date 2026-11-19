@@ -34,6 +34,7 @@ import {
   logout,
   registerPerson,
   saveAttendance,
+  setAttendance,
   updateOwnUserSettings,
   updatePerson,
 } from "./actions";
@@ -275,6 +276,48 @@ describe("actions", () => {
     });
     expect(revalidatePathMock).toHaveBeenCalledWith("/attendance");
     expect(revalidatePathMock).toHaveBeenCalledWith("/");
+    expect(result).toEqual({ success: true });
+  });
+
+  it("setAttendance inserts a missing log when attendance is selected", async () => {
+    const maybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: null });
+    const personEqMock = vi.fn(() => ({ maybeSingle: maybeSingleMock }));
+    const dateEqMock = vi.fn(() => ({ eq: personEqMock }));
+    const selectMock = vi.fn(() => ({ eq: dateEqMock }));
+    const insertMock = vi.fn().mockResolvedValue({ error: null });
+
+    createClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } }, error: null }),
+      },
+      from: vi.fn(() => ({ select: selectMock, insert: insertMock })),
+    });
+
+    const result = await setAttendance("2026-07-16", "person-44", true);
+
+    expect(insertMock).toHaveBeenCalledWith({
+      person_id: "person-44",
+      created_at: "2026-07-16",
+    });
+    expect(result).toEqual({ success: true });
+  });
+
+  it("setAttendance deletes the log when attendance is deselected", async () => {
+    const personEqMock = vi.fn().mockResolvedValue({ error: null });
+    const dateEqMock = vi.fn(() => ({ eq: personEqMock }));
+    const deleteMock = vi.fn(() => ({ eq: dateEqMock }));
+
+    createClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } }, error: null }),
+      },
+      from: vi.fn(() => ({ delete: deleteMock })),
+    });
+
+    const result = await setAttendance("2026-07-16", "person-44", false);
+
+    expect(dateEqMock).toHaveBeenCalledWith("created_at", "2026-07-16");
+    expect(personEqMock).toHaveBeenCalledWith("person_id", "person-44");
     expect(result).toEqual({ success: true });
   });
 
