@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react"; // 1. Importamos useTransition
-import { saveAttendance } from "../actions/actions";
+import { setAttendance } from "../actions/actions";
 import { getRoleBadge } from "../utils/person-role-badge";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { useRouter } from "next/navigation";
@@ -40,7 +40,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
   const dateKey = currentDate || serverToday;
   const [attendedIdsByDate, setAttendedIdsByDate] = useState<Record<string, Set<string>>>({});
   const attendedIds = attendedIdsByDate[dateKey] ?? new Set(initialLogs.map((log) => log.person_id));
-  const [saving, setSaving] = useState(false);
+  const [pendingPersonIds, setPendingPersonIds] = useState<Set<string>>(new Set());
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -69,38 +69,51 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
   const hasRecords = isSelectedToday ? people.length > 0 : initialLogs.length > 0;
   const attendanceDateSet = new Set(attendanceDates);
 
-  function handleCheckboxChange(personId: string) {
+  async function handleCheckboxChange(personId: string) {
+    if (pendingPersonIds.has(personId)) {
+      return;
+    }
+
+    const attended = !attendedIds.has(personId);
     setAttendedIdsByDate((prev) => {
       const currentIds = prev[dateKey] ?? new Set(initialLogs.map((log) => log.person_id));
       const newIds = new Set(currentIds);
 
-      if (newIds.has(personId)) {
-        newIds.delete(personId);
-      } else {
+      if (attended) {
         newIds.add(personId);
+      } else {
+        newIds.delete(personId);
       }
 
       return { ...prev, [dateKey]: newIds };
     });
-  }
+    setPendingPersonIds((prev) => new Set(prev).add(personId));
+    setMessage(attended ? "Registrando asistencia..." : "Quitando asistencia...");
 
-  async function handleSave() {
-    if (!selectedDate) {
-      setMessage("Por favor, selecciona una fecha válida.");
-      return;
-    }
+    const result = await setAttendance(dateKey, personId, attended);
 
-    setSaving(true);
-    setMessage("");
-
-    const result = await saveAttendance(currentDate, Array.from(attendedIds));
-
-    setSaving(false);
     if (result.success) {
-      setMessage("¡Asistencia guardada con éxito!");
+      setMessage(attended ? "Asistencia registrada." : "Asistencia eliminada.");
     } else {
-      setMessage(`Error al guardar asistencia: ${result.error}`);
+      setAttendedIdsByDate((prev) => {
+        const revertedIds = new Set(prev[dateKey] ?? initialLogs.map((log) => log.person_id));
+
+        if (attended) {
+          revertedIds.delete(personId);
+        } else {
+          revertedIds.add(personId);
+        }
+
+        return { ...prev, [dateKey]: revertedIds };
+      });
+      setMessage(`Error al actualizar asistencia: ${result.error}`);
     }
+
+    setPendingPersonIds((prev) => {
+      const next = new Set(prev);
+      next.delete(personId);
+      return next;
+    });
   }
 
   const handleDateChange = (date: Date | null) => {
@@ -183,13 +196,9 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
           {message && <p className="text-sm font-medium text-green-600 dark:text-green-400 sm:whitespace-nowrap">{message}</p>}
 
           {isSelectedToday ? (
-            <button
-              onClick={handleSave}
-              disabled={saving || isPending}
-              className="bg-blue-600 text-white px-3 py-2 rounded-md font-semibold hover:bg-blue-700 transition-colors disabled:bg-blue-400 cursor-pointer"
-            >
-              {saving ? "Guardando..." : "Guardar Asistencia"}
-            </button>
+            <p className="text-sm italic text-zinc-500 dark:text-zinc-400">
+              Los cambios se guardan automáticamente
+            </p>
           ) : (
             <p className="text-sm italic text-zinc-500 dark:text-zinc-400">
               Solo consulta
@@ -285,9 +294,9 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
                         <input
                           type="checkbox"
                           checked={isChecked}
-                          disabled={!isSelectedToday}
+                          disabled={pendingPersonIds.has(person.id)}
                           onChange={() => handleCheckboxChange(person.id)}
-                          className="w-5 h-5 rounded border-zinc-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                          className="w-5 h-5 rounded border-zinc-300 text-blue-600 focus:ring-blue-500 cursor-pointer disabled:cursor-wait disabled:opacity-50"
                         />
                       )}
                       <div>
