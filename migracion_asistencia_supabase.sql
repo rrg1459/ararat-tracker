@@ -1215,7 +1215,7 @@ BEGIN
     (v_person_id, '2026-10-25T00:00:00Z');
 
 -- Persona #175: Juan  David Hernandez Cedeño
-  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Juan  David', 'Hernandez Cedeño', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
+  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Juan  David', 'Hernandez Cedeño (B)', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
   INSERT INTO public.attendance_logs (person_id, created_at) VALUES
     (v_person_id, '2026-09-13T00:00:00Z'),
     (v_person_id, '2026-09-20T00:00:00Z');
@@ -1844,7 +1844,7 @@ BEGIN
     (v_person_id, '2026-09-20T00:00:00Z');
 
 -- Persona #272: Ransés Calcurian
-  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Ransés', 'Calcurian', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
+  INSERT INTO public.people (id_number, first_name, last_name, first_visit_date, baptized_at, notes, person_type, is_first_time_visitor) VALUES (NULL, 'Ransés', 'Calcurian (B)', NULL, NULL, NULL, 'visitor', NULL) RETURNING id INTO v_person_id;
   INSERT INTO public.attendance_logs (person_id, created_at) VALUES
     (v_person_id, '2026-10-11T00:00:00Z'),
     (v_person_id, '2026-10-18T00:00:00Z'),
