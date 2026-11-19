@@ -41,6 +41,7 @@ type PersonRow = {
   first_name: string;
   last_name: string;
   person_type: string;
+  notes: string | null;
 };
 
 function buildSupabaseMock(options: {
@@ -55,6 +56,7 @@ function buildSupabaseMock(options: {
   const attendanceEqMock = vi.fn().mockResolvedValue({ data: logs });
   const peopleOrderMock = vi.fn().mockResolvedValue({ data: allPeople });
   const peopleInMock = vi.fn(() => ({ order: vi.fn().mockResolvedValue({ data: attendedPeople }) }));
+  const peopleSelectMock = vi.fn(() => ({ order: peopleOrderMock, in: peopleInMock }));
   const datesGtMock = vi.fn();
 
   const fromMock = vi.fn((table: string) => {
@@ -89,10 +91,7 @@ function buildSupabaseMock(options: {
 
     if (table === "people") {
       return {
-        select: vi.fn(() => ({
-          order: peopleOrderMock,
-          in: peopleInMock,
-        })),
+        select: peopleSelectMock,
       };
     }
 
@@ -101,7 +100,7 @@ function buildSupabaseMock(options: {
 
   return {
     client: { from: fromMock },
-    spies: { fromMock, attendanceEqMock, peopleOrderMock, peopleInMock, datesGtMock },
+    spies: { fromMock, attendanceEqMock, peopleOrderMock, peopleInMock, peopleSelectMock, datesGtMock },
   };
 }
 
@@ -114,8 +113,8 @@ describe("AttendancePage", () => {
     const today = new Date().toISOString().split("T")[0];
     const logs = [{ person_id: "p1" }];
     const allPeople: PersonRow[] = [
-      { id: "p1", id_number: "V-1", first_name: "Ana", last_name: "Perez", person_type: "member" },
-      { id: "p2", id_number: "V-2", first_name: "Luis", last_name: "Mora", person_type: "visitor" },
+      { id: "p1", id_number: "V-1", first_name: "Ana", last_name: "Perez", person_type: "member", notes: "Prayer request" },
+      { id: "p2", id_number: "V-2", first_name: "Luis", last_name: "Mora", person_type: "visitor", notes: null },
     ];
 
     const attendanceDates = ["2026-07-01", "2026-07-10", "2026-07-15"];
@@ -130,6 +129,7 @@ describe("AttendancePage", () => {
     expect(screen.getByRole("link", { name: "Volver a Personas" })).toHaveAttribute("href", "/");
 
     expect(spies.attendanceEqMock).toHaveBeenCalledWith("created_at", today);
+    expect(spies.peopleSelectMock).toHaveBeenCalledWith("id, id_number, first_name, last_name, person_type, notes");
     expect(spies.peopleOrderMock).toHaveBeenCalledWith("first_name", { ascending: true });
     expect(spies.datesGtMock).toHaveBeenCalledWith("attendance_date", "2026-07-10");
 
@@ -146,8 +146,8 @@ describe("AttendancePage", () => {
     const targetDate = "2026-07-10";
     const logs = [{ person_id: "p2" }, { person_id: "p3" }];
     const attendedPeople: PersonRow[] = [
-      { id: "p2", id_number: "V-20", first_name: "Luis", last_name: "Mora", person_type: "visitor" },
-      { id: "p3", id_number: null, first_name: "Carla", last_name: "Rivas", person_type: "member" },
+      { id: "p2", id_number: "V-20", first_name: "Luis", last_name: "Mora", person_type: "visitor", notes: null },
+      { id: "p3", id_number: null, first_name: "Carla", last_name: "Rivas", person_type: "member", notes: "Call this week" },
     ];
 
     const { client, spies } = buildSupabaseMock({ logs, attendedPeople });
@@ -158,6 +158,7 @@ describe("AttendancePage", () => {
 
     expect(screen.getByText(`Consulta de fecha: ${targetDate}`)).toBeInTheDocument();
     expect(spies.attendanceEqMock).toHaveBeenCalledWith("created_at", targetDate);
+    expect(spies.peopleSelectMock).toHaveBeenCalledWith("id, id_number, first_name, last_name, person_type, notes");
     expect(spies.peopleInMock).toHaveBeenCalledWith("id", ["p2", "p3"]);
 
     expect(attendanceClientSpy).toHaveBeenCalledWith({

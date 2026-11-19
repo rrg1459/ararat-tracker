@@ -74,7 +74,7 @@ import HomeClientShell from "./HomeClientShell";
 const baseProps = {
   currentDate: "2026-07-18",
   serverToday: "2026-07-18",
-  people: [{ id: "p1", id_number: "123", first_name: "Ana", last_name: "Perez", person_type: "member" }],
+  people: [{ id: "p1", id_number: "123", first_name: "Ana", last_name: "Perez", person_type: "member", notes: null }],
   initialLogs: [{ person_id: "p1" }],
   attendanceDates: ["2026-07-18"] as string[],
   rangeMember: { min: 0, max: 120 },

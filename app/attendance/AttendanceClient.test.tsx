@@ -47,13 +47,14 @@ type Person = {
   first_name: string;
   last_name: string;
   person_type: string;
+  notes: string | null;
 };
 
 function makePeople(): Person[] {
   return [
-    { id: "p1", id_number: "V-123", first_name: "Ana", last_name: "Perez", person_type: "member" },
-    { id: "p2", id_number: "V-999", first_name: "Luis", last_name: "Mora", person_type: "visitor" },
-    { id: "p3", id_number: null, first_name: "Carla", last_name: "Rivas", person_type: "visitor" },
+    { id: "p1", id_number: "V-123", first_name: "Ana", last_name: "Perez", person_type: "member", notes: "Needs prayer\nCall next week" },
+    { id: "p2", id_number: "V-999", first_name: "Luis", last_name: "Mora", person_type: "visitor", notes: null },
+    { id: "p3", id_number: null, first_name: "Carla", last_name: "Rivas", person_type: "visitor", notes: "  \n " },
   ];
 }
 
@@ -172,6 +173,47 @@ describe("AttendanceClient", () => {
 
     fireEvent.click(container.querySelectorAll('input[type="checkbox"]')[0]);
     expect(getPeopleOrder()).toEqual(["Luis Mora", "Ana Perez", "Carla Rivas"]);
+  });
+
+  it("shows a person's non-empty note below their name", () => {
+    render(
+      <AttendanceClient
+        people={makePeople()}
+        initialLogs={[]}
+        currentDate={toDateString(new Date())}
+        serverToday={toDateString(new Date())}
+        attendanceDates={[]}
+      />,
+    );
+
+    const anaCard = screen.getByText("Ana Perez").closest("label");
+    const note = anaCard?.querySelector("p.whitespace-pre-wrap");
+    expect(note?.textContent).toBe("📝 Needs prayer\nCall next week");
+    expect(screen.getByText("Carla Rivas").closest("label")?.querySelector("p.whitespace-pre-wrap")).toBeNull();
+  });
+
+  it("shows the age badge indicated by the code in the last name", () => {
+    const people = [
+      { ...makePeople()[0], last_name: "Perez (B)" },
+      { ...makePeople()[1], last_name: "Mora (N)" },
+      { ...makePeople()[2], last_name: "Rivas (A)" },
+      { id: "p4", id_number: null, first_name: "David", last_name: "Soto", person_type: "visitor", notes: null },
+    ];
+
+    render(
+      <AttendanceClient
+        people={people}
+        initialLogs={[]}
+        currentDate={toDateString(new Date())}
+        serverToday={toDateString(new Date())}
+        attendanceDates={[]}
+      />,
+    );
+
+    expect(screen.getByText("Bebé 👶").closest("label")).toHaveTextContent("Ana Perez (B)");
+    expect(screen.getByText("Niño 👦").closest("label")).toHaveTextContent("Luis Mora (N)");
+    expect(screen.getByText("Adolescente 👱").closest("label")).toHaveTextContent("Carla Rivas (A)");
+    expect(screen.getByText("David Soto").closest("p")?.querySelector("span.bg-sky-100, span.bg-indigo-100")).toBeNull();
   });
 
   it("renders read-only past day and only shows attended people", () => {

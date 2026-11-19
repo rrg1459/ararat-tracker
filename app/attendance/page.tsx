@@ -35,7 +35,7 @@ export default async function AttendancePage({ searchParams }: PageProps) {
 
     const { data: allPeople } = await supabase
       .from("people")
-      .select("id, id_number, first_name, last_name, person_type")
+      .select("id, id_number, first_name, last_name, person_type, notes")
       .order("first_name", { ascending: true });
 
     people = allPeople || [];
@@ -53,7 +53,7 @@ export default async function AttendancePage({ searchParams }: PageProps) {
       const personIds = initialLogs.map(log => log.person_id);
       const { data: attendedPeople } = await supabase
         .from("people")
-        .select("id, id_number, first_name, last_name, person_type")
+        .select("id, id_number, first_name, last_name, person_type, notes")
         .in("id", personIds)
         .order("first_name", { ascending: true });
 

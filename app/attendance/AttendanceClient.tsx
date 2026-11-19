@@ -19,6 +19,7 @@ export interface Person {
   first_name: string;
   last_name: string;
   person_type: string;
+  notes: string | null;
 }
 
 interface AttendanceClientProps {
@@ -300,9 +301,30 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
                         />
                       )}
                       <div>
-                        <p className="font-semibold text-sm text-zinc-800 dark:text-zinc-200">
-                          {person.first_name} {person.last_name}
+                        <p className="font-semibold text-sm text-zinc-800 dark:text-zinc-200 flex items-center gap-1 flex-wrap">
+                          <span>{person.first_name} {person.last_name}</span>
+                          {person.last_name.includes("(B)") && (
+                            <span className="bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400 text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-0.5">
+                              Bebé 👶
+                            </span>
+                          )}
+                          {person.last_name.includes("(N)") && (
+                            <span className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-0.5">
+                              Niño 👦
+                            </span>
+                          )}
+                          {person.last_name.includes("(A)") && (
+                            <span className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-0.5">
+                              Adolescente 👱
+                            </span>
+                          )}
                         </p>
+                        {person.notes?.trim() && (
+                          <p className="text-xs text-amber-700 dark:text-amber-300 mt-1 whitespace-pre-wrap">
+                            <span aria-hidden="true">📝 </span>
+                            {person.notes}
+                          </p>
+                        )}
                         <p className="text-xs text-zinc-500 dark:text-zinc-400">
                           Cédula: {person.id_number || "No registrada"}
                         </p>
