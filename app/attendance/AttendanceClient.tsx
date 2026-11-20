@@ -198,7 +198,8 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
 
           {isSelectedToday ? (
             <p className="text-sm italic text-zinc-500 dark:text-zinc-400">
-              Los cambios se guardan automáticamente
+              <span className="sm:hidden">Guardado automático</span>
+              <span className="hidden sm:inline">Los cambios se guardan automáticamente</span>
             </p>
           ) : (
             <p className="text-sm italic text-zinc-500 dark:text-zinc-400">
@@ -248,10 +249,10 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
           <div className="flex flex-col gap-2">
             {visiblePeople.length > 0 && (
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">
+                <h3 className="hidden sm:block text-sm font-semibold uppercase tracking-wider text-zinc-400">
                   {isSelectedToday ? "Directorio" : "Asistentes"}
                 </h3>
-                <div className="flex items-center gap-2">
+                <div className="ml-auto flex items-center gap-2 sm:ml-0">
                   {attendedIds.size > 0 && (
                     <span className="text-sm font-medium bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200 px-2.5 py-0.5 rounded-full">
                       Asistentes: {attendedIds.size}

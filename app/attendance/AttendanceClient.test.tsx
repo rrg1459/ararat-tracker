@@ -90,6 +90,7 @@ describe("AttendanceClient", () => {
       />,
     );
 
+    expect(screen.getByText("Guardado automático")).toBeInTheDocument();
     expect(screen.getByText("Los cambios se guardan automáticamente")).toBeInTheDocument();
     expect(screen.getByText("Directorio")).toBeInTheDocument();
     expect(screen.getByText("Asistentes: 1")).toBeInTheDocument();
