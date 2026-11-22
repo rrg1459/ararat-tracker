@@ -286,9 +286,15 @@ describe("AttendanceClient", () => {
       />,
     );
 
+    const search = screen.getByRole("textbox", { name: "Buscar Persona" });
+    fireEvent.change(search, { target: { value: "999" } });
+    expect(screen.getByText("Luis Mora")).toBeInTheDocument();
+    expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
+
     fireEvent.click(screen.getByTestId("datepicker"));
 
     expect(pushMock).toHaveBeenCalledWith(`?view=attendance&local_today=${todayString}&date=2026-07-15`);
+    expect(screen.getByRole("textbox", { name: "Buscar Persona" })).toHaveValue("");
   });
 
   it("clears success message automatically after timeout", async () => {

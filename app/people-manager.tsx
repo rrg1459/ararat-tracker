@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { registerPerson, updatePerson } from "./actions/actions";
 import { getRoleBadge } from "./utils/person-role-badge";
+import PersonSearch, { filterPeopleBySearch, isPersonSearchActive } from "./components/PersonSearch";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { format } from "date-fns";
 
@@ -41,6 +42,7 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
   const [personType, setPersonType] = useState<string>("visitor");
   const [submissionError, setSubmissionError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
   const successTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -172,6 +174,7 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
   const roleRequirementsValidationMessage = ageLimitValidationMessage
     ? null
     : roleValidationMessage;
+  const filteredPeople = filterPeopleBySearch(initialPeople, searchTerm);
 
   async function handleSubmit(formData: FormData) {
     if (roleValidationMessage) {
@@ -512,11 +515,21 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
           Personas Registradas ({initialPeople.length})
         </h2>
 
+        <PersonSearch value={searchTerm} onChange={setSearchTerm} />
+        {isPersonSearchActive(searchTerm) && (
+          <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-2">
+            Resultados: {filteredPeople.length}
+          </p>
+        )}
         <div className="flex flex-col gap-3 max-h-[700px] overflow-y-auto pr-2">
           {initialPeople.length === 0 ? (
             <p className="text-zinc-500 text-sm italic">No hay personas registradas aún.</p>
+          ) : filteredPeople.length === 0 ? (
+            <p className="text-zinc-500 italic text-sm text-center py-6 dark:text-zinc-400">
+              No se encontraron personas que coincidan con la búsqueda
+            </p>
           ) : (
-            initialPeople.map((person) => {
+            filteredPeople.map((person) => {
               // --- LÓGICA PARA CALCULAR LA EDAD ---
               let age: number | null = null;
               if (person.birth_date) {

@@ -4,6 +4,7 @@
 import { useEffect, useState, useTransition } from "react"; // 1. Importamos useTransition
 import { setAttendance } from "../actions/actions";
 import { getRoleBadge } from "../utils/person-role-badge";
+import PersonSearch, { filterPeopleBySearch, isPersonSearchActive } from "../components/PersonSearch";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { useRouter } from "next/navigation";
 
@@ -136,20 +137,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
     }
   };
 
-  const filteredPeople = searchTerm.trim().length >= 3
-    ? people.filter((person) => {
-      const term = searchTerm.toLowerCase();
-      const firstName = person.first_name.toLowerCase();
-      const lastName = person.last_name.toLowerCase();
-      const idNumber = (person.id_number || "").toLowerCase();
-
-      return (
-        firstName.includes(term) ||
-        lastName.includes(term) ||
-        idNumber.includes(term)
-      );
-    })
-    : people;
+  const filteredPeople = filterPeopleBySearch(people, searchTerm);
 
   const visiblePeople = [
     ...(isSelectedToday
@@ -224,26 +212,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
         </p>
       ) : (
         <>
-          {/* Campo de Buscador Dinámico */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
-              Buscar Persona
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="por cédula, nombre o apellido... (mínimo 3 caracteres)"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full p-2.5 rounded-md border border-zinc-300 bg-transparent focus:outline-blue-500 text-zinc-900 dark:text-zinc-100 text-sm placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
-              />
-              {searchTerm.trim().length > 0 && searchTerm.trim().length < 3 && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                  Escribe al menos 3 caracteres para activar el filtro.
-                </p>
-              )}
-            </div>
-          </div>
+          <PersonSearch value={searchTerm} onChange={setSearchTerm} />
 
           {/* Listado de personas */}
           <div className="flex flex-col gap-2">
@@ -263,7 +232,7 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
                       Total: {visiblePeople.length}
                     </span>
                   )}
-                  {searchTerm.trim().length >= 3 && (
+                  {isPersonSearchActive(searchTerm) && (
                     <span className="text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 px-2.5 py-0.5 rounded-full">
                       Resultados: {visiblePeople.length}
                     </span>

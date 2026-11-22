@@ -86,7 +86,7 @@ function getFormAction(form: HTMLFormElement): (formData: FormData) => Promise<v
 
 type Person = {
   id: string;
-  id_number: string;
+  id_number: string | null;
   first_name: string;
   last_name: string;
   home_phone: string | null;
@@ -155,6 +155,45 @@ describe("PeopleManager", () => {
     expect(screen.getByText("Personas Registradas (0)")).toBeInTheDocument();
     expect(screen.getByText("No hay personas registradas aún.")).toBeInTheDocument();
     expect(screen.getByTestId("birth-date-picker")).toHaveAttribute("data-locale", "es");
+  });
+
+  it("filters registered people by name, surname or ID and allows editing a result", () => {
+    render(
+      <PeopleManager initialPeople={[
+        makePerson(),
+        makePerson({ id: "p-2", id_number: null, first_name: "Luis", last_name: "Mora" }),
+      ]} />,
+    );
+    const search = screen.getByRole("textbox", { name: "Buscar Persona" });
+
+    fireEvent.change(search, { target: { value: "an" } });
+    expect(screen.getByText("Escribe al menos 3 caracteres para activar el filtro.")).toBeInTheDocument();
+    expect(screen.getByText("Ana Perez")).toBeInTheDocument();
+    expect(screen.getByText("Luis Mora")).toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "ANA" } });
+    expect(screen.getByText("Resultados: 1")).toBeInTheDocument();
+    expect(screen.getByText("Ana Perez")).toBeInTheDocument();
+    expect(screen.queryByText("Luis Mora")).not.toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "mOr" } });
+    expect(screen.getByText("Luis Mora")).toBeInTheDocument();
+    expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+    expect(screen.getByText("Editando: Luis")).toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "123" } });
+    expect(screen.getByText("Ana Perez")).toBeInTheDocument();
+    expect(screen.queryByText("Luis Mora")).not.toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "xyz" } });
+    expect(screen.getByText("Resultados: 0")).toBeInTheDocument();
+    expect(screen.getByText("No se encontraron personas que coincidan con la búsqueda")).toBeInTheDocument();
+    expect(screen.getByText("Personas Registradas (2)")).toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "" } });
+    expect(screen.getByText("Ana Perez")).toBeInTheDocument();
+    expect(screen.getByText("Luis Mora")).toBeInTheDocument();
   });
 
   it("renders list details and role/age/tags for people", () => {

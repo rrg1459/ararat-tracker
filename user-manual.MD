@@ -45,7 +45,7 @@ Las personas marcadas aparecen primero. El contador **Asistentes** muestra cuán
 3. Añada los datos de contacto, necesidades y notas disponibles.
 4. Pulse **Guardar Persona**.
 
-Para modificar un registro, pulse **Editar** junto a la persona, cambie sus datos y seleccione **Actualizar**.
+Para encontrar una persona en la lista, busque por nombre, apellido o cédula; el filtro se activa con tres caracteres. Para modificar un registro, pulse **Editar** junto a la persona, cambie sus datos y seleccione **Actualizar**.
 
 Los tipos **Miembro** y **Líder** tienen requisitos de edad y otras condiciones que el formulario indica cuando no se cumplen.
 
