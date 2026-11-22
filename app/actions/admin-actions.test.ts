@@ -251,6 +251,7 @@ describe("admin-actions", () => {
       fullName: "Nombre Actualizado",
       role: "superadmin",
       ban: true,
+      is_active: false,
     });
 
     expect(supabaseAdminMock.auth.admin.updateUserById).toHaveBeenCalledWith("target-2", {
@@ -263,6 +264,7 @@ describe("admin-actions", () => {
       role: "operator",
       full_name: "Nombre Actualizado",
       email: "updated@test.com",
+      is_active: false,
     });
     expect(eqMock).toHaveBeenCalledWith("id", "target-2");
     expect(result).toEqual({ success: true, user: { id: "target-2" } });

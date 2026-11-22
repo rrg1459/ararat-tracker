@@ -78,29 +78,35 @@ export default async function AdminPage() {
     attendance_count: person.attendance_logs?.[0]?.count ?? 0
   }));
 
-  let authUsers = authData?.users || [];
+  const { data: userProfiles, error: userProfilesError } = await supabase
+    .from("profiles")
+    .select("id, role, is_active");
+
+  if (userProfilesError) {
+    console.error("Error al listar perfiles de usuarios:", userProfilesError.message);
+  }
+
+  const userProfilesById = new Map((userProfiles ?? []).map((userProfile) => [userProfile.id, userProfile]));
+  let authUsers = (authData?.users || []).map((authUser) => ({
+    ...authUser,
+    is_active: userProfilesById.get(authUser.id)?.is_active ?? true,
+  }));
 
   // 4. FILTRAR SI EL USUARIO ES SOLO 'admin'
   if (userRole === "admin") {
     // Un admin solo puede gestionar usuarios con rol 'operator'
-    const { data: operatorProfiles } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("role", "operator");
-
-    const allowedIds = new Set(operatorProfiles?.map((p) => p.id) || []);
+    const allowedIds = new Set(
+      (userProfiles ?? []).filter((profile) => profile.role === "operator").map((profile) => profile.id),
+    );
 
     // Filtramos la lista de authUsers dejando solo los operadores
     authUsers = authUsers.filter((authUser) => allowedIds.has(authUser.id));
   } else if (userRole === "superadmin") {
     // Traemos los IDs de los perfiles que son 'superadmin'
-    const { data: excludedProfiles } = await supabase
-      .from("profiles")
-      .select("id")
-      .in("role", ["superadmin"]);
-
     // Creamos un Set con los IDs a excluir para que la búsqueda sea ultra rápida
-    const excludedIds = new Set(excludedProfiles?.map((p) => p.id) || []);
+    const excludedIds = new Set(
+      (userProfiles ?? []).filter((profile) => profile.role === "superadmin").map((profile) => profile.id),
+    );
 
     // Filtramos la lista de authUsers eliminando los que coincidan con esos IDs
     authUsers = authUsers.filter((authUser) => !excludedIds.has(authUser.id));

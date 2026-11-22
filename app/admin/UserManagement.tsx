@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 interface AuthUser {
   id: string
   email?: string
+  is_active?: boolean
   user_metadata?: {
     full_name?: string
     role?: string
@@ -28,6 +29,7 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
   const [editEmail, setEditEmail] = useState('')
   const [editPassword, setEditPassword] = useState('')
   const [editRole, setEditRole] = useState('')
+  const [editIsActive, setEditIsActive] = useState(true)
 
   // Estados locales para el feedback de edición
   const [isUpdating, setIsUpdating] = useState(false)
@@ -84,6 +86,7 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
     setEditEmail(user.email || '')
     setEditPassword('')
     setEditRole(user.user_metadata?.role || 'operator')
+    setEditIsActive(user.is_active ?? true)
   }
 
   const handleUpdate = async (userId: string) => {
@@ -94,10 +97,11 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
       return
     }
 
-    const updates: { email?: string; fullName?: string; password?: string; role?: string } = {
+    const updates: { email?: string; fullName?: string; password?: string; role?: string; is_active: boolean } = {
       email: editEmail,
       fullName: editName,
-      role: editRole
+      role: editRole,
+      is_active: editIsActive
     }
 
     if (editPassword.trim().length >= 6) {
@@ -281,6 +285,17 @@ export default function UserManagement({ userRole, initialUsers = [] }: { userRo
                             {userRole === "superadmin" && <option value="admin">Admin</option>}
                           </select>
                         </div>
+
+                        <label className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={editIsActive}
+                            onChange={e => setEditIsActive(e.target.checked)}
+                            disabled={isUpdating}
+                            className="rounded border-zinc-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
+                          />
+                          Usuario activo
+                        </label>
 
                         <div>
                           <label className="block text-[11px] font-medium text-zinc-500">Nueva Contraseña (dejar en blanco para no cambiar)</label>

@@ -45,6 +45,7 @@ type BuildSupabaseOptions = {
   appSettings?: Array<Record<string, unknown>>;
   operatorProfiles?: Array<{ id: string }>;
   excludedProfiles?: Array<{ id: string }>;
+  userProfiles?: Array<{ id: string; role: string; is_active: boolean }>;
 };
 
 function buildSupabaseMock(options: BuildSupabaseOptions) {
@@ -56,6 +57,7 @@ function buildSupabaseMock(options: BuildSupabaseOptions) {
     appSettings = [],
     operatorProfiles = [],
     excludedProfiles = [],
+    userProfiles = [],
   } = options;
 
   return {
@@ -74,11 +76,8 @@ function buildSupabaseMock(options: BuildSupabaseOptions) {
               };
             }
 
-            if (columns === "id") {
-              return {
-                eq: vi.fn(() => Promise.resolve({ data: operatorProfiles })),
-                in: vi.fn(() => Promise.resolve({ data: excludedProfiles })),
-              };
+            if (columns === "id, role, is_active") {
+              return Promise.resolve({ data: userProfiles, error: null });
             }
 
             throw new Error(`Unexpected profiles select: ${columns}`);
@@ -160,7 +159,10 @@ describe("AdminPage", () => {
       buildSupabaseMock({
         user: { id: "u-admin" },
         profile: { role: "admin", full_name: "Maria Admin Extra" },
-        operatorProfiles: [{ id: "op-1" }],
+        userProfiles: [
+          { id: "op-1", role: "operator", is_active: false },
+          { id: "admin-1", role: "admin", is_active: true },
+        ],
         people: [
           {
             id: "p1",
@@ -190,7 +192,7 @@ describe("AdminPage", () => {
     expect((ui as { props: Record<string, unknown> }).props).toEqual({
       userName: "Maria Admin",
       userRole: "admin",
-      initialUsers: [{ id: "op-1" }],
+      initialUsers: [{ id: "op-1", is_active: false }],
       initialPeople: [
         {
           id: "p1",
@@ -211,7 +213,11 @@ describe("AdminPage", () => {
       buildSupabaseMock({
         user: { id: "u-super" },
         profile: { role: "superadmin", full_name: "Super Admin Principal" },
-        excludedProfiles: [{ id: "super-1" }],
+        userProfiles: [
+          { id: "super-1", role: "superadmin", is_active: true },
+          { id: "admin-2", role: "admin", is_active: false },
+          { id: "op-2", role: "operator", is_active: true },
+        ],
         people: [
           {
             id: "p2",
@@ -240,7 +246,7 @@ describe("AdminPage", () => {
     expect((ui as { props: Record<string, unknown> }).props).toEqual({
       userName: "Super Admin",
       userRole: "superadmin",
-      initialUsers: [{ id: "admin-2" }, { id: "op-2" }],
+      initialUsers: [{ id: "admin-2", is_active: false }, { id: "op-2", is_active: true }],
       initialPeople: [
         {
           id: "p2",

@@ -117,7 +117,7 @@ export async function adminCreateUser(email: string, password: string, fullName:
 // 2. ACTUALIZAR USUARIO
 export async function adminUpdateUser(
   userId: string,
-  updates: { email?: string; password?: string; fullName?: string; role?: string; ban?: boolean }
+  updates: { email?: string; password?: string; fullName?: string; role?: string; ban?: boolean; is_active?: boolean }
 ) {
   try {
     const actorRole = await checkAdminActor()
@@ -159,11 +159,12 @@ export async function adminUpdateUser(
 
     // 2. Actualizar la tabla pública 'profiles'
     // Creamos un objeto dinámico con todo lo que cambió, incluyendo el EMAIL si se modificó.
-    const profileUpdates: { role?: string; full_name?: string; email?: string } = {}
+    const profileUpdates: { role?: string; full_name?: string; email?: string; is_active?: boolean } = {}
 
     if (updates.role) profileUpdates.role = 'operator'
     if (updates.fullName) profileUpdates.full_name = updates.fullName
     if (updates.email) profileUpdates.email = updates.email // 👈 SOLUCIÓN: Sincroniza el nuevo email en la tabla 'profiles'
+    if (updates.is_active !== undefined) profileUpdates.is_active = updates.is_active
 
     // Solo hacemos la consulta si de verdad hay campos públicos que cambiar
     if (Object.keys(profileUpdates).length > 0) {

@@ -31,6 +31,7 @@ import UserManagement from "./UserManagement";
 type AuthUser = {
   id: string;
   email?: string;
+  is_active?: boolean;
   user_metadata?: {
     full_name?: string;
     role?: string;
@@ -140,6 +141,7 @@ describe("UserManagement", () => {
     const target = makeUser({
       id: "user-9",
       email: "before@test.com",
+      is_active: false,
       user_metadata: { full_name: "Nombre Viejo", role: "operator" },
     });
 
@@ -156,6 +158,10 @@ describe("UserManagement", () => {
     const nameInput = screen.getByDisplayValue("Nombre Viejo");
     const emailInput = screen.getByDisplayValue("before@test.com");
     const roleSelect = within(editContainer).getByRole("combobox");
+    const activeCheckbox = screen.getByRole("checkbox", { name: "Usuario activo" });
+
+    expect(activeCheckbox).not.toBeChecked();
+    await user.click(activeCheckbox);
 
     await user.clear(nameInput);
     await user.type(nameInput, "Nombre Nuevo");
@@ -170,6 +176,7 @@ describe("UserManagement", () => {
         email: "after@test.com",
         fullName: "Nombre Nuevo",
         role: "admin",
+        is_active: true,
       });
     });
 
