@@ -61,7 +61,7 @@ Acceda mediante el icono de administración del encabezado.
 
 ### Métricas y gráficos
 
-- **Métricas:** muestra totales de miembros y visitantes, promedio de asistencia y cifras de visitantes.
+- **Métricas:** muestra totales de miembros y visitantes, promedio de asistencia de los domingos con registros y cifras de visitantes.
 - **Gráficos:** muestra tendencia de asistencia, visitantes por mes, composición general y peticiones.
 
 ### Gestión de personas

@@ -9,7 +9,7 @@ describe("MetricsSummary", () => {
 
     expect(screen.getByText("Total de miembros")).toBeInTheDocument();
     expect(screen.getByText("Total de visitantes")).toBeInTheDocument();
-    expect(screen.getByText("Promedio de Tasa de Asistencia")).toBeInTheDocument();
+    expect(screen.getByText("Promedio de Tasa de Asistencia (domingos)")).toBeInTheDocument();
     expect(screen.getByText("Nuevos visitantes (este mes)")).toBeInTheDocument();
     expect(screen.getByText("Nuevos visitantes (esta semana)")).toBeInTheDocument();
     expect(screen.getByText("Visitantes Recurrentes")).toBeInTheDocument();

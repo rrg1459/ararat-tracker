@@ -40,7 +40,7 @@ export default function MetricsSummary({
         </div>
 
         <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-          <h3 className="text-md font-medium text-zinc-500 dark:text-zinc-400">Promedio de Tasa de Asistencia</h3>
+          <h3 className="text-md font-medium text-zinc-500 dark:text-zinc-400">Promedio de Tasa de Asistencia (domingos)</h3>
           <p className="text-3xl font-bold mt-2 text-green-600 dark:text-green-400">{averageAttendanceRate}%</p>
         </div>
         <div className="p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">

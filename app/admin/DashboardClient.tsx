@@ -143,25 +143,24 @@ export default function DashboardClient({
     person => person.person_type === "member" || person.person_type === "visitor"
   ).length;
 
-  // 2. Agrupar los logs por fecha única (YYYY-MM-DD) para saber cuántos asistieron por día
+  // 2. Agrupar las asistencias de los domingos por fecha (YYYY-MM-DD)
   const attendancePerDay: { [dateStr: string]: number } = {};
 
   attendanceLogs.forEach(log => {
-    // Extraemos solo la parte de la fecha '2026-03-15' del timestamp '2026-03-15T10:00:00Z'
     const dateStr = log.created_at.split("T")[0];
+    if (new Date(`${dateStr}T00:00:00Z`).getUTCDay() !== 0) return;
 
-    // Contamos esta asistencia para ese día específico
     attendancePerDay[dateStr] = (attendancePerDay[dateStr] || 0) + 1;
   });
 
-  // 3. Calcular el porcentaje de asistencia de cada día y promediarlos
+  // 3. Calcular el porcentaje de asistencia de cada domingo
   const dailyPercentages = Object.values(attendancePerDay).map(count => {
     if (totalActivePeople === 0) return 0;
     // Porcentaje de este día específico: (Asistentes / Total Iglesia) * 100
     return (count / totalActivePeople) * 100;
   });
 
-  // 4. Sacar el promedio final de todos los días registrados
+  // 4. Sacar el promedio final de los domingos con asistencia registrada
   const averageAttendanceRate = dailyPercentages.length > 0
     ? parseFloat((dailyPercentages.reduce((sum, pct) => sum + pct, 0) / dailyPercentages.length).toFixed(1))
     : 0; // Retorna 0 si no hay logs aún

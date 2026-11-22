@@ -210,11 +210,52 @@ describe("DashboardClient", () => {
     expect(metricsProps).toEqual({
       totalMembers: 1,
       totalVisitors: 2,
-      averageAttendanceRate: 41.7,
+      averageAttendanceRate: 33.3,
       newVisitorsThisMonth: 2,
       newVisitorsThisWeek: 1,
       returningVisitors: 1,
     });
+  });
+
+  it("averages only registered Sundays using the calendar date regardless of time", () => {
+    const logs = [
+      ...makeAttendanceLogs(),
+      { id: 6, created_at: "2026-07-19T00:01:00.000Z", person_id: 14, people: { person_type: "member", is_first_time_visitor: false } },
+      { id: 7, created_at: "2026-07-19T23:59:00.000Z", person_id: 15, people: { person_type: "visitor", is_first_time_visitor: false } },
+      { id: 8, created_at: "2026-07-18T23:59:00.000Z", person_id: 16, people: { person_type: "visitor", is_first_time_visitor: false } },
+      { id: 9, created_at: "2026-07-20T00:01:00.000Z", person_id: 17, people: { person_type: "visitor", is_first_time_visitor: false } },
+    ];
+
+    render(
+      <DashboardClient
+        userName="Admin"
+        userRole="admin"
+        initialUsers={[]}
+        initialPeople={makePeople() as never[]}
+        attendanceLogs={logs as never[]}
+        appSettings={[]}
+      />,
+    );
+
+    expect(metricsSummarySpy).toHaveBeenLastCalledWith(expect.objectContaining({ averageAttendanceRate: 50 }));
+  });
+
+  it.each([
+    { people: makePeople(), logs: makeAttendanceLogs().filter(log => !log.created_at.startsWith("2026-07-12")) },
+    { people: [], logs: makeAttendanceLogs() },
+  ])("returns zero when there are no recorded Sundays or active people", ({ people, logs }) => {
+    render(
+      <DashboardClient
+        userName="Admin"
+        userRole="admin"
+        initialUsers={[]}
+        initialPeople={people as never[]}
+        attendanceLogs={logs as never[]}
+        appSettings={[]}
+      />,
+    );
+
+    expect(metricsSummarySpy).toHaveBeenLastCalledWith(expect.objectContaining({ averageAttendanceRate: 0 }));
   });
 
   it("renders charts tab and passes processed datasets", async () => {
