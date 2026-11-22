@@ -330,7 +330,7 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
           {/* Cambiado a grid-cols-1 por defecto, md:grid-cols-2 en pantallas medianas/grandes */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Nombre(s) *</label>
+              <label className="block text-sm font-medium mb-1">Nombre(s) <span className="text-base text-red-600 dark:text-red-400">*</span></label>
               <input
                 type="text"
                 name="first_name"
@@ -339,7 +339,7 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Apellido(s) *</label>
+              <label className="block text-sm font-medium mb-1">Apellido(s) <span className="text-base text-red-600 dark:text-red-400">*</span></label>
               <input
                 type="text"
                 name="last_name"
@@ -372,7 +372,7 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
           {/* Cambiado a grid-cols-1 por defecto */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Tipo de Persona *</label>
+              <label className="block text-sm font-medium mb-1">Tipo de Persona <span className="text-base text-red-600 dark:text-red-400">*</span></label>
               <select
                 name="person_type"
                 required
