@@ -121,6 +121,8 @@ export async function adminUpdateUser(
 ) {
   try {
     const actorRole = await checkAdminActor()
+    const normalizedRole = updates.role || 'operator'
+
 
     if (actorRole === 'admin') {
       const { data: targetProfile } = await supabaseAdmin
@@ -144,7 +146,7 @@ export async function adminUpdateUser(
     if (updates.fullName || updates.role) {
       payload.user_metadata = {
         ...(updates.fullName ? { full_name: updates.fullName } : {}),
-        ...(updates.role ? { role: 'operator' } : {})
+        ...(updates.role ? { role: normalizedRole } : {})
       }
     }
 
@@ -161,7 +163,7 @@ export async function adminUpdateUser(
     // Creamos un objeto dinámico con todo lo que cambió, incluyendo el EMAIL si se modificó.
     const profileUpdates: { role?: string; full_name?: string; email?: string; is_active?: boolean } = {}
 
-    if (updates.role) profileUpdates.role = 'operator'
+    if (updates.role) profileUpdates.role = normalizedRole
     if (updates.fullName) profileUpdates.full_name = updates.fullName
     if (updates.email) profileUpdates.email = updates.email // 👈 SOLUCIÓN: Sincroniza el nuevo email en la tabla 'profiles'
     if (updates.is_active !== undefined) profileUpdates.is_active = updates.is_active
