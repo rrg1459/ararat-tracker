@@ -43,8 +43,6 @@ type BuildSupabaseOptions = {
   people?: Array<Record<string, unknown>>;
   attendanceLogs?: Array<Record<string, unknown>>;
   appSettings?: Array<Record<string, unknown>>;
-  operatorProfiles?: Array<{ id: string }>;
-  excludedProfiles?: Array<{ id: string }>;
   userProfiles?: Array<{ id: string; role: string; is_active: boolean }>;
 };
 
@@ -55,8 +53,6 @@ function buildSupabaseMock(options: BuildSupabaseOptions) {
     people = [],
     attendanceLogs = [],
     appSettings = [],
-    operatorProfiles = [],
-    excludedProfiles = [],
     userProfiles = [],
   } = options;
 
