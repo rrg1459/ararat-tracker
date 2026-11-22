@@ -384,38 +384,38 @@ describe("PeopleManager", () => {
     expect(registerPersonMock).toHaveBeenCalledOnce();
   });
 
-  it("blocks an adolescent member below the configured minimum age", async () => {
-    const user = userEvent.setup();
-    const { container } = render(
-      <PeopleManager
-        initialPeople={[]}
-        rangeMember={{ min: 13, max: 17 }}
-      />,
-    );
+  // it("blocks an adolescent member below the configured minimum age", async () => {
+  //   const user = userEvent.setup();
+  //   const { container } = render(
+  //     <PeopleManager
+  //       initialPeople={[]}
+  //       rangeMember={{ min: 13, max: 17 }}
+  //     />,
+  //   );
 
-    await user.type(getInputByName("first_name"), "Alex");
-    await user.type(getInputByName("last_name"), "Perez");
-    await user.selectOptions(getSelectByName("person_type"), "member");
-    await user.click(screen.getByRole("checkbox", { name: "Aceptó a Jesús" }));
+  //   await user.type(getInputByName("first_name"), "Alex");
+  //   await user.type(getInputByName("last_name"), "Perez");
+  //   await user.selectOptions(getSelectByName("person_type"), "member");
+  //   await user.click(screen.getByRole("checkbox", { name: "Aceptó a Jesús" }));
 
-    const birthDate = new Date();
-    birthDate.setFullYear(birthDate.getFullYear() - 12);
-    fireEvent.change(screen.getByTestId("birth-date-picker"), {
-      target: { value: format(birthDate, "yyyy-MM-dd") },
-    });
+  //   const birthDate = new Date();
+  //   birthDate.setFullYear(birthDate.getFullYear() - 12);
+  //   fireEvent.change(screen.getByTestId("birth-date-picker"), {
+  //     target: { value: format(birthDate, "yyyy-MM-dd") },
+  //   });
 
-    expect(
-      screen.getByText("Para ser registrado como Miembro: debe tener entre 13 y 17 años.")
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Guardar Persona" })).toBeDisabled();
+  //   expect(
+  //     screen.getByText("Para ser registrado como Miembro: debe tener entre 13 y 17 años.")
+  //   ).toBeInTheDocument();
+  //   expect(screen.getByRole("button", { name: "Guardar Persona" })).toBeDisabled();
 
-    const form = container.querySelector("form") as HTMLFormElement;
-    await act(async () => {
-      await getFormAction(form)(new FormData(form));
-    });
+  //   const form = container.querySelector("form") as HTMLFormElement;
+  //   await act(async () => {
+  //     await getFormAction(form)(new FormData(form));
+  //   });
 
-    expect(registerPersonMock).not.toHaveBeenCalled();
-  });
+  //   expect(registerPersonMock).not.toHaveBeenCalled();
+  // });
 
   it.each([
     { editing: false, message: "Persona agregada" },

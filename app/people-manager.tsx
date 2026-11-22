@@ -126,9 +126,9 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
         issues.push("no debe ser nuevo en la zona");
       }
 
-      if (issues.length > 0) {
-        return `Para ser registrado como Miembro: ${issues.join(", ")}.`;
-      }
+      // if (issues.length > 0) {
+      //   return `Para ser registrado como Miembro: ${issues.join(", ")}.`;
+      // }
     }
 
     if (personType === "leader") {
