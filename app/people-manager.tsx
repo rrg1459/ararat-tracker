@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { registerPerson, updatePerson } from "./actions/actions";
 import { getRoleBadge } from "./utils/person-role-badge";
 import DatePicker, { registerLocale } from "react-datepicker";
@@ -40,7 +40,15 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const [personType, setPersonType] = useState<string>("visitor");
   const [submissionError, setSubmissionError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
+  const successTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (successTimeoutRef.current) {
+      clearTimeout(successTimeoutRef.current);
+    }
+  }, []);
 
   const [checkboxes, setCheckboxes] = useState<Record<string, boolean>>({
     is_first_time_visitor: false,
@@ -170,6 +178,7 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
       return;
     }
     setSubmissionError("");
+    clearSuccessMessage();
 
     if (selectedDate) {
       const dateString = selectedDate.toISOString().split("T")[0];
@@ -193,7 +202,11 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
     }
 
     if (editingPerson) {
-      await updatePerson(editingPerson.id, formData);
+      const result = await updatePerson(editingPerson.id, formData);
+      if (!result.success) {
+        setSubmissionError(result.error);
+        return;
+      }
       setEditingPerson(null);
     } else {
       const result = await registerPerson(formData);
@@ -207,9 +220,23 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
     }
 
     resetForm();
+    setSuccessMessage(editingPerson ? "Datos actualizados" : "Persona agregada");
+    successTimeoutRef.current = setTimeout(() => {
+      setSuccessMessage("");
+      successTimeoutRef.current = null;
+    }, 2000);
+  }
+
+  function clearSuccessMessage() {
+    if (successTimeoutRef.current) {
+      clearTimeout(successTimeoutRef.current);
+      successTimeoutRef.current = null;
+    }
+    setSuccessMessage("");
   }
 
   function handleEditClick(person: Person) {
+    clearSuccessMessage();
     setEditingPerson(person);
 
     if (formRef.current) {
@@ -264,6 +291,7 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
   }
 
   function handleCancelEdit() {
+    clearSuccessMessage();
     setEditingPerson(null);
     resetForm();
   }
@@ -384,14 +412,13 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
             </div>
             <div>
               <label className="block text-sm font-medium mb-1 text-zinc-700 dark:text-zinc-300">
-                Fecha de Nacimiento (*)
+                Fecha de Nacimiento
               </label>
               <DatePicker
                 selected={selectedDate}
                 onChange={(date: Date | null) => setSelectedDate(date)}
                 dateFormat="dd/MMM/yyyy"
                 placeholderText="Elige un día"
-                required
                 locale="es"
                 maxDate={new Date()}
                 className="w-full p-2 rounded-md border border-zinc-300 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-zinc-900 dark:text-zinc-100 dark:border-zinc-600 text-center"
@@ -451,6 +478,11 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
             />
           </div>
 
+          {successMessage && (
+            <p role="status" className="text-sm font-medium text-blue-600 dark:text-blue-400">
+              {successMessage}
+            </p>
+          )}
           <div className="flex flex-col sm:flex-row gap-2 mt-2">
             <button
               type="submit"

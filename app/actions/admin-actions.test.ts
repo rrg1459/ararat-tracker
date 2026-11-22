@@ -249,7 +249,7 @@ describe("admin-actions", () => {
       email: "updated@test.com",
       password: "NewStrongPass123",
       fullName: "Nombre Actualizado",
-      role: "superadmin",
+      role: "admin",
       ban: true,
       is_active: false,
     });
@@ -257,11 +257,11 @@ describe("admin-actions", () => {
     expect(supabaseAdminMock.auth.admin.updateUserById).toHaveBeenCalledWith("target-2", {
       email: "updated@test.com",
       password: "NewStrongPass123",
-      user_metadata: { full_name: "Nombre Actualizado", role: "operator" },
+      user_metadata: { full_name: "Nombre Actualizado", role: "admin" },
       ban_duration: "none",
     });
     expect(updateMock).toHaveBeenCalledWith({
-      role: "operator",
+      role: "admin",
       full_name: "Nombre Actualizado",
       email: "updated@test.com",
       is_active: false,

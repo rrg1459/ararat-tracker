@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { format } from "date-fns";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { registerPersonMock, updatePersonMock, getRoleBadgeMock, registerLocaleMock } = vi.hoisted(() => ({
   registerPersonMock: vi.fn(),
@@ -142,6 +142,10 @@ describe("PeopleManager", () => {
       label: personType.toUpperCase(),
       classes: "bg-slate-100 text-slate-800",
     }));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("renders empty state when there are no people", () => {
@@ -411,6 +415,67 @@ describe("PeopleManager", () => {
     });
 
     expect(registerPersonMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { editing: false, message: "Persona agregada" },
+    { editing: true, message: "Datos actualizados" },
+  ])("shows $message above the submit button for two seconds", async ({ editing, message }) => {
+    vi.useFakeTimers();
+    const { container } = render(<PeopleManager initialPeople={editing ? [makePerson()] : []} />);
+    if (editing) {
+      fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+    }
+
+    const form = container.querySelector("form") as HTMLFormElement;
+    await act(async () => {
+      await getFormAction(form)(new FormData(form));
+    });
+
+    const status = screen.getByRole("status");
+    const submitButton = screen.getByRole("button", { name: "Guardar Persona" });
+    expect(status).toHaveTextContent(message);
+    expect(status).toHaveClass("text-blue-600");
+    expect(status.compareDocumentPosition(submitButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    act(() => vi.advanceTimersByTime(1999));
+    expect(screen.getByRole("status")).toHaveTextContent(message);
+    act(() => vi.advanceTimersByTime(1));
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("restarts the confirmation timer after another successful submission", async () => {
+    vi.useFakeTimers();
+    const { container } = render(<PeopleManager initialPeople={[]} />);
+    const form = container.querySelector("form") as HTMLFormElement;
+
+    await act(async () => {
+      await getFormAction(form)(new FormData(form));
+    });
+    act(() => vi.advanceTimersByTime(1500));
+    await act(async () => {
+      await getFormAction(form)(new FormData(form));
+    });
+    act(() => vi.advanceTimersByTime(500));
+    expect(screen.getByRole("status")).toHaveTextContent("Persona agregada");
+    act(() => vi.advanceTimersByTime(1500));
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("shows an update error without a success message or leaving edit mode", async () => {
+    updatePersonMock.mockResolvedValue({ success: false, error: "No se pudo actualizar." });
+    const { container } = render(<PeopleManager initialPeople={[makePerson()]} />);
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+
+    const form = container.querySelector("form") as HTMLFormElement;
+    await act(async () => {
+      await getFormAction(form)(new FormData(form));
+    });
+
+    expect(screen.getByRole("alert")).toHaveTextContent("No se pudo actualizar.");
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Actualizar" })).toBeInTheDocument();
+    expect(getInputByName("first_name")).toHaveValue("Ana");
   });
 
   it("submits update flow with person id and exits editing mode", async () => {

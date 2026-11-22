@@ -117,7 +117,7 @@ export async function registerPerson(formData: FormData): Promise<RegisterPerson
   return { success: true };
 }
 
-export async function updatePerson(id: string, formData: FormData) {
+export async function updatePerson(id: string, formData: FormData): Promise<{ success: true } | { success: false; error: string }> {
   const supabase = await createClient();
 
   // Extraemos los datos actualizados del formulario
