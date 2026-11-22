@@ -60,10 +60,10 @@ describe("LoginPage", () => {
     expect(submitButton).toBeDisabled();
   });
 
-  it("keeps email and shows error message from action state", () => {
+  it("keeps email and shows the inactive-account message from action state", () => {
     useActionStateMock.mockReturnValue([
       {
-        error: "El correo electrónico o la contraseña son incorrectos.",
+        error: "Tu cuenta está inactiva. Contacta al administrador.",
         email: "user@test.com",
       },
       formActionMock,
@@ -76,7 +76,7 @@ describe("LoginPage", () => {
     expect(emailInput.value).toBe("user@test.com");
 
     expect(
-      screen.getByText("El correo electrónico o la contraseña son incorrectos."),
+      screen.getByText("Tu cuenta está inactiva. Contacta al administrador."),
     ).toBeInTheDocument();
   });
 });

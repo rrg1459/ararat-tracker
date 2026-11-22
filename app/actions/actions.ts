@@ -281,7 +281,7 @@ export async function login(prevState: ActionState, formData: FormData): Promise
   const supabase = await createClient();
 
   // 1. Intentar iniciar sesión en Supabase
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
@@ -292,6 +292,45 @@ export async function login(prevState: ActionState, formData: FormData): Promise
 
     return {
       error: "El correo electrónico o la contraseña son incorrectos.",
+      email,
+    };
+  }
+
+  const user = data.user;
+  if (!user) {
+    console.error("Error en login: Supabase no devolvió el usuario autenticado.");
+    return {
+      error: "No se pudo verificar la cuenta. Contacta al administrador.",
+      email,
+    };
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("is_active")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError || !profile || profile.is_active !== true) {
+    if (profileError) {
+      console.error("Error verificando el estado de la cuenta:", profileError.message);
+    } else if (!profile) {
+      console.error("No se encontró el perfil de la cuenta autenticada.");
+    }
+
+    const { error: signOutError } = await supabase.auth.signOut();
+    if (signOutError) {
+      console.error("Error cerrando la sesión de una cuenta sin acceso:", signOutError.message);
+    }
+
+    const message = profileError
+      ? "No se pudo verificar el estado de la cuenta. Contacta al administrador."
+      : !profile
+        ? "No se encontró el perfil de la cuenta. Contacta al administrador."
+        : "Tu cuenta está inactiva. Contacta al administrador.";
+
+    return {
+      error: signOutError ? `${message} No se pudo cerrar la sesión; vuelve a intentarlo.` : message,
       email,
     };
   }

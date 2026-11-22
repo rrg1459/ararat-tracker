@@ -343,10 +343,21 @@ describe("actions", () => {
   });
 
   it("login redirects to home on success", async () => {
-    const signInWithPasswordMock = vi.fn().mockResolvedValue({ error: null });
+    const signInWithPasswordMock = vi.fn().mockResolvedValue({
+      data: { user: { id: "user-1" } },
+      error: null,
+    });
+    const profileMaybeSingleMock = vi.fn().mockResolvedValue({
+      data: { is_active: true },
+      error: null,
+    });
+    const profileEqMock = vi.fn(() => ({ maybeSingle: profileMaybeSingleMock }));
+    const profileSelectMock = vi.fn(() => ({ eq: profileEqMock }));
+    const fromMock = vi.fn(() => ({ select: profileSelectMock }));
 
     createClientMock.mockResolvedValue({
       auth: { signInWithPassword: signInWithPasswordMock },
+      from: fromMock,
     });
 
     await login(null, buildFormData({ email: "ok@test.com", password: "123456" }));
@@ -355,7 +366,45 @@ describe("actions", () => {
       email: "ok@test.com",
       password: "123456",
     });
+    expect(fromMock).toHaveBeenCalledWith("profiles");
+    expect(profileSelectMock).toHaveBeenCalledWith("is_active");
+    expect(profileEqMock).toHaveBeenCalledWith("id", "user-1");
     expect(redirectMock).toHaveBeenCalledWith("/");
+  });
+
+  it("login rejects inactive accounts, signs out and shows a support message", async () => {
+    const signOutMock = vi.fn().mockResolvedValue({ error: null });
+    const profileMaybeSingleMock = vi.fn().mockResolvedValue({
+      data: { is_active: false },
+      error: null,
+    });
+
+    createClientMock.mockResolvedValue({
+      auth: {
+        signInWithPassword: vi.fn().mockResolvedValue({
+          data: { user: { id: "inactive-user" } },
+          error: null,
+        }),
+        signOut: signOutMock,
+      },
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({ maybeSingle: profileMaybeSingleMock })),
+        })),
+      })),
+    });
+
+    const result = await login(
+      null,
+      buildFormData({ email: "inactive@test.com", password: "123456" }),
+    );
+
+    expect(result).toEqual({
+      error: "Tu cuenta está inactiva. Contacta al administrador.",
+      email: "inactive@test.com",
+    });
+    expect(signOutMock).toHaveBeenCalled();
+    expect(redirectMock).not.toHaveBeenCalled();
   });
 
   it("logout signs out and redirects to /login", async () => {
