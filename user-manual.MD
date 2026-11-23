@@ -70,6 +70,8 @@ Acceda mediante el icono de administración del encabezado.
 
 En la pestaña **Personas** puede consultar la lista y el número de asistencias de cada persona, editar las fechas de **primera visita** y **bautismo**, o eliminar un registro.
 
+Para filtrar la lista, busque por nombre, apellido o cédula; el filtro se activa con tres caracteres. La exportación a CSV incluye todas las personas, independientemente de la búsqueda.
+
 > Al eliminar una persona con asistencias, la confirmación advierte que también se borrará su historial.
 
 ### Gestión de usuarios
