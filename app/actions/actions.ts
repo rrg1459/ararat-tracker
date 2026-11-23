@@ -186,6 +186,29 @@ export async function updatePerson(id: string, formData: FormData): Promise<{ su
 
 export async function deletePerson(id: string) {
   const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError) {
+    console.error("Error verifying user before deleting person:", authError.message);
+    return { success: false, error: "No se pudo verificar la sesión." };
+  }
+  if (!user) {
+    return { success: false, error: "No autenticado." };
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    console.error("Error getting user role before deleting person:", profileError.message);
+    return { success: false, error: "No se pudo verificar el rol del usuario." };
+  }
+  if (profile?.role !== "superadmin") {
+    return { success: false, error: "Solo superadmin puede eliminar personas." };
+  }
 
   const { error } = await supabase.from("people").delete().eq("id", id);
 

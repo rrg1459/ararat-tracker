@@ -40,10 +40,12 @@ export default function PersonManagement({
   initialPeople = [],
   canEditDates = false,
   canExport = false,
+  canDelete = false,
 }: {
   initialPeople?: People[];
   canEditDates?: boolean;
   canExport?: boolean;
+  canDelete?: boolean;
 }) {
   const [peopleList, setPeopleList] = useState<People[]>(initialPeople);
   const [searchTerm, setSearchTerm] = useState("");
@@ -142,7 +144,11 @@ export default function PersonManagement({
     try {
       setIsDeletingId(id);
       // Ejecuta la acción del servidor
-      await deletePerson(id);
+      const result = await deletePerson(id);
+      if (!result.success) {
+        alert(`No se pudo eliminar a la persona: ${result.error}`);
+        return;
+      }
       // Filtra el estado local si la acción fue exitosa
       setPeopleList(prev => prev.filter(p => p.id !== id));
     } catch (error) {
@@ -349,7 +355,7 @@ export default function PersonManagement({
                   </div>
 
                   {/* ACCIONES: ELIMINAR */}
-                  {(() => {
+                  {canDelete && (() => {
                     // Aseguramos el valor numérico (puedes usar directamente person.attendance_count si ya es número)
                     const hasAttendance = (person.attendance_count ?? 0) > 0;
 

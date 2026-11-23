@@ -338,6 +338,7 @@ describe("DashboardClient", () => {
       initialPeople: makePeople(),
       canEditDates: true,
       canExport: false,
+      canDelete: false,
     });
   });
 
@@ -358,6 +359,7 @@ describe("DashboardClient", () => {
       initialPeople: makePeople(),
       canEditDates: true,
       canExport: true,
+      canDelete: true,
     });
   });
 

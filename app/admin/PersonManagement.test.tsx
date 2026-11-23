@@ -89,6 +89,7 @@ describe("PersonManagement", () => {
           makePerson({ id: "p-2", id_number: "V-456", first_name: "Luis", last_name: "Mora" }),
         ]}
         canEditDates
+        canDelete
       />,
     );
     const search = screen.getByRole("textbox", { name: "Buscar Persona" });
@@ -141,6 +142,7 @@ describe("PersonManagement", () => {
           initialPeople={[person, makePerson({ id: "p-delete", first_name: "Luis" })]}
           canExport
           canEditDates
+          canDelete
         />,
       );
       expect(screen.getByRole("button", { name: "Exportar a CSV" })).toHaveClass("hidden", "lg:inline-flex");
@@ -271,12 +273,19 @@ describe("PersonManagement", () => {
     expect(screen.queryByRole("button", { name: "Editar fechas" })).not.toBeInTheDocument();
   });
 
+  it("hides deletion without permission", () => {
+    render(<PersonManagement initialPeople={[makePerson()]} canEditDates />);
+
+    expect(screen.queryByRole("button", { name: "Eliminar" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Editar fechas" })).toBeInTheDocument();
+  });
+
   it("does not delete when user cancels confirmation", async () => {
     const user = userEvent.setup();
     (window.confirm as unknown as ReturnType<typeof vi.fn>).mockReturnValueOnce(false);
 
     const person = makePerson();
-    render(<PersonManagement initialPeople={[person]} />);
+    render(<PersonManagement initialPeople={[person]} canDelete />);
 
     await user.click(screen.getByRole("button", { name: "Eliminar" }));
 
@@ -288,7 +297,7 @@ describe("PersonManagement", () => {
     const user = userEvent.setup();
     const person = makePerson({ id: "p-del", attendance_count: 0 });
 
-    render(<PersonManagement initialPeople={[person]} />);
+    render(<PersonManagement initialPeople={[person]} canDelete />);
 
     await user.click(screen.getByRole("button", { name: "Eliminar" }));
 
@@ -304,7 +313,7 @@ describe("PersonManagement", () => {
     const user = userEvent.setup();
     const person = makePerson({ id: "p-hist", attendance_count: 5 });
 
-    render(<PersonManagement initialPeople={[person]} />);
+    render(<PersonManagement initialPeople={[person]} canDelete />);
 
     await user.click(screen.getByRole("button", { name: "Eliminar" }));
 
@@ -319,7 +328,7 @@ describe("PersonManagement", () => {
     deletePersonMock.mockRejectedValueOnce(new Error("db error"));
 
     const person = makePerson({ id: "p-err" });
-    render(<PersonManagement initialPeople={[person]} />);
+    render(<PersonManagement initialPeople={[person]} canDelete />);
 
     await user.click(screen.getByRole("button", { name: "Eliminar" }));
 
@@ -329,5 +338,18 @@ describe("PersonManagement", () => {
 
     expect(screen.getByText("Ana Perez")).toBeInTheDocument();
     expect(console.error).toHaveBeenCalled();
+  });
+
+  it("shows a server error and keeps the person when deletion is rejected", async () => {
+    deletePersonMock.mockResolvedValueOnce({ success: false, error: "Solo superadmin puede eliminar personas." });
+    render(<PersonManagement initialPeople={[makePerson()]} canDelete />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Eliminar" }));
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith(
+        "No se pudo eliminar a la persona: Solo superadmin puede eliminar personas.",
+      );
+    });
+    expect(screen.getByText("Ana Perez")).toBeInTheDocument();
   });
 });

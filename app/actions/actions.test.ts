@@ -253,7 +253,10 @@ describe("actions", () => {
     const deleteMock = vi.fn(() => ({ eq: eqMock }));
 
     createClientMock.mockResolvedValue({
-      from: vi.fn(() => ({ delete: deleteMock })),
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } }, error: null }) },
+      from: vi.fn((table: string) => table === "profiles"
+        ? { select: () => ({ eq: () => ({ maybeSingle: vi.fn().mockResolvedValue({ data: { role: "superadmin" }, error: null }) }) }) }
+        : { delete: deleteMock }),
     });
 
     const result = await deletePerson("person-44");
@@ -262,6 +265,42 @@ describe("actions", () => {
     expect(eqMock).toHaveBeenCalledWith("id", "person-44");
     expect(revalidatePathMock).toHaveBeenCalledWith("/");
     expect(result).toEqual({ success: true });
+  });
+
+  it.each(["admin", "operator", null])("deletePerson rejects role %s", async (role) => {
+    const deleteMock = vi.fn();
+    createClientMock.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } }, error: null }) },
+      from: vi.fn((table: string) => table === "profiles"
+        ? { select: () => ({ eq: () => ({ maybeSingle: vi.fn().mockResolvedValue({ data: role ? { role } : null, error: null }) }) }) }
+        : { delete: deleteMock }),
+    });
+
+    expect(await deletePerson("person-44")).toEqual({
+      success: false,
+      error: "Solo superadmin puede eliminar personas.",
+    });
+    expect(deleteMock).not.toHaveBeenCalled();
+  });
+
+  it("deletePerson rejects unauthenticated users and profile lookup failures", async () => {
+    const from = vi.fn();
+    createClientMock.mockResolvedValueOnce({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }) },
+      from,
+    });
+    expect(await deletePerson("person-44")).toEqual({ success: false, error: "No autenticado." });
+    expect(from).not.toHaveBeenCalled();
+
+    const deleteMock = vi.fn();
+    createClientMock.mockResolvedValueOnce({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } }, error: null }) },
+      from: vi.fn((table: string) => table === "profiles"
+        ? { select: () => ({ eq: () => ({ maybeSingle: vi.fn().mockResolvedValue({ data: null, error: { message: "profile error" } }) }) }) }
+        : { delete: deleteMock }),
+    });
+    expect(await deletePerson("person-44")).toEqual({ success: false, error: "No se pudo verificar el rol del usuario." });
+    expect(deleteMock).not.toHaveBeenCalled();
   });
 
   it("saveAttendance calls RPC with date and ids", async () => {
