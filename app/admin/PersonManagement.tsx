@@ -6,6 +6,7 @@ import { es } from "date-fns/locale";
 // Importa tu acción del servidor para eliminar
 import { deletePerson } from "../actions/actions";
 import { adminUpdatePersonDates } from "../actions/admin-actions";
+import PersonSearch, { filterPeopleBySearch, isPersonSearchActive } from "../components/PersonSearch";
 import { getRoleBadge } from "../utils/person-role-badge";
 
 export interface People {
@@ -45,11 +46,13 @@ export default function PersonManagement({
   canExport?: boolean;
 }) {
   const [peopleList, setPeopleList] = useState<People[]>(initialPeople);
+  const [searchTerm, setSearchTerm] = useState("");
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const [editingDatesId, setEditingDatesId] = useState<string | null>(null);
   const [firstVisitDate, setFirstVisitDate] = useState("");
   const [baptizedAt, setBaptizedAt] = useState("");
   const [isSavingDates, setIsSavingDates] = useState(false);
+  const filteredPeople = filterPeopleBySearch(peopleList, searchTerm);
 
   const handleExport = () => {
     const columns = [
@@ -172,11 +175,21 @@ export default function PersonManagement({
           )}
         </div>
 
+        <PersonSearch value={searchTerm} onChange={setSearchTerm} />
+        {isPersonSearchActive(searchTerm) && (
+          <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-2">
+            Resultados: {filteredPeople.length}
+          </p>
+        )}
         <div className="flex flex-col gap-3 max-h-[700px] overflow-y-auto pr-2">
           {peopleList.length === 0 ? (
             <p className="text-zinc-500 text-sm italic py-4 text-center">No hay personas registradas aún.</p>
+          ) : filteredPeople.length === 0 ? (
+            <p className="text-zinc-500 italic text-sm text-center py-6 dark:text-zinc-400">
+              No se encontraron personas que coincidan con la búsqueda
+            </p>
           ) : (
-            peopleList.map((person) => {
+            filteredPeople.map((person) => {
               // --- LÓGICA PARA CALCULAR LA EDAD ---
               let age: number | null = null;
               if (person.birth_date) {

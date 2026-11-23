@@ -81,6 +81,44 @@ describe("PersonManagement", () => {
     expect(screen.queryByRole("button", { name: "Exportar a CSV" })).not.toBeInTheDocument();
   });
 
+  it("filters people and keeps date editing and deletion available for results", async () => {
+    render(
+      <PersonManagement
+        initialPeople={[
+          makePerson(),
+          makePerson({ id: "p-2", id_number: "V-456", first_name: "Luis", last_name: "Mora" }),
+        ]}
+        canEditDates
+      />,
+    );
+    const search = screen.getByRole("textbox", { name: "Buscar Persona" });
+
+    fireEvent.change(search, { target: { value: "an" } });
+    expect(screen.getByText("Escribe al menos 3 caracteres para activar el filtro.")).toBeInTheDocument();
+    expect(screen.getByText("Ana Perez")).toBeInTheDocument();
+    expect(screen.getByText("Luis Mora")).toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "MOR" } });
+    expect(screen.getByText("Resultados: 1")).toBeInTheDocument();
+    expect(screen.getByText("Luis Mora")).toBeInTheDocument();
+    expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Editar fechas" }));
+    fireEvent.change(screen.getByLabelText("Primera visita"), { target: { value: "2025-03-10" } });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+    await waitFor(() => expect(screen.getByText("Primera visita: 2025-03-10")).toBeInTheDocument());
+
+    fireEvent.change(search, { target: { value: "123" } });
+    expect(screen.getByText("Ana Perez")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Eliminar" }));
+    await waitFor(() => expect(screen.getByText("Resultados: 0")).toBeInTheDocument());
+    expect(screen.getByText("No se encontraron personas que coincidan con la búsqueda")).toBeInTheDocument();
+    expect(screen.getByText("Personas Registradas (1)")).toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "" } });
+    expect(screen.getByText("Luis Mora")).toBeInTheDocument();
+    expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
+  });
+
   it("exports the current list as a safely escaped CSV", async () => {
     const user = userEvent.setup();
     const createObjectURL = vi.fn().mockReturnValue("blob:personas");
@@ -113,6 +151,8 @@ describe("PersonManagement", () => {
       await user.clear(screen.getByLabelText("Primera visita"));
       await user.click(screen.getByRole("button", { name: "Guardar" }));
       await waitFor(() => expect(screen.queryByLabelText("Primera visita")).not.toBeInTheDocument());
+      fireEvent.change(screen.getByRole("textbox", { name: "Buscar Persona" }), { target: { value: "xyz" } });
+      expect(screen.getByText("Resultados: 0")).toBeInTheDocument();
 
       vi.setSystemTime(new Date(1967, 7, 10, 12));
       try {
