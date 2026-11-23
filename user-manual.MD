@@ -1,4 +1,10 @@
-# Control de Asistencia de Ararat (Manual de usuario)
+<div style="display: flex; justify-content: center; align-items: center; gap: 16px;">
+  <img src="public/ararat.png" alt="Logo de Iglesia Ararat" width="90">
+  <div>
+    <h2>Control de Asistencia de Ararat</h2>
+    <h2>(Manual de usuario)</h2>
+  </div>
+</div>
 
 ## [https://ararat-tracker.vercel.app](https://ararat-tracker.vercel.app)
 
