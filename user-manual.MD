@@ -47,6 +47,8 @@ Las personas marcadas aparecen primero. El contador **Asistentes** muestra cuán
 
 Para encontrar una persona en la lista, busque por nombre, apellido o cédula; el filtro se activa con tres caracteres. Para modificar un registro, pulse **Editar** junto a la persona, cambie sus datos y seleccione **Actualizar**.
 
+En celulares el formulario de registro está oculto inicialmente; pulse **Mostrar registro de nueva persona** para abrirlo. Al editar una persona, el formulario se muestra automáticamente y el botón para ocultarlo desaparece hasta actualizar o cancelar la edición.
+
 Los tipos **Miembro** y **Líder** tienen requisitos de edad y otras condiciones que el formulario indica cuando no se cumplen.
 
 **Asistencia automática:** cuando un operator o admin crea una persona, el sistema intenta registrar también su asistencia. Si falla, muestra un aviso indicando que la persona fue creada pero la asistencia no se guardó. Para superadmin no se crea esa asistencia automáticamente.
