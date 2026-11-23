@@ -68,7 +68,7 @@ Acceda mediante el icono de administración del encabezado.
 
 ### Gestión de personas
 
-En la pestaña **Personas** puede consultar la lista y el número de asistencias de cada persona, editar las fechas de **primera visita** y **bautismo**, o eliminar un registro.
+En la pestaña **Personas** puede consultar la lista y el número de asistencias de cada persona y editar las fechas de **primera visita** y **bautismo**. Solo superadmin puede eliminar registros.
 
 Para filtrar la lista, busque por nombre, apellido o cédula; el filtro se activa con tres caracteres. La exportación a CSV incluye todas las personas, independientemente de la búsqueda.
 
