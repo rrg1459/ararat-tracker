@@ -157,6 +157,67 @@ describe("PeopleManager", () => {
     expect(screen.getByTestId("birth-date-picker")).toHaveAttribute("data-locale", "es");
   });
 
+  it("toggles the registration form on mobile without losing its contents", () => {
+    render(<PeopleManager initialPeople={[]} />);
+    const toggle = screen.getByRole("button", { name: "Mostrar registro de nueva persona" });
+    const section = document.getElementById("person-form-section");
+
+    expect(toggle).toHaveClass("sm:hidden");
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(section).toHaveClass("hidden", "sm:block");
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    fireEvent.change(getInputByName("first_name"), { target: { value: "Ana" } });
+    fireEvent.click(toggle);
+
+    expect(toggle).toHaveTextContent("Mostrar registro de nueva persona");
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(section).toHaveClass("hidden", "sm:block");
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(section).not.toHaveClass("hidden");
+    expect(getInputByName("first_name")).toHaveValue("Ana");
+  });
+
+  it("opens the hidden form for editing and prevents hiding until the update succeeds or is cancelled", async () => {
+    const { container } = render(<PeopleManager initialPeople={[makePerson()]} />);
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+
+    expect(screen.queryByRole("button", { name: /(?:Ocultar|Mostrar) registro de nueva persona/ })).not.toBeInTheDocument();
+    expect(document.getElementById("person-form-section")).not.toHaveClass("hidden");
+    expect(getInputByName("first_name")).toHaveValue("Ana");
+
+    updatePersonMock.mockResolvedValueOnce({ success: false, error: "No se pudo actualizar." });
+    const form = container.querySelector("form") as HTMLFormElement;
+    await act(async () => {
+      await getFormAction(form)(new FormData(form));
+    });
+    expect(screen.getByRole("alert")).toHaveTextContent("No se pudo actualizar.");
+    expect(screen.queryByRole("button", { name: /(?:Ocultar|Mostrar) registro de nueva persona/ })).not.toBeInTheDocument();
+
+    let finishUpdate!: (result: { success: boolean }) => void;
+    updatePersonMock.mockReturnValueOnce(new Promise((resolve) => {
+      finishUpdate = resolve;
+    }));
+    let update!: Promise<void>;
+    act(() => {
+      update = getFormAction(form)(new FormData(form));
+    });
+    expect(screen.queryByRole("button", { name: /(?:Ocultar|Mostrar) registro de nueva persona/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cancelar" })).toBeDisabled();
+    await act(async () => {
+      finishUpdate({ success: true });
+      await update;
+    });
+    expect(screen.getByRole("button", { name: "Ocultar registro de nueva persona" })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+    expect(screen.queryByRole("button", { name: /(?:Ocultar|Mostrar) registro de nueva persona/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+    expect(screen.getByRole("button", { name: "Ocultar registro de nueva persona" })).toBeEnabled();
+  });
+
   it("filters registered people by name, surname or ID and allows editing a result", () => {
     render(
       <PeopleManager initialPeople={[

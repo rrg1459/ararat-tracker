@@ -39,6 +39,8 @@ interface Person {
 export default function PeopleManager({ initialPeople, rangeMember, rangeLeader }: { initialPeople: Person[]; rangeMember?: { min: number; max: number }; rangeLeader?: { min: number; max: number } }) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [editingPerson, setEditingPerson] = useState<Person | null>(null);
+  const [formVisible, setFormVisible] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [personType, setPersonType] = useState<string>("visitor");
   const [submissionError, setSubmissionError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -205,12 +207,17 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
     }
 
     if (editingPerson) {
-      const result = await updatePerson(editingPerson.id, formData);
-      if (!result.success) {
-        setSubmissionError(result.error);
-        return;
+      setIsUpdating(true);
+      try {
+        const result = await updatePerson(editingPerson.id, formData);
+        if (!result.success) {
+          setSubmissionError(result.error);
+          return;
+        }
+        setEditingPerson(null);
+      } finally {
+        setIsUpdating(false);
       }
-      setEditingPerson(null);
     } else {
       const result = await registerPerson(formData);
       if (!result.success) {
@@ -240,6 +247,7 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
 
   function handleEditClick(person: Person) {
     clearSuccessMessage();
+    setFormVisible(true);
     setEditingPerson(person);
 
     if (formRef.current) {
@@ -303,7 +311,18 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
     <main className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
 
       {/* COLUMNA 1: FORMULARIO */}
-      <section className="lg:col-span-7 bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700">
+      {!editingPerson && !isUpdating && (
+        <button
+          type="button"
+          aria-controls="person-form-section"
+          aria-expanded={formVisible}
+          onClick={() => setFormVisible((visible) => !visible)}
+          className="sm:hidden rounded-md bg-zinc-200 px-4 py-2 font-semibold text-zinc-800 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-600"
+        >
+          {formVisible ? "Ocultar registro de nueva persona" : "Mostrar registro de nueva persona"}
+        </button>
+      )}
+      <section id="person-form-section" className={`${formVisible ? "" : "hidden sm:block"} lg:col-span-7 bg-white p-6 rounded-xl shadow-xs border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-700`}>
         <h2 className="text-md sm:text-xl font-bold mb-4 text-zinc-800 dark:text-zinc-200">
           {editingPerson ? `Editando: ${editingPerson.first_name}` : "Registro de Nueva Persona"}
         </h2>
@@ -489,8 +508,8 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
           <div className="flex flex-col sm:flex-row gap-2 mt-2">
             <button
               type="submit"
-              disabled={Boolean(roleValidationMessage)}
-              className={`flex-1 text-white p-2 rounded-md font-semibold transition-colors ${roleValidationMessage ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${editingPerson ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'}`}
+              disabled={Boolean(roleValidationMessage) || isUpdating}
+              className={`flex-1 text-white p-2 rounded-md font-semibold transition-colors ${roleValidationMessage || isUpdating ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${editingPerson ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
               {editingPerson ? "Actualizar" : "Guardar Persona"}
             </button>
@@ -499,7 +518,8 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
               <button
                 type="button"
                 onClick={handleCancelEdit}
-                className="bg-zinc-300 text-zinc-700 px-3 py-2 rounded-md font-semibold hover:bg-zinc-400 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600 cursor-pointer"
+                disabled={isUpdating}
+                className="bg-zinc-300 text-zinc-700 px-3 py-2 rounded-md font-semibold hover:bg-zinc-400 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Cancelar
               </button>
@@ -615,7 +635,8 @@ export default function PeopleManager({ initialPeople, rangeMember, rangeLeader 
 
                   <button
                     onClick={() => handleEditClick(person)}
-                    className="text-xs bg-white text-zinc-700 border border-zinc-300 px-3 py-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-600 dark:text-zinc-200 dark:border-zinc-500 dark:hover:bg-zinc-500 transition-colors cursor-pointer font-medium whitespace-nowrap"
+                    disabled={isUpdating}
+                    className="text-xs bg-white text-zinc-700 border border-zinc-300 px-3 py-1.5 rounded-md hover:bg-zinc-100 dark:bg-zinc-600 dark:text-zinc-200 dark:border-zinc-500 dark:hover:bg-zinc-500 transition-colors cursor-pointer font-medium whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {editingPerson && editingPerson.id === person.id ? "Editando" : "Editar"}
                   </button>
