@@ -32,6 +32,7 @@ vi.mock("react-datepicker", () => ({
     showMonthDropdown,
     showYearDropdown,
     dropdownMode,
+    customInput,
   }: {
     selected: Date | null;
     onChange: (date: Date | null) => void;
@@ -40,6 +41,7 @@ vi.mock("react-datepicker", () => ({
     showMonthDropdown?: boolean;
     showYearDropdown?: boolean;
     dropdownMode?: string;
+    customInput?: React.ReactElement<{ inputMode?: string }>;
   }) => (
     <button
       type="button"
@@ -50,6 +52,7 @@ vi.mock("react-datepicker", () => ({
       data-month-dropdown={showMonthDropdown}
       data-year-dropdown={showYearDropdown}
       data-dropdown-mode={dropdownMode}
+      data-input-mode={customInput?.props.inputMode}
       disabled={disabled}
       onClick={() => onChange(new Date(2026, 6, 15))}
     >
@@ -316,7 +319,7 @@ describe("AttendanceClient", () => {
     expect(screen.getByRole("textbox", { name: "Buscar Persona" })).toHaveValue("");
   });
 
-  it("allows selecting the month and year in the date picker", () => {
+  it("allows graphical date selection without opening the mobile keyboard", () => {
     render(
       <AttendanceClient
         people={makePeople()}
@@ -331,6 +334,7 @@ describe("AttendanceClient", () => {
     expect(datePicker).toHaveAttribute("data-month-dropdown", "true");
     expect(datePicker).toHaveAttribute("data-year-dropdown", "true");
     expect(datePicker).toHaveAttribute("data-dropdown-mode", "select");
+    expect(datePicker).toHaveAttribute("data-input-mode", "none");
   });
 
   it("clears success message automatically after timeout", async () => {
