@@ -164,6 +164,9 @@ export default function AttendanceClient({ people, initialLogs, currentDate, ser
             dateFormat="dd/MMM/yyyy"
             placeholderText="Elige un día"
             locale="es"
+            showMonthDropdown
+            showYearDropdown
+            dropdownMode="select"
             maxDate={new Date()}
             disabled={isPending} // Deshabilitar el input temporalmente mientras procesa
             dayClassName={(date) => {

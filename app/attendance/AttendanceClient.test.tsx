@@ -24,13 +24,32 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("react-datepicker", () => ({
   registerLocale: registerLocaleMock,
-  default: ({ selected, onChange, disabled, dayClassName }: { selected: Date | null; onChange: (date: Date | null) => void; disabled?: boolean; dayClassName: (date: Date) => string }) => (
+  default: ({
+    selected,
+    onChange,
+    disabled,
+    dayClassName,
+    showMonthDropdown,
+    showYearDropdown,
+    dropdownMode,
+  }: {
+    selected: Date | null;
+    onChange: (date: Date | null) => void;
+    disabled?: boolean;
+    dayClassName: (date: Date) => string;
+    showMonthDropdown?: boolean;
+    showYearDropdown?: boolean;
+    dropdownMode?: string;
+  }) => (
     <button
       type="button"
       data-testid="datepicker"
       data-selected={selected ? toDateString(selected) : ""}
       data-weekday-class={dayClassName(new Date(2026, 6, 15))}
       data-weekend-class={dayClassName(new Date(2026, 6, 19))}
+      data-month-dropdown={showMonthDropdown}
+      data-year-dropdown={showYearDropdown}
+      data-dropdown-mode={dropdownMode}
       disabled={disabled}
       onClick={() => onChange(new Date(2026, 6, 15))}
     >
@@ -295,6 +314,23 @@ describe("AttendanceClient", () => {
 
     expect(pushMock).toHaveBeenCalledWith(`?view=attendance&local_today=${todayString}&date=2026-07-15`);
     expect(screen.getByRole("textbox", { name: "Buscar Persona" })).toHaveValue("");
+  });
+
+  it("allows selecting the month and year in the date picker", () => {
+    render(
+      <AttendanceClient
+        people={makePeople()}
+        initialLogs={[]}
+        currentDate={toDateString(new Date())}
+        serverToday={toDateString(new Date())}
+        attendanceDates={[]}
+      />,
+    );
+
+    const datePicker = screen.getByTestId("datepicker");
+    expect(datePicker).toHaveAttribute("data-month-dropdown", "true");
+    expect(datePicker).toHaveAttribute("data-year-dropdown", "true");
+    expect(datePicker).toHaveAttribute("data-dropdown-mode", "select");
   });
 
   it("clears success message automatically after timeout", async () => {
