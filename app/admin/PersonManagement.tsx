@@ -1,13 +1,17 @@
 'use client'
 
 import { useState } from "react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
+import DatePicker, { registerLocale } from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 // Importa tu acción del servidor para eliminar
 import { deletePerson } from "../actions/actions";
 import { adminUpdatePersonDates } from "../actions/admin-actions";
 import PersonSearch, { filterPeopleBySearch, isPersonSearchActive } from "../components/PersonSearch";
 import { getRoleBadge } from "../utils/person-role-badge";
+
+registerLocale("es", es);
 
 export interface People {
   id: string;
@@ -253,20 +257,38 @@ export default function PersonManagement({
                           <div className="flex flex-wrap items-end gap-2">
                             <label className="flex flex-col gap-1 text-[11px] text-zinc-600 dark:text-zinc-300">
                               Primera visita
-                              <input
-                                type="date"
-                                value={firstVisitDate}
-                                onChange={(event) => setFirstVisitDate(event.target.value)}
-                                className="rounded border border-zinc-300 bg-white px-2 py-1 text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                              <DatePicker
+                                selected={firstVisitDate ? parseISO(firstVisitDate) : null}
+                                onChange={(date: Date | null) => setFirstVisitDate(date ? format(date, "yyyy-MM-dd") : "")}
+                                dateFormat="dd/MMM/yyyy"
+                                placeholderText="Elige una fecha"
+                                locale="es"
+                                showMonthDropdown
+                                showYearDropdown
+                                dropdownMode="select"
+                                customInput={<input inputMode="none" />}
+                                maxDate={new Date()}
+                                isClearable
+                                aria-label="Primera visita"
+                                className="w-full rounded border border-zinc-300 bg-white px-2 py-1 text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                               />
                             </label>
                             <label className="flex flex-col gap-1 text-[11px] text-zinc-600 dark:text-zinc-300">
                               Bautizado el
-                              <input
-                                type="date"
-                                value={baptizedAt}
-                                onChange={(event) => setBaptizedAt(event.target.value)}
-                                className="rounded border border-zinc-300 bg-white px-2 py-1 text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                              <DatePicker
+                                selected={baptizedAt ? parseISO(baptizedAt) : null}
+                                onChange={(date: Date | null) => setBaptizedAt(date ? format(date, "yyyy-MM-dd") : "")}
+                                dateFormat="dd/MMM/yyyy"
+                                placeholderText="Elige una fecha"
+                                locale="es"
+                                showMonthDropdown
+                                showYearDropdown
+                                dropdownMode="select"
+                                customInput={<input inputMode="none" />}
+                                maxDate={new Date()}
+                                isClearable
+                                aria-label="Bautizado el"
+                                className="w-full rounded border border-zinc-300 bg-white px-2 py-1 text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                               />
                             </label>
                             <button

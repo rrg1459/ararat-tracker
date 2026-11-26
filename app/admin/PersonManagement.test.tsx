@@ -20,6 +20,29 @@ vi.mock("../utils/person-role-badge", () => ({
   getRoleBadge: getRoleBadgeMock,
 }));
 
+vi.mock("react-datepicker", () => ({
+  registerLocale: vi.fn(),
+  default: ({
+    selected,
+    onChange,
+    customInput,
+    "aria-label": ariaLabel,
+  }: {
+    selected: Date | null;
+    onChange: (date: Date | null) => void;
+    customInput?: React.ReactElement<{ inputMode?: string }>;
+    "aria-label"?: string;
+  }) => (
+    <input
+      type="date"
+      aria-label={ariaLabel}
+      inputMode={customInput?.props.inputMode}
+      value={selected ? `${selected.getFullYear()}-${String(selected.getMonth() + 1).padStart(2, "0")}-${String(selected.getDate()).padStart(2, "0")}` : ""}
+      onChange={(event) => onChange(event.target.value ? new Date(`${event.target.value}T00:00:00`) : null)}
+    />
+  ),
+}));
+
 import PersonManagement, { type People } from "./PersonManagement";
 
 function makePerson(overrides: Partial<People> = {}): People {
@@ -104,7 +127,10 @@ describe("PersonManagement", () => {
     expect(screen.getByText("Luis Mora")).toBeInTheDocument();
     expect(screen.queryByText("Ana Perez")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Editar fechas" }));
-    fireEvent.change(screen.getByLabelText("Primera visita"), { target: { value: "2025-03-10" } });
+    const firstVisitInput = screen.getByLabelText("Primera visita");
+    expect(firstVisitInput).toHaveAttribute("inputmode", "none");
+    fireEvent.change(firstVisitInput, { target: { value: "2025-03-10" } });
+    expect(screen.getByLabelText("Bautizado el")).toHaveAttribute("inputmode", "none");
     fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
     await waitFor(() => expect(screen.getByText("Primera visita: 2025-03-10")).toBeInTheDocument());
 
